@@ -1,0 +1,286 @@
+import { useEffect, useRef } from "react";
+import html2canvas from "html2canvas";
+import { colorScheme } from "../../models/UI/Color";
+import { RadarDataPoint } from "../../models/patient/patientReport";
+import { Questions } from "../../models/patient/patientDetails";
+
+interface RadarChartPDFProps {
+  onImageGenerated: (img: string) => void;
+  radarData: RadarDataPoint[];
+}
+
+const maxValue = 5;
+const levels = 5;
+const radius = 160;
+const cx = 400;
+const cy = 350;
+
+const angleForIndex = (i: number, total: number) =>
+  (Math.PI * 2 * i) / total - Math.PI / 2;
+
+const getPoint = (angle: number, value: number, scale: number) => {
+  const r = (value / scale) * radius;
+  return {
+    x: cx + r * Math.cos(angle),
+    y: cy + r * Math.sin(angle),
+  };
+};
+
+const RadarChartCustom: React.FC<RadarChartPDFProps> = ({
+  onImageGenerated,
+  radarData,
+}) => {
+  const chartRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!chartRef.current) return;
+    html2canvas(chartRef.current, { scale: 0.7 }).then((canvas) => {
+      const image = canvas.toDataURL("image/png");
+      onImageGenerated(image);
+    });
+  }, []);
+
+  const levelPolygons = Array.from({ length: levels }, (_, levelIndex) => {
+    const levelValue = ((levelIndex + 1) / levels) * maxValue;
+    const points = radarData
+      .map((_, i) => {
+        const angle = angleForIndex(i, 5);
+        const { x, y } = getPoint(angle, levelValue, maxValue);
+        return `${x},${y}`;
+      })
+      .join(" ");
+    return (
+      <polygon
+        key={levelIndex}
+        points={points}
+        fill="none"
+        stroke={colorScheme[colorScheme.length - 1 - levelIndex]}
+        strokeWidth={1}
+        strokeOpacity={0.7}
+        strokeDasharray="4"
+      />
+    );
+  });
+
+  const axisLines = radarData.map((_, i) => {
+    const angle = angleForIndex(i, radarData.length);
+    // Axis line to stop at innermost red polygon
+    const start = getPoint(angle, 1, maxValue); // start from innermost polygon
+    const end = getPoint(angle, maxValue, maxValue); // end at chart edge
+    return (
+      <line
+        key={i}
+        x1={start.x}
+        y1={start.y}
+        x2={end.x}
+        y2={end.y}
+        stroke="#aaa"
+        strokeWidth={1}
+      />
+    );
+  });
+
+  const getQuestionByName = (name: string): string | undefined => {
+    const found = Questions.find((q) => q.name === name);
+    return found ? found.question : undefined;
+  };
+
+  const formatLabel = (variableName: string) => {
+    const label = getQuestionByName(variableName) || variableName;
+    const trimmed = label.startsWith("Your ")
+      ? label.replace("Your ", "")
+      : label;
+    const noQuestionMark = trimmed.replace(/\?$/, "");
+    return noQuestionMark.charAt(0).toUpperCase() + noQuestionMark.slice(1);
+  };
+
+  const labelOffset = radius + 130;
+  const labels = radarData.map((d, i) => {
+    const angle = angleForIndex(i, radarData.length);
+    const { x, y } = getPoint(angle, labelOffset, radius);
+    const mainLabel = formatLabel(d.variableName);
+
+    const isTooLong = mainLabel.length > 20;
+    const splitPoint = mainLabel.lastIndexOf(
+      " ",
+      Math.floor(mainLabel.length / 2)
+    );
+
+    const line1 = isTooLong ? mainLabel.slice(0, splitPoint) : mainLabel;
+    const line2 = isTooLong ? mainLabel.slice(splitPoint + 1) : "";
+
+    return (
+      <text
+        key={i}
+        x={x}
+        y={y}
+        fontSize={18}
+        textAnchor="middle"
+        dominantBaseline="middle"
+        fill="#333"
+      >
+        <tspan x={x} dy="0">
+          {line1}
+        </tspan>
+        {isTooLong && (
+          <tspan x={x} dy="1.2em">
+            {line2}
+          </tspan>
+        )}
+        <tspan x={x} dy="1.2em">
+          ({d.n} similar patients)
+        </tspan>
+      </text>
+    );
+  });
+
+  const makeDataPolygon = (
+    data: RadarDataPoint[],
+    valueKey: "initial" | "median",
+    axisCount: number,
+    maxValue: number
+  ): string[] => {
+    if (valueKey === "initial") {
+      return data.map((d, i) => {
+        const angle = angleForIndex(i, axisCount);
+        const invertedValue = maxValue - d[valueKey];
+        const { x, y } = getPoint(angle, invertedValue, maxValue);
+        return `${x},${y}`;
+      });
+    }
+
+    if (data.length < 5) {
+      return [];
+    }
+
+    const segments: string[] = [];
+    let currentSegment: string[] = [];
+
+    const points = data.map((d, i) => {
+      const angle = angleForIndex(i, axisCount);
+      const invertedValue = maxValue - d[valueKey];
+      const { x, y } = getPoint(angle, invertedValue, maxValue);
+      return { index: i, coord: `${x},${y}`, n: d.n };
+    });
+
+    const firstPoint = points[0];
+    const lastOriginalPoint = points[points.length - 1];
+    points.push(firstPoint);
+
+    const isValid = (point: { n: number }) => point.n > 0;
+
+    for (let i = 0; i < points.length; i++) {
+      const point = points[i];
+
+      if (isValid(point)) {
+        currentSegment.push(point.coord);
+      } else {
+        if (currentSegment.length > 0) {
+          segments.push(currentSegment.join(" "));
+          currentSegment = [];
+        }
+      }
+    }
+
+    if (currentSegment.length > 0) {
+      if (isValid(firstPoint) && isValid(lastOriginalPoint)) {
+        // Merge last segment with first if both ends are valid
+        if (segments.length > 0) {
+          const firstSegmentCoords = segments[0].split(" ");
+          const mergedSegment = [...currentSegment, ...firstSegmentCoords].join(
+            " "
+          );
+          segments[0] = mergedSegment;
+        } else {
+          segments.push(currentSegment.join(" "));
+        }
+      } else {
+        // No wraparound, just push last segment
+        segments.push(currentSegment.join(" "));
+      }
+    }
+
+    return segments;
+  };
+
+  const initialPolygon = makeDataPolygon(
+    radarData,
+    "initial",
+    radarData.length,
+    maxValue
+  );
+  const medianPolygon = makeDataPolygon(
+    radarData,
+    "median",
+    radarData.length,
+    maxValue
+  );
+
+  return (
+    <div ref={chartRef} style={{ width: "800px", height: "700px" }}>
+      <svg width={800} height={700}>
+        <g>
+          {/* Grid levels */}
+          {levelPolygons}
+
+          {/* Axis lines */}
+          {axisLines}
+
+          {/* Axis labels */}
+          {labels}
+
+          {/* Data polygon */}
+          <polygon
+            points={initialPolygon.join(" ")}
+            fill="none"
+            fillOpacity={0.6}
+            stroke="#00BFFF"
+            strokeWidth={3}
+          />
+          {initialPolygon.map((point, index) => {
+            const [x, y] = point.split(",").map((coord) => coord.trim());
+
+            return (
+              <circle
+                key={index}
+                cx={parseFloat(x)}
+                cy={parseFloat(y)}
+                r={6} // Radius of the node
+                fill="#00BFFF"
+              />
+            );
+          })}
+
+          {medianPolygon.map((segment, i) => (
+            <polyline
+              key={i}
+              points={segment}
+              fill="none"
+              fillOpacity={0.6}
+              stroke="#003f5c"
+              strokeWidth={3}
+            />
+          ))}
+
+          {/* Render nodes at each point */}
+          {medianPolygon.map((segment, i) => {
+            return segment.split(" ").map((point, j) => {
+              const [x, y] = point.split(",");
+              return (
+                <circle
+                  key={`${i}-${j}`}
+                  cx={parseFloat(x)}
+                  cy={parseFloat(y)}
+                  r={6}
+                  fill="#003f5c"
+                />
+              );
+            });
+          })}
+        </g>
+      </svg>
+    </div>
+  );
+};
+
+export default RadarChartCustom;

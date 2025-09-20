@@ -1,0 +1,617 @@
+import { Router, Request, Response } from "express";
+import pool from "./database.mts";
+
+const router = Router();
+
+router.get("/", (req: Request, res: Response): void => {
+  res.status(200).send(JSON.stringify("Patient route"));
+  return;
+});
+
+router.post("/add", async (req: Request, res: Response) => {
+  const { fullname, surgeonid, sex, ethnicity, age, bmi, height, weight } =
+    req.body;
+
+  try {
+    // Insert patient data into the database
+    const result = await pool.query(
+      `INSERT INTO patient (fullname, surgeonid, sex, ethnicity, age, bmi, height, weight)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+         RETURNING patientid, fullname, surgeonid, sex, ethnicity, age, bmi, height, weight;`,
+      [fullname, surgeonid, sex, ethnicity, age, bmi, height, weight]
+    );
+
+    res.status(201).json({
+      message: "Patient added successfully",
+      patient: result.rows[0],
+    });
+  } catch (error) {
+    console.error("Error adding patient:", error);
+    res.status(500).json({ message: "Internal server error", error });
+    return;
+  }
+});
+
+router.put("/edit", async (req: Request, res: Response): Promise<any> => {
+  const {
+    patientid,
+    fullname,
+    surgeonid,
+    sex,
+    ethnicity,
+    age,
+    bmi,
+    height,
+    weight,
+  } = req.body;
+
+  try {
+    // Ensure ID is provided
+    if (!patientid) {
+      return res.status(400).json({ message: "Patient ID is required." });
+    }
+
+    // Update patient data in the database
+    const result = await pool.query(
+      `UPDATE patient
+       SET fullname = $1, surgeonid = $2, sex = $3, ethnicity = $4, 
+           age = $5, bmi = $6, height = $7, weight = $8
+       WHERE patientid = $9
+       RETURNING patientid, fullname, surgeonid, sex, ethnicity, age, bmi, height, weight;`,
+      [fullname, surgeonid, sex, ethnicity, age, bmi, height, weight, patientid]
+    );
+
+    // If no rows were updated, return an error
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: "Patient not found." });
+    }
+
+    res.status(200).json({
+      message: "Patient updated successfully",
+      patient: result.rows[0],
+    });
+  } catch (error) {
+    console.error("Error updating patient:", error);
+    res.status(500).json({ message: "Internal server error", error });
+  }
+});
+
+router.delete(
+  "/delete/:id",
+  async (req: Request, res: Response): Promise<any> => {
+    const { id } = req.params;
+    try {
+      const result = await pool.query(
+        `DELETE FROM patient WHERE patientid = $1 RETURNING *;`,
+        [id]
+      );
+
+      if (result.rowCount === 0) {
+        return res
+          .status(404)
+          .json({ message: "Patient not found or already deleted." });
+      }
+
+      res.status(200).json({
+        message: "Patient deleted successfully",
+        deletedPatient: result.rows[0],
+      });
+    } catch (error) {
+      console.error("Error deleting patient:", error);
+      res.status(500).json({ message: "Internal server error", error });
+    }
+  }
+);
+
+// Define expected request body interface
+interface AddPatientRequest {
+  fullname: string;
+  surgeonid: number;
+  sex: number;
+  ethnicity: number;
+  age: number;
+  bmi: number;
+  height: number;
+  weight: number;
+}
+
+router.get("/searchByName", async (req: Request, res: Response) => {
+  const { name, page = 1, limit = 10 } = req.query;
+
+  if (!name || typeof name !== "string") {
+    return res.status(400).json({ message: "Valid name parameter is required" });
+  }
+
+  try {
+    const offset = (Number(page) - 1) * Number(limit);
+
+    const result = await pool.query(
+      `SELECT * 
+       FROM patient 
+       WHERE fullname ILIKE $1
+       ORDER BY patientid DESC
+       LIMIT $2 OFFSET $3`,
+      [`%${name}%`, Number(limit), offset]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: "No patients found with the given name",
+        totalPatients: 0,
+      });
+    }
+
+    // Count total for pagination
+    const countResult = await pool.query(
+      `SELECT COUNT(*) 
+       FROM patient 
+       WHERE fullname ILIKE $1`,
+      [`%${name}%`]
+    );
+
+    const totalPatients = Number(countResult.rows[0].count);
+
+    res.status(200).json({
+      patients: result.rows,
+      totalPatients,
+      totalPages: Math.ceil(totalPatients / Number(limit)),
+      currentPage: Number(page),
+    });
+  } catch (error) {
+    console.error("Error searching patients by name:", error);
+    res.status(500).json({ message: "Error searching patients by name", error });
+  }
+});
+
+
+router.get("/filter", async (req: Request, res: Response) => {
+  const {
+    page = 1,
+    limit = 10,
+    sex,
+    ethnicity,
+    age,
+    bmi,
+    surgeonid,
+    surgeontitle,
+  } = req.query;
+
+  try {
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const offset = (pageNumber - 1) * limitNumber;
+
+    const values: (string | number)[] = [];
+    let conditionIndex = 1;
+
+    // Base queries
+    let query = `SELECT p.* FROM patient p`;
+    let countQuery = `SELECT COUNT(*) FROM patient p`;
+
+    // Add JOIN only if surgeontitle is being filtered
+    if (surgeontitle) {
+      query += ` JOIN surgeon s ON p.surgeonid = s.surgeonid`;
+      countQuery += ` JOIN surgeon s ON p.surgeonid = s.surgeonid`;
+    }
+
+    query += ` WHERE 1=1`;
+    countQuery += ` WHERE 1=1`;
+
+    // surgeonid filter (direct filter on patient table)
+    if (surgeonid) {
+      query += ` AND p.surgeonid = $${conditionIndex}`;
+      countQuery += ` AND p.surgeonid = $${conditionIndex}`;
+      values.push(Number(surgeonid));
+      conditionIndex++;
+    }
+
+    // surgeontitle filter (requires JOIN)
+    if (surgeontitle) {
+      query += ` AND s.surgeontitle ILIKE $${conditionIndex}`;
+      countQuery += ` AND s.surgeontitle ILIKE $${conditionIndex}`;
+      values.push(`%${surgeontitle}%`);
+      conditionIndex++;
+    }
+
+    // sex filter
+    if (sex) {
+      query += ` AND p.sex = $${conditionIndex}`;
+      countQuery += ` AND p.sex = $${conditionIndex}`;
+      values.push(Number(sex));
+      conditionIndex++;
+    }
+
+    // ethnicity filter
+    if (ethnicity) {
+      query += ` AND p.ethnicity = $${conditionIndex}`;
+      countQuery += ` AND p.ethnicity = $${conditionIndex}`;
+      values.push(Number(ethnicity));
+      conditionIndex++;
+    }
+
+    // age filter
+    if (age) {
+      query += ` AND p.age = $${conditionIndex}`;
+      countQuery += ` AND p.age = $${conditionIndex}`;
+      values.push(Number(age));
+      conditionIndex++;
+    }
+
+    // bmi filter
+    if (bmi) {
+      if (bmi === "0") {
+        query += ` AND p.bmi < $${conditionIndex}`;
+        countQuery += ` AND p.bmi < $${conditionIndex}`;
+        values.push(25);
+      } else if (bmi === "1") {
+        query += ` AND p.bmi >= $${conditionIndex}`;
+        countQuery += ` AND p.bmi >= $${conditionIndex}`;
+        values.push(25);
+      }
+      conditionIndex++;
+    }
+
+    // Add pagination
+    query += ` ORDER BY p.patientid DESC LIMIT $${conditionIndex} OFFSET $${conditionIndex + 1}`;
+    values.push(limitNumber, offset);
+
+    // Run main query
+    const result = await pool.query(query, values);
+
+    // Run count query (exclude LIMIT/OFFSET values)
+    const countResult = await pool.query(
+      countQuery,
+      values.slice(0, conditionIndex - 1)
+    );
+    const totalPatients = Number(countResult.rows[0].count);
+    const totalPages = Math.ceil(totalPatients / limitNumber);
+
+    res.status(200).json({
+      patients: result.rows,
+      totalPatients,
+      totalPages,
+      currentPage: pageNumber,
+    });
+  } catch (error) {
+    console.error("Error fetching patients:", error);
+    res.status(500).json({ message: "Error fetching patients", error });
+  }
+});
+
+// GET /form?patientid=123
+router.get("/form", async (req: Request, res: Response) => {
+  const { patientid } = req.query;
+  try {
+    const query = "SELECT * FROM patientform WHERE patientid=$1";
+    const result = await pool.query(query, [Number(patientid)]);
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Error searching patient id:", error);
+    res.status(500).json({ message: "Error searching patient data", error });
+    return;
+  }
+});
+
+
+// POST /forms
+router.post("/forms", async (req: Request, res: Response) => {
+  const client = await pool.connect();
+  try {
+    const { patientid, term = 0, responses } = req.body;
+    // responses = [{ questionid: 1, answervalue: 5 }, ...]
+
+    await client.query("BEGIN");
+
+    // 1. Insert new form
+    const formResult = await client.query(
+      `INSERT INTO patientform (patientid, term)
+       VALUES ($1, $2)
+       RETURNING formid`,
+      [patientid, term]
+    );
+    const formid = formResult.rows[0].formid;
+
+    // 2. Insert responses
+    const responsePromises = responses.map((r) =>
+      client.query(
+        `INSERT INTO patientformresponse (formid, questionid, answervalue)
+         VALUES ($1, $2, $3)`,
+        [formid, r.questionid, r.answervalue]
+      )
+    );
+    await Promise.all(responsePromises);
+
+    // 3. Update patient.hasform
+    await client.query(
+      `UPDATE patient SET hasform = TRUE WHERE patientid = $1`,
+      [patientid]
+    );
+
+    await client.query("COMMIT");
+    res.json({ formid });
+  } catch (err) {
+    await client.query("ROLLBACK");
+    console.error(err);
+    res.status(500).json({ error: "Failed to submit form" });
+  } finally {
+    client.release();
+  }
+});
+
+
+router.post("/before", async (req: Request, res: Response) => {
+  const { variableName, options, patient, filters } = req.body;
+
+  try {
+    const results: { option: string; count: number; percentage: number }[] = [];
+
+    let conditions = "1=1"; // Default condition to prevent WHERE clause issues
+    const queryParams: (string | number)[] = [];
+
+    if (filters && Object.keys(filters).length > 0) {
+      const filterConditions = formatConditions(filters, patient);
+      conditions += ` AND ${filterConditions.conditionString}`;
+      queryParams.push(...filterConditions.params);
+    }
+
+    const column = `${variableName}1`; // Assuming column naming convention
+
+    // Query to get the total number of rows with filters
+    const totalQuery = `SELECT COUNT(${column}) AS total FROM registry WHERE ${conditions}`;
+
+    const { rows: totalResult } = await pool.query<{ total: number }>(
+      totalQuery,
+      queryParams
+    );
+
+    const totalRows = totalResult[0]?.total || 0;
+
+    if (totalRows === 0) {
+      res.status(200).json({
+        message: "No data found for the given filters.",
+        totalRows,
+        data: [],
+      });
+      return;
+    }
+
+    for (const option of options) {
+      const query = `
+        SELECT COUNT(${column}) AS count
+        FROM registry
+        WHERE ${conditions}
+        AND ${column} = $${queryParams.length + 1}
+      `;
+
+      const { rows: optionRows } = await pool.query<{ count: number }>(query, [
+        ...queryParams,
+        option,
+      ]);
+      const count = optionRows[0]?.count || 0;
+      const percentage = Math.round((count / totalRows) * 100);
+
+      results.push({ option, count, percentage });
+    }
+
+    res.status(200).json({
+      message: "Data fetched successfully",
+      totalRows,
+      data: results,
+    });
+  } catch (error) {
+    console.error("Error fetching data from registry:", error);
+    res.status(500).json({
+      message: "Error fetching data from registry",
+      error: error,
+    });
+  }
+});
+
+interface Patient {
+  patientid: number;
+  fullname: string;
+  age: number;
+  sex: number;
+  ethnicity: number;
+  height: number;
+  weight: number;
+  bmi: number;
+  hasform: boolean;
+}
+
+const formatConditions = (
+  filters: {
+    categories: string[];
+    age?: { range: number };
+    bmi?: { range: number };
+  },
+  patient: Patient,
+  number = 0
+) => {
+  const conditions: string[] = [];
+  const params: (string | number)[] = [];
+
+  // Handle categorical filters (Ethnicity, Gender)
+  if (filters.categories.includes("Ethnicity")) {
+    conditions.push(`race = $${params.length + number + 1}`);
+    params.push(patient.ethnicity);
+  }
+  if (filters.categories.includes("Gender")) {
+    conditions.push(`gender = $${params.length + number + 1}`);
+    params.push(patient.sex);
+  }
+
+  // Handle Age Range Filter
+  if (
+    filters.categories.includes("Age Range") &&
+    filters.age?.range !== undefined &&
+    patient.age
+  ) {
+    conditions.push(
+      `age BETWEEN $${params.length + number + 1} AND $${
+        params.length + number + 2
+      }`
+    );
+    params.push(
+      patient.age - filters.age.range,
+      patient.age + Number(filters.age.range)
+    );
+  }
+
+  // Handle BMI Range Filter
+  if (
+    filters.categories.includes("BMI Range") &&
+    filters.bmi?.range !== undefined &&
+    patient.bmi
+  ) {
+    conditions.push(
+      `bmi BETWEEN $${params.length + number + 1} AND $${
+        params.length + number + 2
+      }`
+    );
+    params.push(
+      Math.floor(+patient.bmi - +filters.bmi.range),
+      Math.ceil(+patient.bmi + +filters.bmi.range)
+    );
+  }
+
+  // Return formatted conditions and parameters
+  return {
+    conditionString: conditions.length > 0 ? conditions.join(" AND ") : "1=1",
+    params,
+  };
+};
+
+router.post("/after", async (req: Request, res: Response) => {
+  const {
+    variableName,
+    options,
+    filters,
+    patient,
+    initial,
+    time = 6,
+    median = false,
+  } = req.body;
+
+  try {
+    if (!variableName || !options) {
+      res.status(400).json({ message: "Missing required parameters." });
+      return;
+    }
+
+    const results: {
+      option: string;
+      count: number;
+      percentage: number;
+    }[] = [];
+
+    const initialVariable = `${variableName}1`;
+    const timePoint = time === 6 ? 2 : time === 12 ? 3 : 4;
+    const column = `${variableName}${timePoint}`;
+
+    // Construct conditions for filtering
+    let conditions = `${initialVariable} = $1`;
+    const queryParams: (string | number)[] = [initial];
+
+    if (filters && Object.keys(filters).length > 0) {
+      const filterConditions = formatConditions(filters, patient, 1);
+      conditions += ` AND ${filterConditions.conditionString}`;
+      queryParams.push(...filterConditions.params);
+    }
+
+    // Get total count of rows matching the filters
+    const totalQuery = `
+      SELECT COUNT(${column}) AS total 
+      FROM registry
+      WHERE ${conditions}
+    `;
+
+    const { rows: totalResult } = await pool.query<{ total: number }>(
+      totalQuery,
+      queryParams
+    );
+    const totalRows = totalResult[0]?.total || 0;
+
+    if (totalRows === 0) {
+      res.status(200).json({
+        message: "No data found for the given filters.",
+        totalRows,
+        data: [],
+      });
+      return;
+    }
+
+    // Fetch data for each option using parameterized queries
+    for (let i = 0; i < options.length; i++) {
+      const option = options[i];
+
+      if (option === undefined || option === null) {
+        continue;
+      }
+
+      const optionQuery = `
+        SELECT COUNT(${column}) AS count
+        FROM registry
+        WHERE ${conditions} 
+        AND ${column} = $${queryParams.length + 1}
+      `;
+
+      // console.log("Executing query:", optionQuery, queryParams, option);
+      const { rows: optionRows } = await pool.query<{ count: number }>(
+        optionQuery,
+        [...queryParams, option]
+      );
+
+      const count = optionRows[0]?.count || 0;
+      const percentage =
+        totalRows === 0 ? 0 : Math.round((count / totalRows) * 100);
+
+      results.push({
+        option: option.toString(),
+        count,
+        percentage,
+      });
+    }
+
+    let responsePayload: any = {
+      message: "Data fetched successfully.",
+      totalRows,
+      data: results,
+      variableName,
+    };
+
+    if (median) {
+      // Fetch values for median calculation
+      const sorted = [...results].sort(
+        (a, b) => Number(a.option) - Number(b.option)
+      );
+
+      const total = sorted.reduce((sum, r) => sum + Number(r.count), 0);
+      const midPoint = total / 2;
+      let cumulative = 0;
+      let medianValue: number | null = null;
+
+      for (let i = 0; i < sorted.length; i++) {
+        cumulative += Number(sorted[i].count);
+
+        if (cumulative >= midPoint) {
+          medianValue = Number(sorted[i].option);
+          break;
+        }
+      }
+
+      responsePayload.median = medianValue;
+    }
+    // console.log("Response Payload:", responsePayload);
+    res.status(200).json(responsePayload);
+  } catch (error) {
+    console.error("Error fetching data from registry:", error);
+    res.status(500).json({
+      message: "Error fetching data from registry.",
+      error: error,
+    });
+    return;
+  }
+});
+
+export { router };

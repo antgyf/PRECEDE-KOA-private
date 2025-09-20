@@ -1,0 +1,43 @@
+{
+  "name": "precede-koa-backend",
+  "version": "1.0.0",
+  "main": "api.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development nodemon --watch src --ext mts --exec 'node --loader ts-node/esm' server.mts",
+    "start": "cross-env NODE_ENV=production node server.mts",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+    "build": "vite build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@babel/preset-typescript": "^7.27.0",
+    "@types/bcrypt": "^5.0.2",
+    "@types/cookie-parser": "^1.4.9",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.1",
+    "@types/jest": "^29.5.14",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/pg": "^8.11.10",
+    "@types/supertest": "^6.0.3",
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.9",
+    "supertest": "^7.1.0",
+    "ts-jest": "^29.3.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.13.1"
+  }
+}

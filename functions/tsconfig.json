@@ -1,0 +1,25 @@
+{
+  "exclude": ["./coverage", "./dist", "__tests__", "jest.config.js"],
+  "ts-node": {
+    "transpileOnly": true,
+    "files": true
+  },
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "rootDir": ".",
+    "outDir": "./dist",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "allowSyntheticDefaultImports": true,
+    "types": ["jest", "node"],
+    "allowImportingTsExtensions": true
+  },
+  "include": ["src/**/*", "*.mts", "__tests__/**/*", "jest.config.js"]
+}
