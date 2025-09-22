@@ -119,16 +119,23 @@ router.post("/login", async (req: Request, res: Response): Promise<void> => {
 
     // Compare the provided password with the stored hashed password
     const isMatch = await bcrypt.compare(password, surgeon.password);
-
     if (!isMatch) {
       res.status(401).json({ message: "Invalid credentials" });
+      return;
+    }
+
+    // Ensure JWT secret exists
+    const JWT_SECRET = process.env.JWT_SECRET;
+    if (!JWT_SECRET) {
+      console.error("JWT_SECRET is not set!");
+      res.status(500).json({ message: "Internal server error" });
       return;
     }
 
     // Create JWT token
     const token = jwt.sign(
       { id: surgeon.surgeonid, username: surgeon.username },
-      process.env.JWT_SECRET as string,
+      JWT_SECRET,
       { expiresIn: "1h" }
     );
 
@@ -142,7 +149,6 @@ router.post("/login", async (req: Request, res: Response): Promise<void> => {
 
     res.status(200).json({
       message: "Login successful",
-      // token: token, // Include token if generated
       surgeon: {
         id: surgeon.surgeonid,
         username: surgeon.username,
@@ -153,6 +159,7 @@ router.post("/login", async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ message: "Internal server error", error });
   }
 });
+
 
 router.get("/me", async (req: Request, res: Response): Promise<void> => {
   const token = req.cookies.token;

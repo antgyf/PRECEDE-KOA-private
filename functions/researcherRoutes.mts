@@ -83,7 +83,6 @@ router.post("/login", async (req: Request, res: Response): Promise<void> => {
       [username]
     );
 
-    // Check if researcher exists
     if (result.rows.length === 0) {
       res.status(404).json({ message: "Account not found" });
       return;
@@ -91,32 +90,36 @@ router.post("/login", async (req: Request, res: Response): Promise<void> => {
 
     const researcher = result.rows[0];
 
-    // Compare the provided password with the stored hashed password
+    // Compare password
     const isMatch = await bcrypt.compare(password, researcher.password);
-
     if (!isMatch) {
       res.status(401).json({ message: "Invalid credentials" });
       return;
     }
 
+    // Ensure JWT secret exists
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      throw new Error("JWT_SECRET is not defined in environment variables");
+    }
+
     // Create JWT token
     const token = jwt.sign(
-      { id: researcher.surgeonid || -1, username: researcher.username },
-      process.env.JWT_SECRET as string,
+      { id: researcher.researcherid, username: researcher.username },
+      jwtSecret,
       { expiresIn: "1h" }
     );
 
     // Set HTTP-only cookie
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // only over HTTPS in prod
+      secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       maxAge: 3600000, // 1 hour
     });
 
     res.status(200).json({
       message: "Login successful",
-      // token: token, // Include token if generated
       researcher: {
         id: researcher.researcherid,
         username: researcher.username,
