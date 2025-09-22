@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/AuthContext";
 import { useAlert } from "../../hooks/AlertContext";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
+import api from "../../api/api";
 import TextInput from "../UI/Form/TextInput";
 import Alert from "../UI/Alert";
 
@@ -29,9 +30,8 @@ const LoginPage: React.FC = () => {
         showAlert("Logging in...", "info");
 
         // Attempt login (cookie will be set on success)
-        const response = await axios.post(
-          `https://precede-koa.netlify.app/.netlify/functions/api/${
-            auth.isSurgeon ? "surgeons" : "researchers"
+        const response = await api.post(
+          `/${auth.isSurgeon ? "surgeons" : "researchers"
           }/login`,
           {
             username: form.username,
@@ -46,10 +46,8 @@ const LoginPage: React.FC = () => {
         );
 
         // Fetch current user info using cookie
-        const userRes = await axios.get(
-          `https://precede-koa.netlify.app/.netlify/functions/api/${
-            auth.isSurgeon ? "surgeons" : "researchers"
-          }/me`,
+        const userRes = await api.get(
+          `/${auth.isSurgeon ? "surgeons" : "researchers"}/me`,
           { withCredentials: true }
         );
 

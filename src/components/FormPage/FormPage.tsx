@@ -24,9 +24,25 @@ const FormPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Form Content Wrapper (Scrollable & Avoids Overlap) */}
-      <div className="flex-1 w-screen max-w-7xl px-4 pt-4 mt-32 rounded-lg overflow-y-auto">
-        <FormContent />
+      {/* Term Selector */}
+      <div className="mt-24 mb-4">
+        <label className="mr-2 font-bold">Select Term:</label>
+        <select
+          className="select select-bordered"
+          value={selectedTerm}
+          onChange={(e) => setSelectedTerm(Number(e.target.value))}
+        >
+          {[1, 2, 3, 4, 5].map((t) => (
+            <option key={t} value={t}>
+              Term {t}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Pass term down into FormContent */}
+      <div className="flex-1 w-screen max-w-7xl px-4 pt-4 rounded-lg overflow-y-auto">
+        <FormContent term={selectedTerm} />
       </div>
     </div>
   );

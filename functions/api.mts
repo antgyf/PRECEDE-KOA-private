@@ -10,7 +10,7 @@ import { router as researcherRoutes } from "./researcherRoutes.mts";
 const app: Application = express();
 
 const allowedOrigins = [
-  // "http://localhost:5173",
+  "http://localhost:5173",
   "https://precede-koa.netlify.app",
 ];
 

@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 const router = Router();
 
 const allowedOrigins = [
-  // "http://localhost:5173",
+  "http://localhost:5173",
   "https://precede-koa.netlify.app",
 ];
 
@@ -30,7 +30,7 @@ router.get("/available-ids", async (req: Request, res: Response): Promise<void> 
   try {
     // Fetch surgeon IDs that don't have username/password set
     const availableSurgeons = await pool.query(
-      "SELECT surgeonid, surgeontitle FROM surgeon WHERE username IS NULL OR username = ''"
+      "SELECT surgeonid, surgeontitle FROM surgeon WHERE username IS NULL OR username = '' ORDER BY surgeonid ASC"
     );
     
     res.status(200).json(availableSurgeons.rows);

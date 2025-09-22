@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/AuthContext";
 import { useAlert } from "../../hooks/AlertContext";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
+import api from "../../api/api";
 import TextInput from "../UI/Form/TextInput";
 import Alert from "../UI/Alert";
 
@@ -10,6 +11,11 @@ interface SignUpInterface {
   username: string;
   password: string;
   confirmPassword: string;
+}
+
+interface Surgeon {
+  surgeonid: number;
+  surgeontitle: string;
 }
 
 const SignUpForm: React.FC = () => {
@@ -23,24 +29,23 @@ const SignUpForm: React.FC = () => {
     confirmPassword: "",
   });
 
-  const [availableSurgeonIds, setAvailableSurgeonIds] = useState<number[]>([]);
+  const [availableSurgeons, setAvailableSurgeons] = useState<Surgeon[]>([]);
   const [selectedSurgeonId, setSelectedSurgeonId] = useState<number | "">("");
+  const [selectedSurgeonTitle, setSelectedSurgeonTitle] = useState("");
 
   // Fetch available surgeon IDs if user is a surgeon
   useEffect(() => {
     if (auth.isSurgeon) {
-      const fetchAvailableIds = async () => {
+      const fetchAvailableSurgeons = async () => {
         try {
-          const res = await axios.get(
-            "https://precede-koa.netlify.app/.netlify/functions/api/surgeons/available-ids"
-          );
-          setAvailableSurgeonIds(res.data); // expected: array of numbers
+          const res = await api.get("/surgeons/available-ids");
+          setAvailableSurgeons(res.data); // expected: array of { surgeonid, surgeontitle }
         } catch (err) {
           console.error("Error fetching surgeon IDs:", err);
           showAlert("Failed to load available surgeon IDs", "error");
         }
       };
-      fetchAvailableIds();
+      fetchAvailableSurgeons();
     }
   }, [auth.isSurgeon]);
 
@@ -73,14 +78,12 @@ const SignUpForm: React.FC = () => {
     try {
       showAlert("Signing up...", "info");
 
-      const response = await axios.post(
-        `https://precede-koa.netlify.app/.netlify/functions/api/${
-          auth.isSurgeon ? "surgeons" : "researchers"
-        }/create`,
+      const response = await api.post(
+        `/${auth.isSurgeon ? "surgeons" : "researchers"}/create`,
         {
           username: form.username,
           password: form.password,
-          ...(auth.isSurgeon && { surgeon_id: selectedSurgeonId }),
+          ...(auth.isSurgeon && { surgeonid: selectedSurgeonId }),
         },
         { headers: { "Content-Type": "application/json" } }
       );
@@ -120,21 +123,42 @@ const SignUpForm: React.FC = () => {
         <TextInput label="Username" name="username" onChange={handleInput} />
 
         {auth.isSurgeon && (
-          <div className="my-3">
-            <label className="block mb-1 font-semibold">Select Surgeon ID</label>
-            <select
-              className="w-full p-2 border rounded"
-              value={selectedSurgeonId}
-              onChange={(e) => setSelectedSurgeonId(Number(e.target.value))}
-              required
-            >
-              <option value="">-- Select an ID --</option>
-              {availableSurgeonIds.map((id) => (
-                <option key={id} value={id}>
-                  {id}
-                </option>
-              ))}
-            </select>
+          <div className="my-3 flex gap-2 items-center">
+            {/* Surgeon ID dropdown */}
+            <div className="flex-1">
+              <label className="block mb-1 font-semibold">Select Surgeon ID</label>
+              <select
+                className="w-full p-2 border rounded"
+                value={selectedSurgeonId}
+                onChange={(e) => {
+                  const id = Number(e.target.value);
+                  setSelectedSurgeonId(id);
+
+                  const surgeon = availableSurgeons.find((s) => s.surgeonid === id);
+                  setSelectedSurgeonTitle(surgeon ? surgeon.surgeontitle : "");
+                }}
+                required
+              >
+                <option value="">-- Select an ID --</option>
+                {availableSurgeons.map((surgeon) => (
+                  <option key={surgeon.surgeonid} value={surgeon.surgeonid}>
+                    {surgeon.surgeonid}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Surgeon title display */}
+            <div className="flex-1">
+              <label className="block mb-1 font-semibold">Surgeon Title</label>
+              <input
+                type="text"
+                className="w-full p-2 border rounded bg-gray-100"
+                value={selectedSurgeonTitle}
+                readOnly
+                placeholder="Title will appear here"
+              />
+            </div>
           </div>
         )}
 
