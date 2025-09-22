@@ -29,3 +29,5 @@ dist-ssr
 .netlify
 functions/.env.development
 functions/.env.production
+.env.development
+.env.production

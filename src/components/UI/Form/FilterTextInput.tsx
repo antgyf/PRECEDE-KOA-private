@@ -14,7 +14,7 @@ const FilterTextInput: React.FC<FilterTextProps> = ({
   type = "text",
 }) => {
   return (
-    <div className="mr-2 mt-2">
+    <div className="mr-2 mt-2"> 
       <input
         type={type}
         name={name}

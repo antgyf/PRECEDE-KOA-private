@@ -6,11 +6,13 @@ import SearchBar from "./SearchBar";
 import ToggleUp from "../../UI/Button/ToggleUp";
 import { useNavigate } from "react-router-dom";
 import axios, { AxiosError } from "axios";
+import api from "../../../api/api";
 import { useAlert } from "../../../hooks/AlertContext";
 import { useAuth } from "../../../hooks/AuthContext";
 import { Patient } from "../../../models/patient/patientReport";
 import { useForm } from "../../../hooks/FormContext";
 import BrownButton from "../../UI/Button/BrownButton";
+
 
 interface FilterState {
   sex?: number;
@@ -19,7 +21,6 @@ interface FilterState {
   surgeonid?: number;
   surgeontitle?: string;
 }
-
 
 interface FindPatientBoxProps {
   onClose: () => void;
@@ -86,13 +87,12 @@ const FindPatientBox: React.FC<FindPatientBoxProps> = ({ onClose }) => {
 
         showAlert("Finding patient...", "info");
 
-        const response = await axios.get(
-          "https://precede-koa.netlify.app/.netlify/functions/api/patients/filter",
-          {
-            params,
-            headers: { "Cache-Control": "no-cache" },
-          }
-        );
+        const response = await api.get("/patients/filter",
+        {
+          params,
+          headers: { "Cache-Control": "no-cache" },
+        }
+      );
 
         showAlert("Patient matching filters found", "success");
         setPatients(response.data.patients);
@@ -138,8 +138,7 @@ const FindPatientBox: React.FC<FindPatientBoxProps> = ({ onClose }) => {
   const handleSearch = async () => {
     try {
       showAlert("Searching...", "info");
-      const response = await axios.get(
-        "https://precede-koa.netlify.app/.netlify/functions/api/patients/searchByName",
+      const response = await api.get("patients/searchByName",
         {
           params: { name: query, surgeonid: user?.id },
         }

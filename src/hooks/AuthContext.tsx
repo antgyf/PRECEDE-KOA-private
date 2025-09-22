@@ -5,6 +5,7 @@ import {
   useState,
   ReactNode,
 } from "react";
+import api from "../api/api"; // make sure the path is correct
 
 interface User {
   name: string;
@@ -29,7 +30,6 @@ interface AuthProviderProps {
 
 const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
-    // Load user from localStorage (if exists) when app loads
     const storedUser = localStorage.getItem("user");
     return storedUser ? JSON.parse(storedUser) : null;
   });
@@ -39,24 +39,16 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch(
-          "https://precede-koa.netlify.app/.netlify/functions/api/surgeons/me",
-          {
-            credentials: "include", // important to send cookies
-          }
-        );
-        if (res.ok) {
-          const data = await res.json();
-          // assuming backend returns { id, username } in data
-          setUser({ id: data.id, name: data.username });
-        } else {
-          setUser(null);
-        }
+        const res = await api.get(`/surgeons/me`, {
+          withCredentials: true,
+        });
+        setUser({ id: res.data.id, name: res.data.username });
       } catch (error) {
         console.error("Failed to fetch user", error);
         setUser(null);
       }
     };
+
     fetchUser();
   }, []);
 
@@ -64,23 +56,21 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = (username: string, id: number) => {
     setUser({ name: username, id });
+    localStorage.setItem("user", JSON.stringify({ name: username, id }));
   };
 
   const logout = async () => {
     try {
-      await fetch(
-        `https://precede-koa.netlify.app/.netlify/functions/api/${
-          isSurgeon ? "surgeons" : "researchers"
-        }/logout`,
-        {
-          method: "POST",
-          credentials: "include", // important to send cookies
-        }
+      await api.post(
+        `/${isSurgeon ? "surgeons" : "researchers"}/logout`,
+        {},
+        { withCredentials: true }
       );
     } catch (err) {
       console.error("Logout failed", err);
     }
     setUser(null);
+    localStorage.removeItem("user");
   };
 
   return (
