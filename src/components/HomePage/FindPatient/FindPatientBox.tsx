@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
-import { BMI, Ethnicity, Sex } from "../../../models/patient/patientDetails";
+import { BMI, Ethnicity, Sex , SurgeonTitle} from "../../../models/patient/patientDetails";
 import FilterInput from "../../UI/Form/FilterInput";
+import FilterTextInput from "../../UI/Form/FilterTextInput";
 import SearchBar from "./SearchBar";
 import ToggleUp from "../../UI/Button/ToggleUp";
 import { useNavigate } from "react-router-dom";
@@ -15,7 +16,10 @@ interface FilterState {
   sex?: number;
   ethnicity?: number;
   bmi?: number;
+  surgeonid?: number;
+  surgeontitle?: string;
 }
+
 
 interface FindPatientBoxProps {
   onClose: () => void;
@@ -46,12 +50,29 @@ const FindPatientBox: React.FC<FindPatientBoxProps> = ({ onClose }) => {
   };
 
   /** Handle Filter Change */
-  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleFilterChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
 
+    // for surgeonid, allow free typing but keep string in filters
+    if (name === "surgeonid") {
+      setFilters((prev) => ({
+        ...prev,
+        surgeonid: value !== "" ? Number(value) : undefined,
+      }));
+      return;
+    }
+
+    // default case for other filters
+    const numericFields = ["ethnicity", "bmi", "sex"];
     setFilters((prev) => ({
       ...prev,
-      [name]: value ? Number(value) : undefined,
+      [name]: value
+        ? numericFields.includes(name)
+          ? Number(value)
+          : value
+        : undefined,
     }));
   };
 
@@ -169,9 +190,7 @@ const FindPatientBox: React.FC<FindPatientBoxProps> = ({ onClose }) => {
           label="Ethnicity"
           list={Ethnicity}
           name="ethnicity"
-          value={
-            filters.ethnicity !== undefined ? filters.ethnicity.toString() : ""
-          }
+          value={filters.ethnicity !== undefined ? filters.ethnicity.toString() : ""}
           onChange={handleFilterChange}
         />
         <FilterInput
@@ -181,8 +200,27 @@ const FindPatientBox: React.FC<FindPatientBoxProps> = ({ onClose }) => {
           value={filters.bmi !== undefined ? filters.bmi.toString() : ""}
           onChange={handleFilterChange}
         />
+
+        {/* Surgeon Title dropdown */}
+        <FilterInput
+          label="Surgeon Title"
+          list={SurgeonTitle}
+          name="surgeontitle"
+          value={filters.surgeontitle !== undefined ? filters.surgeontitle.toString() : ""}
+          onChange={handleFilterChange}
+        />
+
+        {/* Surgeon ID numeric input */}
+        <FilterTextInput
+          label="Surgeon ID"
+          name="surgeonid"
+          value={filters.surgeonid?.toString() || ""} // convert back to string for the input
+          onChange={handleFilterChange}
+          type="number" // optional: restrict typing to numbers only
+        />
         <BrownButton buttonText="Clear" onButtonClick={handleClearFilters} />
       </div>
+      
 
       {/* 📋 Patient Table */}
       <div className="overflow-x-auto">

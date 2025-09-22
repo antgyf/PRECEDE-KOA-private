@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/AuthContext";
 import { useAlert } from "../../hooks/AlertContext";
@@ -11,6 +11,7 @@ interface SignUpInterface {
   password: string;
   confirmPassword: string;
 }
+
 const SignUpForm: React.FC = () => {
   const auth = useAuth();
   const navigate = useNavigate();
@@ -22,58 +23,26 @@ const SignUpForm: React.FC = () => {
     confirmPassword: "",
   });
 
-  const handleSubmitEvent = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const [availableSurgeonIds, setAvailableSurgeonIds] = useState<number[]>([]);
+  const [selectedSurgeonId, setSelectedSurgeonId] = useState<number | "">("");
 
-    if (form.username !== "" && form.password !== "") {
-      if (form.password !== form.confirmPassword) {
-        showAlert("Passwords do not match. Please try again.", "error");
-        return;
-      }
-
-      try {
-        showAlert("Signing up...", "info");
-        const response = await axios.post(
-          `https://precede-koa.netlify.app/.netlify/functions/api/${
-            auth.isSurgeon ? "surgeons" : "researchers"
-          }/create`,
-          {
-            username: form.username,
-            password: form.password,
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        // Set auth context
-        if (auth.isSurgeon) {
-          auth.login(form.username, +response.data.surgeonid);
-        } else {
-          auth.login(form.username, -2);
+  // Fetch available surgeon IDs if user is a surgeon
+  useEffect(() => {
+    if (auth.isSurgeon) {
+      const fetchAvailableIds = async () => {
+        try {
+          const res = await axios.get(
+            "https://precede-koa.netlify.app/.netlify/functions/api/surgeons/available-ids"
+          );
+          setAvailableSurgeonIds(res.data); // expected: array of numbers
+        } catch (err) {
+          console.error("Error fetching surgeon IDs:", err);
+          showAlert("Failed to load available surgeon IDs", "error");
         }
-
-        // Show success alert
-        showAlert(response.data.message, "success");
-
-        // Navigate to home after successful sign-up
-        navigate("/home");
-      } catch (error) {
-        if (error instanceof AxiosError) {
-          // Access the error message directly
-          showAlert(error.response?.data.message, "error");
-        } else {
-          // In case the error isn't an AxiosError
-          showAlert("An unexpected error occurred", "error");
-        }
-        console.error(error);
-      }
-    } else {
-      showAlert("Please provide valid inputs.", "error");
+      };
+      fetchAvailableIds();
     }
-  };
+  }, [auth.isSurgeon]);
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -81,6 +50,58 @@ const SignUpForm: React.FC = () => {
       ...prev,
       [name]: value,
     }));
+  };
+
+  const handleSubmitEvent = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!form.username || !form.password) {
+      showAlert("Please provide valid inputs.", "error");
+      return;
+    }
+
+    if (form.password !== form.confirmPassword) {
+      showAlert("Passwords do not match. Please try again.", "error");
+      return;
+    }
+
+    if (auth.isSurgeon && selectedSurgeonId === "") {
+      showAlert("Please select a Surgeon ID.", "error");
+      return;
+    }
+
+    try {
+      showAlert("Signing up...", "info");
+
+      const response = await axios.post(
+        `https://precede-koa.netlify.app/.netlify/functions/api/${
+          auth.isSurgeon ? "surgeons" : "researchers"
+        }/create`,
+        {
+          username: form.username,
+          password: form.password,
+          ...(auth.isSurgeon && { surgeon_id: selectedSurgeonId }),
+        },
+        { headers: { "Content-Type": "application/json" } }
+      );
+
+      // Set auth context
+      if (auth.isSurgeon) {
+        auth.login(form.username, +response.data.surgeonid);
+      } else {
+        auth.login(form.username, -2);
+      }
+
+      showAlert(response.data.message, "success");
+      navigate("/home");
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        showAlert(error.response?.data.message, "error");
+      } else {
+        showAlert("An unexpected error occurred", "error");
+      }
+      console.error(error);
+    }
   };
 
   return (
@@ -94,8 +115,29 @@ const SignUpForm: React.FC = () => {
         <h1 className="my-2">PRECEDE-KOA</h1>
         <h1>{auth.isSurgeon ? "Surgeon" : "Researcher"} Sign Up</h1>
       </article>
+
       <form onSubmit={handleSubmitEvent} className="w-full px-2 max-w-sm">
         <TextInput label="Username" name="username" onChange={handleInput} />
+
+        {auth.isSurgeon && (
+          <div className="my-3">
+            <label className="block mb-1 font-semibold">Select Surgeon ID</label>
+            <select
+              className="w-full p-2 border rounded"
+              value={selectedSurgeonId}
+              onChange={(e) => setSelectedSurgeonId(Number(e.target.value))}
+              required
+            >
+              <option value="">-- Select an ID --</option>
+              {availableSurgeonIds.map((id) => (
+                <option key={id} value={id}>
+                  {id}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
         <TextInput
           label="Password"
           name="password"
@@ -133,4 +175,5 @@ const SignUpForm: React.FC = () => {
     </div>
   );
 };
+
 export default SignUpForm;

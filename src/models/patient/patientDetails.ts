@@ -32,6 +32,14 @@ export const BMI = {
   1: "Overweight/Obese (>= 25)",
 };
 
+export const SurgeonTitle: Record<string, string> = {
+  AC: "Associate Consultant",
+  C: "Consultant",
+  AP: "Associate Professor",
+  P: "Professor",
+  O: "Other",
+};
+
 export type FilterType = {
   age?: { range: number };
   bmi?: { range: number };
