@@ -280,10 +280,10 @@ router.get("/filter", async (req: Request, res: Response) => {
 
 // GET /form?patientid=123
 router.get("/form", async (req: Request, res: Response) => {
-  const { patientid } = req.query;
+  const { patientid , term } = req.query;
   try {
-    const query = "SELECT * FROM patientform WHERE patientid=$1";
-    const result = await pool.query(query, [Number(patientid)]);
+    const query = "SELECT * FROM patientform WHERE patientid=$1 AND term=$2";
+    const result = await pool.query(query, [Number(patientid), Number(term)]);
     res.status(200).json(result.rows);
   } catch (error) {
     console.error("Error searching patient id:", error);

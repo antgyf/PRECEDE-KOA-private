@@ -61,13 +61,13 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = async () => {
     try {
-      await fetch(
-        `https://precede-koa.netlify.app/.netlify/functions/api/${
+      await api.get(
+        `/${
           isSurgeon ? "surgeons" : "researchers"
         }/logout`,
         {
           method: "POST",
-          credentials: "include", // important to send cookies
+          withCredentials: true, // important to send cookies
         }
       );
     } catch (err) {

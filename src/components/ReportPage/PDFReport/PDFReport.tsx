@@ -173,7 +173,7 @@ const PDFReport: React.FC<PDFReportProps> = ({
           <View style={{ flexDirection: "row" }}>
             <Text style={{ fontSize: 10, color: "#003f5c" }}>Dark blue: </Text>
             <Text style={{ fontSize: 10 }}>
-              The experience of similar pateints 6 months after surgery
+              The experience of similar patients 6 months after surgery
             </Text>
           </View>
           <View style={{ flexDirection: "row" }}>

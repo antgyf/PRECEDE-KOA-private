@@ -72,6 +72,110 @@ export const Pain = {
   6: "Severe",
 };
 
+export const Mobility = {
+  0: "I have no problems in walking about",
+  1: "I have slight problems in walking about",
+  2: "I have moderate problems in walking about",
+  3: "I have severe problems in walking about",
+  4: "I am unable to walk",
+};
+  
+export const SelfCare = {
+  0: "I have no problems in washing or dressing myself",
+  1: "I have slight problems in washing or dressing myself",
+  2: "I have moderate problems in washing or dressing myself",
+  3: "I have severe problems in washing or dressing myself",
+  4: "I am unable to wash or dress myself",
+};
+
+export const UsualActivities = {
+  0: "I have no problems in doing my usual activities",
+  1: "I have slight problems in doing my usual activities",
+  2: "I have moderate problems in doing my usual activities",
+  3: "I have severe problems in doing my usual activities",
+  4: "I am unable to do my usual activities",
+};
+
+export const PainDiscomfort = {
+  0: "I have no pain or discomfort",
+  1: "I have slight pain or discomfort",
+  2: "I have moderate pain or discomfort",
+  3: "I have severe pain or discomfort",
+  4: "I have extreme pain or discomfort",
+};
+
+export const AnxietyDepression = {
+  0: "I am not anxious or depressed",
+  1: "I am slightly anxious or depressed",
+  2: "I am moderately anxious or depressed",
+  3: "I am severely anxious or depressed",
+  4: "I am extremely anxious or depressed",
+};
+
+export const OKSKneePain = {
+  0: "None",
+  1: "Very mild",
+  2: "Mild",
+  3: "Moderate",
+  4: "Severe",
+};
+
+export const OKSKneeTrouble = {
+  0: "No trouble at all",
+  1: "Very little trouble",
+  2: "Moderate trouble",
+  3: "Extreme difficulty",
+  4: "Impossible to do",
+};
+
+export const OKSWalking = {
+  0: "No pain/More than 30 mins",
+  1: "16-30 mins",
+  2: "5-15 mins",
+  3: "Around the house only",
+  4: "Not at all/Pain severe when walking",
+};
+
+export const OKSStanding = {
+  0: "Not at all painful",
+  1: "Slightly painful",
+  2: "Moderately painful",
+  3: "Very painful",
+  4: "Unbearable",
+};
+
+export const OKSFrequency = {
+  0: "Rarely/Never",
+  1: "Sometimes, just at first",
+  2: "Often, not just at first",
+  3: "Most of the time",
+  4: "All of the time",
+};
+
+export const OKSEase = {
+  0: "Yes, easily",
+  1: "With little difficulty",
+  2: "With moderate difficulty",
+  3: "With extreme difficulty",
+  4: "No, impossible",
+};
+
+export const OKSNightPain = {
+  0: "No nights",
+  1: "Only 1 or 2 nights",
+  2: "Some nights",
+  3: "Most nights",
+  4: "Every night",
+};
+
+export const OKSWorkInterference = {
+  0: "Not at all",
+  1: "A little bit",
+  2: "Moderately",
+  3: "Greatly",
+  4: "Totally",
+};
+
 export const OtherOptions = {
   0: "None",
   1: "Slight",
@@ -89,193 +193,86 @@ export const TopFiveAreas = {
 };
 
 export const AllOptions = [
-  // "FunctionWalking",
-  // "FunctionStairs",
-  // "Pain",
-  "PainWalking",
-  "PainStairClimbing",
-  "PainNocturnal",
-  "PainRest",
-  "PainWeightbearing",
-  "StiffnessMorning",
-  "StiffnessLaterDay",
-  "PHDecendingstairs",
-  "PHAscendingstairs",
-  "PHRisingfromsitting",
-  "PHStanding",
-  "PHBendingtofloor",
-  "PHWalkingonflatsurface",
-  "PHGettinginoutofcar",
-  "PHGoingshopping",
-  "PHPuttingonsocks",
-  "PHLyinginbed",
-  "PHTakingoffsocks",
-  "PHRisingfrombed",
-  "PHGettinginoutofbath",
-  "PHSitting",
-  "PHGettingonofftoilet",
-  "PHHeavydomesticduties",
-  "PHLightdomesticduties",
+  "KFS",        // Function stairs
+  "KFW",        // Function walking
+  "KPAIN",      // Knee pain overall
+  "EQ5D-MOB",   // Mobility
+  "EQ5D-SC",    // Self-care
+  "EQ5D-UA",    // Usual activities
+  "EQ5D-PD",    // Pain/discomfort
+  "EQ5D-AD",    // Anxiety/depression
+  "OKS1",
+  "OKS2",
+  "OKS3",
+  "OKS4",
+  "OKS5",
+  "OKS6",
+  "OKS7",
+  "OKS8",
+  "OKS9",
+  "OKS10",
+  "OKS11",
+  "OKS12",
 ] as const; // Use `as const` to make the array readonly and infer literal types
 
 export type AllOptionsType = (typeof AllOptions)[number]; // Create a union type from the array
 
+// Human-readable names (labels for UI)
 export const AllOptionNames = [
-  "Your pain when walking?",
-  "Your pain when climbing stairs?",
-  "Your pain at night?",
-  "Your pain when resting?",
-  "Your pain when carrying heavy things?",
-  "Your stiffness in the morning?",
-  "Your stiffness later in the day?",
-  "Your difficulty in walking down stairs?",
-  "Your difficulty in walking up stairs?",
-  "Your difficulty in rising from sitting?",
-  "Your difficulty in standing?",
-  "Your difficulty in bending to the floor?",
-  "Your difficulty in walking on a flat surface?",
-  "Your difficulty in getting in or out of a car?",
-  "Your difficulty in going shopping?",
-  "Your difficulty in putting on socks?",
-  "Your difficulty in lying in bed?",
-  "Your difficulty in taking off socks?",
-  "Your difficulty in rising from bed?",
-  "Your difficulty in getting in or out of a bath?",
-  "Your difficulty in sitting?",
-  "Your difficulty in getting on and off the toilet?",
-  "Your difficulty in doing heavy housework?",
-  "Your difficulty in doing light housework?",
-];
+  "Function stairs",
+  "Function walking",
+  "Knee pain overall",
+  "EQ-5D: Mobility",
+  "EQ-5D: Self-care",
+  "EQ-5D: Usual activities",
+  "EQ-5D: Pain/discomfort",
+  "EQ-5D: Anxiety/depression",
+  "How would you describe the pain you usually have from your knee?",
+  "Have you had any trouble with washing and drying yourself (all over) because of your knee?",
+  "Have you had any trouble getting in and out of a car or using public transport because of your knee? (whichever you tend to use)",
+  "For how long have you been able to walk before pain from your knee becomes severe? (with or without a stick)",
+  "After a meal (sat at a table), how painful has it been for you to stand up from a chair because of your knee?",
+  "Have you been limping when walking, because of your knee?",
+  "Could you kneel down and get up again afterwards?",
+  "Have you been troubled by pain from your knee in bed at night?",
+  "How much has pain from your knee interfered with your usual work (including housework)?",
+  "Have you felt that your knee might suddenly 'give way' or let you down?",
+  "Could you do the household shopping on your own?",
+  "Could you walk down one flight of stairs?",
+] as const;
 
 export type AllOptionNamesType = (typeof AllOptionNames)[number];
 
+// Question type
 export type QuestionType = {
-  name: AllOptionsType;
-  question: string;
-  list: Record<number, string>;
+  id: number;
+  code: AllOptionsType;    // match DB code
+  question: string;        // display text
+  list: Record<number, string>; // Likert or option scale
 };
 
+// Actual questions list aligned with DB
 export const Questions: QuestionType[] = [
-  {
-    name: "PainWalking",
-    question: "Your pain when walking?",
-    list: OtherOptions,
-  },
-  {
-    name: "PainStairClimbing",
-    question: "Your pain when climbing stairs?",
-    list: OtherOptions,
-  },
-  {
-    name: "PainNocturnal",
-    question: "Your pain at night?",
-    list: OtherOptions,
-  },
-  {
-    name: "PainRest",
-    question: "Your pain when resting?",
-    list: OtherOptions,
-  },
-  {
-    name: "PainWeightbearing",
-    question: "Your pain when carrying heavy things?",
-    list: OtherOptions,
-  },
-  {
-    name: "StiffnessMorning",
-    question: "Your stiffness in the morning?",
-    list: OtherOptions,
-  },
-  {
-    name: "StiffnessLaterDay",
-    question: "Your stiffness later in the day?",
-    list: OtherOptions,
-  },
-  {
-    name: "PHDecendingstairs",
-    question: "Your difficulty in walking down stairs?",
-    list: OtherOptions,
-  },
-  {
-    name: "PHAscendingstairs",
-    question: "Your difficulty in walking up stairs?",
-    list: OtherOptions,
-  },
-  {
-    name: "PHRisingfromsitting",
-    question: "Your difficulty in rising from sitting?",
-    list: OtherOptions,
-  },
-  {
-    name: "PHStanding",
-    question: "Your difficulty in standing?",
-    list: OtherOptions,
-  },
-  {
-    name: "PHBendingtofloor",
-    question: "Your difficulty in bending to the floor?",
-    list: OtherOptions,
-  },
-  {
-    name: "PHWalkingonflatsurface",
-    question: "Your difficulty in walking on a flat surface?",
-    list: OtherOptions,
-  },
-  {
-    name: "PHGettinginoutofcar",
-    question: "Your difficulty in getting in or out of a car?",
-    list: OtherOptions,
-  },
-  {
-    name: "PHGoingshopping",
-    question: "Your difficulty in going shopping?",
-    list: OtherOptions,
-  },
-  {
-    name: "PHPuttingonsocks",
-    question: "Your difficulty in putting on socks?",
-    list: OtherOptions,
-  },
-  {
-    name: "PHLyinginbed",
-    question: "Your difficulty in lying in bed?",
-    list: OtherOptions,
-  },
-  {
-    name: "PHTakingoffsocks",
-    question: "Your difficulty in taking off socks?",
-    list: OtherOptions,
-  },
-  {
-    name: "PHRisingfrombed",
-    question: "Your difficulty in rising from bed?",
-    list: OtherOptions,
-  },
-  {
-    name: "PHGettinginoutofbath",
-    question: "Your difficulty in getting in or out of a bath?",
-    list: OtherOptions,
-  },
-  {
-    name: "PHSitting",
-    question: "Your difficulty in sitting?",
-    list: OtherOptions,
-  },
-  {
-    name: "PHGettingonofftoilet",
-    question: "Your difficulty in getting on and off the toilet?",
-    list: OtherOptions,
-  },
-  {
-    name: "PHHeavydomesticduties",
-    question: "Your difficulty in doing heavy housework?",
-    list: OtherOptions,
-  },
-  {
-    name: "PHLightdomesticduties",
-    question: "Your difficulty in doing light housework?",
-    list: OtherOptions,
-  },
+  { id: 1, code: "KFS", question: "Function stairs", list: FunctionStairs },
+  { id: 2, code: "KFW", question: "Function walking", list: FunctionWalking },
+  { id: 3, code: "KPAIN", question: "Knee pain overall", list: Pain },
+  { id: 4, code: "EQ5D-MOB", question: "Mobility", list: Mobility },
+  { id: 5, code: "EQ5D-SC", question: "Self-care", list: SelfCare },
+  { id: 6, code: "EQ5D-UA", question: "Usual activities", list: UsualActivities },
+  { id: 7, code: "EQ5D-PD", question: "Pain/discomfort", list: PainDiscomfort },
+  { id: 8, code: "EQ5D-AD", question: "Anxiety/depression", list: AnxietyDepression },
+  { id: 9, code: "OKS1", question: "How would you describe the pain you usually have from your knee?", list: OKSKneePain },
+  { id: 10, code: "OKS2", question: "Have you had any trouble with washing and drying yourself (all over) because of your knee?", list: OKSKneeTrouble },
+  { id: 11, code: "OKS3", question: "Have you had any trouble getting in and out of a car or using public transport because of your knee? (whichever you tend to use)", list: OKSKneeTrouble },
+  { id: 12, code: "OKS4", question: "For how long have you been able to walk before pain from your knee becomes severe? (with or without a stick)", list: OKSWalking },
+  { id: 13, code: "OKS5", question: "After a meal (sat at a table), how painful has it been for you to stand up from a chair because of your knee?", list: OKSStanding },
+  { id: 14, code: "OKS6", question: "Have you been limping when walking, because of your knee?", list: OKSFrequency },
+  { id: 15, code: "OKS7", question: "Could you kneel down and get up again afterwards?", list: OKSEase },
+  { id: 16, code: "OKS8", question: "Have you been troubled by pain from your knee in bed at night?", list: OKSNightPain },
+  { id: 17, code: "OKS9", question: "How much has pain from your knee interfered with your usual work (including housework)?", list: OKSWorkInterference },
+  { id: 18, code: "OKS10", question: "Have you felt that your knee might suddenly 'give way' or let you down?", list: OKSFrequency },
+  { id: 19, code: "OKS11", question: "Could you do the household shopping on your own?", list: OKSEase },
+  { id: 20, code: "OKS12", question: "Could you walk down one flight of stairs?", list: OKSEase },
 ];
 
 export type BarChartData = {

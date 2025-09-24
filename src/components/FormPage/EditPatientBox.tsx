@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import api from "../../api/api";
 import axios from "axios";
 import { useAlert } from "../../hooks/AlertContext";
 import { useForm } from "../../hooks/FormContext";
@@ -58,8 +59,7 @@ const EditPatientBox: React.FC<EditPatientBoxProps> = ({ onClose }) => {
   const handleUpdate = async () => {
     try {
       showAlert("Updating patient...", "info");
-      const response = await axios.put(
-        `https://precede-koa.netlify.app/.netlify/functions/api/patients/edit`,
+      const response = await api.put(`/patients/edit`,
         { ...patient, ...formData }
       );
 

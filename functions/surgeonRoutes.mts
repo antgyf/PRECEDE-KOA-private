@@ -24,6 +24,33 @@ router.use(
   })
 );
 
+// Get surgeon title by ID
+router.get("/:id", async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const surgeonId = Number(id);
+
+    if (isNaN(surgeonId)) {
+      res.status(400).json({ message: "Invalid surgeon ID" });
+      return;
+    }
+
+    const result = await pool.query(
+      "SELECT surgeontitle FROM surgeon WHERE surgeonid = $1",
+      [surgeonId]
+    );
+
+    if (result.rows.length === 0) {
+      res.status(404).json({ message: "Surgeon not found" });
+      return;
+    }
+
+    res.status(200).json({ title: result.rows[0].surgeontitle });
+  } catch (error: any) {
+    console.error("Error fetching surgeon:", error.message || error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 // Get available surgeon IDs (without accounts)
 router.get("/available-ids", async (req: Request, res: Response): Promise<void> => {
