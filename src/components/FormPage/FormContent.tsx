@@ -10,15 +10,16 @@ import GreenButton from "../UI/Button/GreenButton";
 import PatientDetail from "./PatientDetail";
 
 interface FormContentProps {
-  term: number;
+  term?: number; // optional, fallback to context
 }
 
 const FormContent: React.FC<FormContentProps> = ({ term }) => {
   const { showAlert } = useAlert();
   const navigate = useNavigate();
-  const { patient, setCurrentForm } = useForm();
+  const { setCurrentPatient } = useForm();
+  const { patient, form, term: contextTerm, setCurrentForm } = useForm();
+  const termToUse = term ?? contextTerm;
 
-  // answers keyed by question code
   const [answers, setAnswers] = useState<Record<string, string>>(
     () => Questions.reduce((acc, q) => ({ ...acc, [q.code]: "" }), {})
   );
@@ -27,46 +28,48 @@ const FormContent: React.FC<FormContentProps> = ({ term }) => {
 
   /** Fetch form for selected term */
   useEffect(() => {
-    if (!patient?.patientid) return;
+  if (!patient?.hasform || termToUse === undefined) return;
 
-    const fetchPatientForm = async () => {
-      setIsLoading(true);
-      showAlert("Loading...", "info");
-      try {
-        const response = await api.get("/patients/form", {
-          params: { patientid: patient.patientid, term },
-        });
+  const fetchPatientForm = async () => {
+    setIsLoading(true);
+    showAlert("Loading...", "info");
 
-        if (response.data.length === 0) {
-          // No form yet for this term
-          setAnswers(
-            Questions.reduce((acc, q) => ({ ...acc, [q.code]: "" }), {})
-          );
-          setIsDisabled(false);
-          showAlert("No form exists for this term. You can create one.", "info");
-          return;
-        }
+    try {
+      const response = await api.get("/patients/form", {
+        params: { patientid: patient.patientid, term: termToUse },
+      });
 
-        const formData = response.data[0];
-        setCurrentForm(formData);
-
-        const populatedAnswers = Questions.reduce((acc, q) => {
-          acc[q.code] = formData[q.code]?.toString() || "0";
-          return acc;
-        }, {} as Record<string, string>);
-
-        setAnswers(populatedAnswers);
-        setIsDisabled(true); // disable editing if already filled
-      } catch (error) {
-        console.error("Error fetching form data:", error);
-        showAlert("Error loading form data.", "error");
-      } finally {
-        setIsLoading(false);
+      if (response.data.length === 0) {
+        setAnswers(Questions.reduce((acc, q) => ({ ...acc, [q.code]: "" }), {}));
+        setIsDisabled(false);
+        showAlert("No form exists for this term. You can create one.", "info");
+        return;
       }
-    };
 
-    fetchPatientForm();
-  }, [term, patient?.patientid]);
+      const formData = response.data[0];
+
+      // Only update context if the current form in context is undefined or different
+      if (!form || form.term !== termToUse) {
+        setCurrentForm(formData, termToUse);
+      }
+
+      const populatedAnswers = Questions.reduce((acc, q) => {
+        acc[q.code] = formData[q.code]?.toString() || "0";
+        return acc;
+      }, {} as Record<string, string>);
+
+      setAnswers(populatedAnswers);
+      setIsDisabled(true); // disable editing if form already exists
+    } catch (error) {
+      console.error("Error fetching form data:", error);
+      showAlert("Error loading form data.", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  fetchPatientForm();
+}, [patient?.patientid, termToUse, form, setCurrentForm]);
 
   /** Handle radio input */
   const handleRadioInput = (code: string, value: string) => {
@@ -80,6 +83,8 @@ const FormContent: React.FC<FormContentProps> = ({ term }) => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    if (!patient?.patientid || termToUse === undefined) return;
+
     const unansweredQuestions = Questions.filter(
       (q) => !answers[q.code] || answers[q.code] === ""
     );
@@ -89,15 +94,15 @@ const FormContent: React.FC<FormContentProps> = ({ term }) => {
       return;
     }
 
-    // ✅ Transform answers to match API structure
     const responses = Questions.map((q) => ({
       questionid: q.id,
+      code: q.code, // add this
       answervalue: parseInt(answers[q.code]),
     }));
 
     const formData = {
-      patientid: patient?.patientid,
-      term,
+      patientid: patient.patientid,
+      term: termToUse,
       responses,
     };
 
@@ -107,11 +112,15 @@ const FormContent: React.FC<FormContentProps> = ({ term }) => {
         headers: { "Content-Type": "application/json" },
       });
 
+      // ✅ store in context along with term
+      setCurrentForm(formData, termToUse);
+      setCurrentPatient({ ...patient, hasform: true }); // update hasform status
+
       showAlert(
         response.data.message || "Form submitted successfully!",
         "success"
       );
-      navigate("/home");
+      navigate(`/priorities?term=${termToUse}`); // term already in context
     } catch (error) {
       console.error("Error submitting form:", error);
       if (error instanceof AxiosError) {
@@ -130,7 +139,7 @@ const FormContent: React.FC<FormContentProps> = ({ term }) => {
   };
 
   return (
-    <div className="w-full h-full flex flex-col overflow-y-auto px-6 py-4">
+    <div className="w-full h-full flex flex-col overflow-y-auto px-6 py-4 text-lg">
       {isLoading ? (
         <div className="flex justify-center items-center h-full">
           <p>Loading form data...</p>
@@ -138,12 +147,12 @@ const FormContent: React.FC<FormContentProps> = ({ term }) => {
       ) : (
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           <PatientDetail />
-          <article className="prose-lg font-bold m-0">
+          <article className="prose-lg font-bold m-0 text-lg">
             <h4 className="my-0">Please answer all questions below.</h4>
           </article>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {Questions.map((q, index) => (
-              <div key={q.id} className="w-full">
+              <div key={q.id} className="w-full text-lg">
                 <RadioChoice
                   name={q.code}
                   question={`${index + 1}. ${q.question}`}

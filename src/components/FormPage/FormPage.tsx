@@ -8,9 +8,9 @@ import { useAlert } from "../../hooks/AlertContext";
 import Alert from "../UI/Alert";
 
 const FormPage: React.FC = () => {
-  const { patient } = useForm();
+  const { patient, form, term, setCurrentForm } = useForm();
   const { alert } = useAlert();
-  const [selectedTerm, setSelectedTerm] = useState<number>(0);
+  const [selectedTerm, setSelectedTerm] = useState<number>(term ?? 0);
 
   return (
     <div className="w-screen h-screen flex flex-col items-center bg-neutral">
@@ -20,13 +20,13 @@ const FormPage: React.FC = () => {
         <BackButton target="Patient Page" to="/home" />
         <div className="flex flex-row gap-4">
           {patient?.hasform && (
-            <ForwardButton target="Analysis Page" to="/analysis" />
+            <ForwardButton target="Priorities Page" to={`/priorities?term=${selectedTerm}`} />
           )}
           <LogoutButton />
         </div>
       </div>
 
-      {/* Main content shifted down by banner height */}
+      {/* Main content */}
       <div className="flex-1 w-full max-w-7xl px-4 mt-24 overflow-y-auto">
         {/* Term Selector */}
         <div className="mb-4">
@@ -36,7 +36,8 @@ const FormPage: React.FC = () => {
             value={selectedTerm}
             onChange={(e) => setSelectedTerm(Number(e.target.value))}
           >
-            {[0, 1, 2, 3, 4, 5].map((t) => (
+            {/* Options for terms, disable all except term 0 for now */}
+            {[0].map((t) => (
               <option key={t} value={t}>
                 Term {t}
               </option>
@@ -46,7 +47,10 @@ const FormPage: React.FC = () => {
 
         {/* Form Content */}
         <div className="flex-1 w-full max-w-7xl rounded-lg overflow-y-auto">
-          <FormContent key={selectedTerm} term={selectedTerm} />
+          <FormContent
+            key={selectedTerm}
+            term={selectedTerm}
+          />
         </div>
       </div>
     </div>

@@ -107,8 +107,8 @@ const FindPatientBox: React.FC<FindPatientBoxProps> = ({ onClose }) => {
     async (page: number, resetFilters = false) => {
       try {
         const params = resetFilters
-          ? { page, limit: 8, surgeonid: user?.id }
-          : { page, limit: 8, ...filters, surgeonid: user?.id };
+          ? { page, limit: 8 }
+          : { page, limit: 8, ...filters };
 
         showAlert("Finding patient...", "info");
 
@@ -165,7 +165,7 @@ const FindPatientBox: React.FC<FindPatientBoxProps> = ({ onClose }) => {
       showAlert("Searching...", "info");
       const response = await api.get("patients/searchByName",
         {
-          params: { name: query, surgeonid: user?.id },
+          params: { name: query },
         }
       );
 

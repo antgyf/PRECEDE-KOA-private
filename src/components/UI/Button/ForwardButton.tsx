@@ -4,12 +4,17 @@ import { useNavigate } from "react-router-dom";
 interface ForwardButtonProps {
   target: string; // Name of the next component or page
   to: string; // Path to navigate
+  onClick?: () => void; // Optional extra logic to execute on click
 }
 
-const ForwardButton: React.FC<ForwardButtonProps> = ({ target, to }) => {
+const ForwardButton: React.FC<ForwardButtonProps> = ({ target, to, onClick }) => {
   const navigate = useNavigate();
 
   const handleForward = () => {
+    // Call any extra logic from parent
+    if (onClick) onClick();
+
+    // Navigate after that
     navigate(to);
   };
 

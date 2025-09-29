@@ -41,15 +41,14 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await api.get(`/surgeons/me`, {
-          withCredentials: true,
-        });
+        const res = await api.get("/surgeons/me", { withCredentials: true });
         setUser({ id: res.data.id, name: res.data.username });
       } catch (error) {
-        console.error("Failed to fetch user", error);
+        console.warn("No logged-in user"); // don't treat as fatal
         setUser(null);
       }
-    };
+
+    }; 
     fetchUser();
   }, []);
 

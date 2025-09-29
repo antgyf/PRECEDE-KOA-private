@@ -19,7 +19,7 @@ const SelectVariable: React.FC<SelectVariableProps> = ({ value, onChange }) => {
           Select area
         </option>
         {Questions.map((val) => (
-          <option key={val.name} value={val.name}>
+          <option key={val.code} value={val.code}>
             {val.question}
           </option>
         ))}

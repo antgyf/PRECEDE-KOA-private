@@ -101,6 +101,14 @@ CREATE TABLE patientformresponse (
     answervalue INT
 );
 
+CREATE TABLE patientpriority (
+    priorityid SERIAL PRIMARY KEY,
+    patientid INT NOT NULL REFERENCES patient(patientid) ON DELETE CASCADE,
+    questionid INT NOT NULL REFERENCES question(questionid) ON DELETE CASCADE,
+    term INT NOT NULL,  -- so priorities can differ at T0, T1, etc
+    UNIQUE (patientid, questionid, term) -- prevent duplicates
+);
+
 -- ==============================
 -- 4. Seed Questions
 -- ==============================

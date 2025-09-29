@@ -1,5 +1,3 @@
-import { AllOptionsType } from "./patientDetails";
-
 export interface Patient {
   patientid: number;
   fullname: string;
@@ -13,35 +11,14 @@ export interface Patient {
 }
 
 export interface PatientForm {
-  PainWalking: number;
-  PainStairClimbing: number;
-  PainNocturnal: number;
-  PainRest: number;
-  PainWeightbearing: number;
-  StiffnessMorning: number;
-  StiffnessLaterDay: number;
-  PHDecendingstairs: number;
-  PHAscendingstairs: number;
-  PHRisingfromsitting: number;
-  PHStanding: number;
-  PHBendingtofloor: number;
-  PHWalkingonflatsurface: number;
-  PHGettinginoutofcar: number;
-  PHGoingshopping: number;
-  PHPuttingonsocks: number;
-  PHLyinginbed: number;
-  PHTakingoffsocks: number;
-  PHRisingfrombed: number;
-  PHGettinginoutofbath: number;
-  PHSitting: number;
-  PHGettingonofftoilet: number;
-  PHHeavydomesticduties: number;
-  PHLightdomesticduties: number;
-  rank1: AllOptionsType;
-  rank2: AllOptionsType;
-  rank3: AllOptionsType;
-  rank4: AllOptionsType;
-  rank5: AllOptionsType;
+  patientid: number;
+  term: number;
+  responses: {
+    questionid: number;    // matches Questions[].id
+    code: string;          // optional, matches Questions[].code
+    answervalue: number;
+  }[];
+  priorities?: number[];   // optional array of selected questionids
 }
 
 export type GraphData = Array<

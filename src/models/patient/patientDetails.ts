@@ -43,6 +43,8 @@ export const SurgeonTitle: Record<string, string> = {
 export type FilterType = {
   age?: { range: number };
   bmi?: { range: number };
+  surgeonid?: { number: number };
+  surgeontitle?: { string: string };
   categories: string[];
 };
 export const FunctionWalking = {

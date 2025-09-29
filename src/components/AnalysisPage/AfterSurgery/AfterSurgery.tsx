@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import api from "../../../api/api";
 import { useForm } from "../../../hooks/FormContext";
 import {
   AllOptionsType,
@@ -80,8 +81,8 @@ const AfterSurgery: React.FC = () => {
 
         const scrollY = window.scrollY; // Save current scroll position
 
-        const response = await axios.post(
-          "https://precede-koa.netlify.app/.netlify/functions/api/patients/after",
+        const response = await api.post(
+          "/patients/after",
           {
             variableName: variable,
             options: options,

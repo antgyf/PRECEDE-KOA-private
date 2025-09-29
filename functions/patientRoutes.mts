@@ -76,33 +76,6 @@ router.put("/edit", async (req: Request, res: Response): Promise<any> => {
   }
 });
 
-router.delete(
-  "/delete/:id",
-  async (req: Request, res: Response): Promise<any> => {
-    const { id } = req.params;
-    try {
-      const result = await pool.query(
-        `DELETE FROM patient WHERE patientid = $1 RETURNING *;`,
-        [id]
-      );
-
-      if (result.rowCount === 0) {
-        return res
-          .status(404)
-          .json({ message: "Patient not found or already deleted." });
-      }
-
-      res.status(200).json({
-        message: "Patient deleted successfully",
-        deletedPatient: result.rows[0],
-      });
-    } catch (error) {
-      console.error("Error deleting patient:", error);
-      res.status(500).json({ message: "Internal server error", error });
-    }
-  }
-);
-
 // Define expected request body interface
 interface AddPatientRequest {
   fullname: string;
@@ -333,6 +306,97 @@ router.post("/forms", async (req: Request, res: Response) => {
     await client.query("ROLLBACK");
     console.error(err);
     res.status(500).json({ error: "Failed to submit form" });
+  } finally {
+    client.release();
+  }
+});
+
+
+// GET /responses?patientid=123&term=0
+router.get("/responses", async (req: Request, res: Response) => {
+  const { patientid, term } = req.query;
+
+  if (!patientid || term === undefined) {
+    return res.status(400).json({ message: "patientid and term are required" });
+  }
+
+  try {
+    const query = `
+      SELECT q.code, r.answervalue
+      FROM patientform pf
+      JOIN patientformresponse r ON pf.formid = r.formid
+      JOIN question q ON r.questionid = q.questionid
+      WHERE pf.patientid = $1 AND pf.term = $2
+      ORDER BY q.questionid
+    `;
+
+    const { rows } = await pool.query(query, [Number(patientid), Number(term)]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "No responses found for this patient and term." });
+    }
+
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error("Error fetching form responses:", error);
+    res.status(500).json({ message: "Failed to fetch form responses", error });
+  }
+});
+
+
+router.post("/priorities", async (req: Request, res: Response) => {
+  const client = await pool.connect();
+  try {
+    const { patientid, term, priorities , minPriorities } = req.body;
+    // priorities = [1, 5, 8, 10, 12] (array of questionids)
+
+    if (
+      !patientid ||
+      term === undefined ||
+      !Array.isArray(priorities) ||
+      priorities.length !== (Number(minPriorities) || 5)
+    ) {
+      return res.status(400).json({
+        message: `You must provide exactly ${minPriorities} priorities for this term.`,
+      });
+    }
+
+    await client.query("BEGIN");
+
+    // Check if priorities already exist for this patient+term
+    const existing = await client.query(
+      `SELECT COUNT(*) FROM patientpriority WHERE patientid = $1 AND term = $2`,
+      [patientid, term]
+    );
+
+    if (parseInt(existing.rows[0].count, 10) > 0) {
+      await client.query("ROLLBACK");
+      return res
+        .status(400)
+        .json({ message: "Priorities already exist for this term." });
+    }
+
+    // Insert exactly 5 new priorities
+    for (const qid of priorities) {
+      await client.query(
+        `INSERT INTO patientpriority (patientid, questionid, term)
+         VALUES ($1, $2, $3)`,
+        [patientid, qid, term]
+      );
+    }
+
+    await client.query("COMMIT");
+
+    res.status(201).json({
+      message: "Priorities saved successfully",
+      patientid,
+      term,
+      priorities,
+    });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error("Error saving priorities:", error);
+    res.status(500).json({ message: "Failed to save priorities", error });
   } finally {
     client.release();
   }
@@ -613,5 +677,53 @@ router.post("/after", async (req: Request, res: Response) => {
     return;
   }
 });
+
+
+router.get("/priorities/:patientid/:term", async (req: Request, res: Response) => {
+  const { patientid, term } = req.params;
+
+  try {
+    const result = await pool.query(
+      `SELECT q.questionid, q.code, q.text
+       FROM patientpriority pp
+       JOIN question q ON pp.questionid = q.questionid
+       WHERE pp.patientid = $1 AND pp.term = $2`,
+      [patientid, term]
+    );
+
+    res.status(200).json({ patientid, term, priorities: result.rows });
+  } catch (error) {
+    console.error("Error fetching priorities:", error);
+    res.status(500).json({ message: "Failed to fetch priorities", error });
+  }
+});
+
+router.delete(
+  "/delete/:id",
+  async (req: Request, res: Response): Promise<any> => {
+    const { id } = req.params;
+    try {
+      const result = await pool.query(
+        `DELETE FROM patient WHERE patientid = $1 RETURNING *;`,
+        [id]
+      );
+
+      if (result.rowCount === 0) {
+        return res
+          .status(404)
+          .json({ message: "Patient not found or already deleted." });
+      }
+
+      res.status(200).json({
+        message: "Patient deleted successfully",
+        deletedPatient: result.rows[0],
+      });
+    } catch (error) {
+      console.error("Error deleting patient:", error);
+      res.status(500).json({ message: "Internal server error", error });
+    }
+  }
+);
+
 
 export { router };

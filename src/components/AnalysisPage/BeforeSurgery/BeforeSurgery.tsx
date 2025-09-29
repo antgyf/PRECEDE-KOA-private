@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import api from "../../../api/api";
 import {
   AllOptionsType,
   FilterType,
@@ -59,7 +60,7 @@ const BeforeSurgery: React.FC = () => {
   // Set selected question based on selected variable chosen
   useEffect(() => {
     if (variable) {
-      const foundQuestion = Questions.find((q) => q.name === variable);
+      const foundQuestion = Questions.find((q) => q.code === variable);
       if (foundQuestion) {
         setQuestion(foundQuestion);
       }
@@ -80,8 +81,8 @@ const BeforeSurgery: React.FC = () => {
         const options = Object.entries(question.list);
 
         const scrollY = window.scrollY; // Save scroll position
-        const response = await axios.post(
-          "https://precede-koa.netlify.app/.netlify/functions/api/patients/before",
+        const response = await api.post(
+          "/patients/before",
           {
             variableName: variable,
             filters: filters,
