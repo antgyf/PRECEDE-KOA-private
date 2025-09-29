@@ -41,15 +41,14 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await api.get(`/surgeons/me`, {
-          withCredentials: true,
-        });
+        const res = await api.get("/surgeons/me", { withCredentials: true });
         setUser({ id: res.data.id, name: res.data.username });
       } catch (error) {
-        console.error("Failed to fetch user", error);
+        console.warn("No logged-in user"); // don't treat as fatal
         setUser(null);
       }
-    };
+
+    }; 
     fetchUser();
   }, []);
 
@@ -61,13 +60,13 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = async () => {
     try {
-      await fetch(
-        `https://precede-koa.netlify.app/.netlify/functions/api/${
+      await api.get(
+        `/${
           isSurgeon ? "surgeons" : "researchers"
         }/logout`,
         {
           method: "POST",
-          credentials: "include", // important to send cookies
+          withCredentials: true, // important to send cookies
         }
       );
     } catch (err) {

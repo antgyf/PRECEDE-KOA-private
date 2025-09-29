@@ -6,13 +6,21 @@ import {
   BarChartData,
   FilterType,
   OtherOptions,
+  OKSEase,
+  OKSFrequency,
+  OKSNightPain,
+  OKSStanding,
+  OKSWorkInterference,
+  OKSKneePain,
+  OKSKneeTrouble,
+  OKSWalking,
   QuestionData,
   Questions,
   QuestionType,
 } from "../../../models/patient/patientDetails";
 import { getRankDescription } from "../../../utils/helper";
 import { useAlert } from "../../../hooks/AlertContext";
-import axios from "axios";
+import api from "../../../api/api";
 import { useForm } from "../../../hooks/FormContext";
 import { RadarDataPoint } from "../../../models/patient/patientReport";
 import RadarChartCustom from "../RadarChart";
@@ -57,7 +65,7 @@ const ReportPage: React.FC = () => {
 
   const questionsWithOptions = variables
     .map((variable) => {
-      const question = Questions.find((q) => q.name === variable);
+      const question = Questions.find((q) => q.code === variable);
       return question
         ? {
             ...question,
@@ -81,8 +89,8 @@ const ReportPage: React.FC = () => {
 
         showAlert("Loading...", "info");
 
-        const response = await axios.post(
-          "https://precede-koa.netlify.app/.netlify/functions/api/patients/after",
+        const response = await api.post(
+          "/patients/after",
           {
             variableName: item.name,
             options: options,

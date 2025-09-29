@@ -10,8 +10,10 @@ import { Patient, PatientForm } from "../models/patient/patientReport";
 interface FormContextProps {
   form: PatientForm | undefined;
   patient: Patient | undefined;
-  setCurrentForm: (form: PatientForm) => void;
+  term: number | undefined;
+  setCurrentForm: (form: PatientForm, term: number, priorities?: number[]) => void;
   setCurrentPatient: (patient: Patient | undefined) => void;
+  setPriorities: (priorities: number[]) => void; // optional
 }
 
 export const FormContext = createContext<FormContextProps | undefined>(
@@ -19,7 +21,6 @@ export const FormContext = createContext<FormContextProps | undefined>(
 );
 
 const FormProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Load initial state from localStorage
   const [patient, setPatient] = useState<Patient | undefined>(() => {
     try {
       const storedPatient = localStorage.getItem("patient");
@@ -39,6 +40,8 @@ const FormProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       return undefined;
     }
   });
+
+  const [term, setTerm] = useState<number | undefined>(undefined);
 
   // Save patient to localStorage whenever it updates
   useEffect(() => {
@@ -69,11 +72,23 @@ const FormProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const setCurrentPatient = (patient: Patient | undefined) =>
     setPatient(patient);
 
-  const setCurrentForm = (form: PatientForm) => setForm(form);
+  const setCurrentForm = (form: PatientForm, term: number, priorities?: number[]) => {
+    setForm({
+      ...form,
+      term,
+      priorities: priorities ?? form.priorities,
+    });
+    setTerm(term);
+  };
+
+  const setPriorities = (priorities: number[]) => {
+    if (!form) return;
+    setForm({ ...form, priorities });
+  };
 
   return (
     <FormContext.Provider
-      value={{ patient, form, setCurrentPatient, setCurrentForm }}
+      value={{ patient, form, term, setCurrentPatient, setCurrentForm, setPriorities }}
     >
       {children}
     </FormContext.Provider>

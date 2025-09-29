@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useForm } from "../../hooks/FormContext";
 import { Ethnicity, Sex } from "../../models/patient/patientDetails";
-import axios from "axios";
+import api from "../../api/api";
 import { useAlert } from "../../hooks/AlertContext";
 import { useNavigate } from "react-router-dom";
 import EditPatientBox from "./EditPatientBox";
@@ -27,8 +27,8 @@ const PatientDetail: React.FC = () => {
       return;
 
     try {
-      await axios.delete(
-        `https://precede-koa.netlify.app/.netlify/functions/api/patients/delete/${patient.patientid}`
+      await api.delete(
+        `/patients/delete/${patient.patientid}`
       );
       setCurrentPatient(undefined);
       showAlert("Patient deleted successfully!", "success");

@@ -7,7 +7,7 @@ import {
 import { useAlert } from "../../../hooks/AlertContext";
 import ToggleUp from "../../UI/Button/ToggleUp";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../../../api/api";
 import { useAuth } from "../../../hooks/AuthContext";
 import SelectInput from "../../UI/Form/SelectInput";
 import TextInput from "../../UI/Form/TextInput";
@@ -66,8 +66,7 @@ const AddPatientBox: React.FC<AddPatientBoxProps> = ({ onClose }) => {
 
     try {
       showAlert("Adding patient...", "info");
-      const response = await axios.post(
-        `https://precede-koa.netlify.app/.netlify/functions/api/patients/add`,
+      const response = await api.post(`/patients/add`,
         {
           ...form,
           surgeonid:

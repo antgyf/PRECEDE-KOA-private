@@ -5,7 +5,7 @@ import FilterTextInput from "../../UI/Form/FilterTextInput";
 import SearchBar from "./SearchBar";
 import ToggleUp from "../../UI/Button/ToggleUp";
 import { useNavigate } from "react-router-dom";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import api from "../../../api/api";
 import { useAlert } from "../../../hooks/AlertContext";
 import { useAuth } from "../../../hooks/AuthContext";
@@ -51,21 +51,45 @@ const FindPatientBox: React.FC<FindPatientBoxProps> = ({ onClose }) => {
   };
 
   /** Handle Filter Change */
-  const handleFilterChange = (
+  const handleFilterChange = async (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
 
-    // for surgeonid, allow free typing but keep string in filters
+    // Surgeon ID input
     if (name === "surgeonid") {
+      const newSurgeonId = value !== "" ? Number(value) : undefined;
+
       setFilters((prev) => ({
         ...prev,
-        surgeonid: value !== "" ? Number(value) : undefined,
+        surgeonid: newSurgeonId,
+        surgeontitle: "", // reset title while fetching
       }));
+
+      // If a valid number, fetch surgeon title
+      if (!isNaN(newSurgeonId)) {
+        try {
+          const response = await api.get(`/surgeon/${newSurgeonId}`);
+          setFilters((prev) => ({
+            ...prev,
+            surgeontitle: response.data.title, // use the { title: ... } response
+          }));
+        } catch (error) {
+          console.error("Error fetching surgeon title:", error);
+          setFilters((prev) => ({
+            ...prev,
+            surgeontitle: "",
+          }));
+        }
+      } else {
+        // reset title if input is empty or invalid
+        setFilters((prev) => ({ ...prev, surgeontitle: "" }));
+      }
+
       return;
     }
 
-    // default case for other filters
+    // Default case for other filters
     const numericFields = ["ethnicity", "bmi", "sex"];
     setFilters((prev) => ({
       ...prev,
@@ -77,13 +101,14 @@ const FindPatientBox: React.FC<FindPatientBoxProps> = ({ onClose }) => {
     }));
   };
 
+
   /** Fetch Patients with Filters & Pagination */
   const fetchPatients = useCallback(
     async (page: number, resetFilters = false) => {
       try {
         const params = resetFilters
-          ? { page, limit: 8, surgeonid: user?.id }
-          : { page, limit: 8, ...filters, surgeonid: user?.id };
+          ? { page, limit: 8 }
+          : { page, limit: 8, ...filters };
 
         showAlert("Finding patient...", "info");
 
@@ -140,7 +165,7 @@ const FindPatientBox: React.FC<FindPatientBoxProps> = ({ onClose }) => {
       showAlert("Searching...", "info");
       const response = await api.get("patients/searchByName",
         {
-          params: { name: query, surgeonid: user?.id },
+          params: { name: query },
         }
       );
 
@@ -201,13 +226,15 @@ const FindPatientBox: React.FC<FindPatientBoxProps> = ({ onClose }) => {
         />
 
         {/* Surgeon Title dropdown */}
-        <FilterInput
-          label="Surgeon Title"
-          list={SurgeonTitle}
-          name="surgeontitle"
-          value={filters.surgeontitle !== undefined ? filters.surgeontitle.toString() : ""}
-          onChange={handleFilterChange}
-        />
+        <fieldset disabled={!!filters.surgeonid}>
+          <FilterInput
+            label="Surgeon Title"
+            list={SurgeonTitle}
+            name="surgeontitle"
+            value={filters.surgeontitle || ""}
+            onChange={handleFilterChange}
+          />
+        </fieldset>
 
         {/* Surgeon ID numeric input */}
         <FilterTextInput

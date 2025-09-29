@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import BackButton from "../UI/Button/BackButton";
 import ForwardButton from "../UI/Button/ForwardButton";
 import FormContent from "./FormContent";
@@ -8,41 +8,50 @@ import { useAlert } from "../../hooks/AlertContext";
 import Alert from "../UI/Alert";
 
 const FormPage: React.FC = () => {
-  const { patient } = useForm();
+  const { patient, form, term, setCurrentForm } = useForm();
   const { alert } = useAlert();
+  const [selectedTerm, setSelectedTerm] = useState<number>(term ?? 0);
 
   return (
     <div className="w-screen h-screen flex flex-col items-center bg-neutral">
-      <div className="fixed pt-14 left-0 w-full bg-white z-40 shadow-md p-4 flex justify-between items-center">
+      {/* Fixed top banner */}
+      <div className="fixed top-0 left-0 w-full bg-white z-40 shadow-md p-4 flex justify-between items-center h-20">
         {alert.message && <Alert />}
         <BackButton target="Patient Page" to="/home" />
         <div className="flex flex-row gap-4">
           {patient?.hasform && (
-            <ForwardButton target="Analysis Page" to="/analysis" />
+            <ForwardButton target="Priorities Page" to={`/priorities?term=${selectedTerm}`} />
           )}
           <LogoutButton />
         </div>
       </div>
 
-      {/* Term Selector */}
-      <div className="mt-24 mb-4">
-        <label className="mr-2 font-bold">Select Term:</label>
-        <select
-          className="select select-bordered"
-          value={selectedTerm}
-          onChange={(e) => setSelectedTerm(Number(e.target.value))}
-        >
-          {[1, 2, 3, 4, 5].map((t) => (
-            <option key={t} value={t}>
-              Term {t}
-            </option>
-          ))}
-        </select>
-      </div>
+      {/* Main content */}
+      <div className="flex-1 w-full max-w-7xl px-4 mt-24 overflow-y-auto">
+        {/* Term Selector */}
+        <div className="mb-4">
+          <label className="mr-2 font-bold">Select Term:</label>
+          <select
+            className="select select-bordered"
+            value={selectedTerm}
+            onChange={(e) => setSelectedTerm(Number(e.target.value))}
+          >
+            {/* Options for terms, disable all except term 0 for now */}
+            {[0].map((t) => (
+              <option key={t} value={t}>
+                Term {t}
+              </option>
+            ))}
+          </select>
+        </div>
 
-      {/* Pass term down into FormContent */}
-      <div className="flex-1 w-screen max-w-7xl px-4 pt-4 rounded-lg overflow-y-auto">
-        <FormContent term={selectedTerm} />
+        {/* Form Content */}
+        <div className="flex-1 w-full max-w-7xl rounded-lg overflow-y-auto">
+          <FormContent
+            key={selectedTerm}
+            term={selectedTerm}
+          />
+        </div>
       </div>
     </div>
   );
