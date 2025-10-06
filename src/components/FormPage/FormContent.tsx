@@ -40,7 +40,7 @@ const FormContent: React.FC<FormContentProps> = ({ term }) => {
       });
 
       if (response.data.length === 0) {
-        setAnswers(Questions.reduce((acc, q) => ({ ...acc, [q.code]: "" }), {}));
+        setAnswers(Questions.reduce((acc : Record<string, string>, q) => ({ ...acc, [q.code]: "" }), {}));
         setIsDisabled(false);
         showAlert("No form exists for this term. You can create one.", "info");
         return;
@@ -62,7 +62,7 @@ const FormContent: React.FC<FormContentProps> = ({ term }) => {
       }, {} as Record<number, string>);
 
       // Transform backend data into answers keyed by question code
-      const populatedAnswers = response.data.reduce((acc, item: { questionid: number; answervalue: number }) => {
+      const populatedAnswers = response.data.reduce((acc : Record<string, string>, item: { questionid: number; answervalue: number }) => {
         const code = questionIdToCode[item.questionid];
         if (code) {
           acc[code] = item.answervalue?.toString() || "0";

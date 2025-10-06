@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import PDFReport from "./PDFReport";
 import FilterButtonsComponent from "../../AnalysisPage/AfterSurgery/Filter";
 import {
-  AllOptionsType,
   BarChartData,
   FilterType,
   OtherOptions,

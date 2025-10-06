@@ -58,7 +58,7 @@ const FindPatientBox: React.FC<FindPatientBoxProps> = ({ onClose }) => {
 
     // Surgeon ID input
     if (name === "surgeonid") {
-      const newSurgeonId = value !== "" ? Number(value) : undefined;
+      const newSurgeonId = value !== "" ? Number(value) : - 1;
 
       setFilters((prev) => ({
         ...prev,
@@ -67,7 +67,7 @@ const FindPatientBox: React.FC<FindPatientBoxProps> = ({ onClose }) => {
       }));
 
       // If a valid number, fetch surgeon title
-      if (!isNaN(newSurgeonId)) {
+      if (newSurgeonId > 0) {
         try {
           const response = await api.get(`/surgeon/${newSurgeonId}`);
           setFilters((prev) => ({

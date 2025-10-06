@@ -8,7 +8,7 @@ import { useAlert } from "../../hooks/AlertContext";
 import Alert from "../UI/Alert";
 
 const FormPage: React.FC = () => {
-  const { patient, form, term, setCurrentForm } = useForm();
+  const { patient, term } = useForm();
   const { alert } = useAlert();
   const [selectedTerm, setSelectedTerm] = useState<number>(term ?? 0);
 

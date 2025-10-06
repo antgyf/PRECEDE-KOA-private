@@ -25,7 +25,7 @@ export const getRankDescription = () => {
       </strong>{" "}
       hopes to see improvement most are:
       <ul className="leading-tight">
-        {priorityQuestions.map((q) => (
+        {(priorityQuestions ?? []).map((q) => (
           <li key={q}>{q}</li>
         ))}
       </ul>

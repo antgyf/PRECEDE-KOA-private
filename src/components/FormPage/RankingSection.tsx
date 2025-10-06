@@ -31,7 +31,7 @@ const RankingSection: React.FC<RankingSectionProps> = ({
   // Function to get the display question for a given variable name
   const getQuestionText = (variableName: string) => {
     return (
-      Questions.find((q) => q.name === variableName)?.question || variableName
+      Questions.find((q) => q.code === variableName)?.question || variableName
     );
   };
 
