@@ -159,9 +159,11 @@ const renderHumanIcons = () => {
     (r) => r.questionid === question.id
   )?.answervalue;
 
+  /*
   beforeData.data.forEach((item, index) => {
     console.log(`Item ${index} - option:`, item.option, typeof item.option, 'matches:', item.option == patientAnswerValue);
   });
+  */
 
   return beforeData.data.map((item: any, index: number) => {
     // Check if this item's option matches the patient's answer
