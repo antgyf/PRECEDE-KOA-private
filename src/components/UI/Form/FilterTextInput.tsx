@@ -22,7 +22,7 @@ const FilterTextInput: React.FC<FilterTextProps> = ({
         onChange={onChange}
         className="input input-bordered max-w-xs text-[16px] placeholder-black" 
         placeholder={label}
-        min={type === "number" ? 0 : undefined}  // disallow negatives
+        min={type === "number" ? 1 : undefined}  // disallow negatives
       />
     </div>
   );

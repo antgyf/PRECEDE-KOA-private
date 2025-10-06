@@ -9,16 +9,16 @@ router.get("/", (req: Request, res: Response): void => {
 });
 
 router.post("/add", async (req: Request, res: Response) => {
-  const { fullname, surgeonid, sex, ethnicity, age, bmi, height, weight } =
+  const { fullname, surgeonid, surgeontitle, sex, ethnicity, age, bmi, height, weight } =
     req.body;
 
   try {
     // Insert patient data into the database
     const result = await pool.query(
-      `INSERT INTO patient (fullname, surgeonid, sex, ethnicity, age, bmi, height, weight)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-         RETURNING patientid, fullname, surgeonid, sex, ethnicity, age, bmi, height, weight;`,
-      [fullname, surgeonid, sex, ethnicity, age, bmi, height, weight]
+      `INSERT INTO patient (fullname, surgeonid, surgeontitle, sex, ethnicity, age, bmi, height, weight)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+         RETURNING patientid, fullname, surgeonid, surgeontitle, sex, ethnicity, age, bmi, height, weight;`,
+      [fullname, surgeonid, surgeontitle, sex, ethnicity, age, bmi, height, weight]
     );
 
     res.status(201).json({
@@ -80,6 +80,7 @@ router.put("/edit", async (req: Request, res: Response): Promise<any> => {
 interface AddPatientRequest {
   fullname: string;
   surgeonid: number;
+  surgeontitle: string;
   sex: number;
   ethnicity: number;
   age: number;
@@ -255,9 +256,20 @@ router.get("/filter", async (req: Request, res: Response) => {
 router.get("/form", async (req: Request, res: Response) => {
   const { patientid , term } = req.query;
   try {
-    const query = "SELECT * FROM patientform WHERE patientid=$1 AND term=$2";
-    const result = await pool.query(query, [Number(patientid), Number(term)]);
-    res.status(200).json(result.rows);
+    const query = `
+    SELECT pfr.questionid, pfr.answervalue 
+    FROM patientform pf 
+    JOIN patientformresponse pfr ON pf.formid = pfr.formid 
+    WHERE pf.patientid=$1 AND pf.term=$2
+    ORDER BY pfr.questionid
+    `;
+
+    const { rows } = await pool.query<{ questionid: number; answervalue: number }>(
+    query,
+      [Number(patientid), Number(term)]
+    );
+
+    res.status(200).json(rows);
   } catch (error) {
     console.error("Error searching patient id:", error);
     res.status(500).json({ message: "Error searching patient data", error });
@@ -403,9 +415,74 @@ router.post("/priorities", async (req: Request, res: Response) => {
 });
 
 
-router.post("/before", async (req: Request, res: Response) => {
-  const { variableName, options, patient, filters } = req.body;
+interface Patient {
+  referencepatientid: number;
+  surgeontitle: string;
+  age: number;
+  sex: number;
+  ethnicity: number;
+  height: number;
+  weight: number;
+  bmi: number;
 
+}
+
+const formatConditions = (
+  filters: {
+    categories: string[];
+    age?: { range: number };
+    bmi?: { range: number };
+  },
+  patient: Patient,
+  questionid: number = 0,
+  number = 0
+) => {
+  const conditions: string[] = [];
+  const params: (string | number)[] = [questionid];
+
+  // Handle categorical filters (Ethnicity, Gender)
+  if (filters.categories.includes("Ethnicity")) {
+    conditions.push(`p.ethnicity = $${params.length + number + 1}`);
+    params.push(patient.ethnicity);
+  }
+  if (filters.categories.includes("Gender")) {
+    conditions.push(`p.sex = $${params.length + number + 1}`);
+    params.push(patient.sex);
+  }
+
+  if (filters.categories.includes("Surgeon Title")) {
+    conditions.push(`p.surgeontitle = $${params.length + number + 1}`);
+    params.push(patient.surgeontitle);
+  }
+
+  // Handle Age Range Filter
+// Age filter
+if (filters.categories.includes("Age Range") && filters.age?.range !== undefined && patient.age) {
+  conditions.push(`p.age BETWEEN $${params.length + number + 1} AND $${params.length + number + 2}`);
+  params.push(Number(patient.age) - Number(filters.age.range));
+  params.push(Number(patient.age) + Number(filters.age.range));
+}
+
+// BMI filter
+if (filters.categories.includes("BMI Range") && filters.bmi?.range !== undefined && patient.bmi) {
+  conditions.push(`p.bmi BETWEEN $${params.length + number + 1} AND $${params.length + number + 2}`);
+  params.push(Math.floor(Number(patient.bmi) - Number(filters.bmi.range)));
+  params.push(Math.ceil(Number(patient.bmi) + Number(filters.bmi.range)));
+}
+
+  // Return formatted conditions and parameters
+  return {
+    conditionString: conditions.length > 0 ? conditions.join(" AND ") : "1=1",
+    params,
+  };
+};
+
+
+router.post("/before", async (req: Request, res: Response) => {
+  const { questionid, options, patient, filters } = req.body;
+
+  //console.log ("Received /before request with:", { questionid, options, patient, filters });
+  
   try {
     const results: { option: string; count: number; percentage: number }[] = [];
 
@@ -413,15 +490,29 @@ router.post("/before", async (req: Request, res: Response) => {
     const queryParams: (string | number)[] = [];
 
     if (filters && Object.keys(filters).length > 0) {
-      const filterConditions = formatConditions(filters, patient);
+      const filterConditions = formatConditions(filters, patient, questionid);
       conditions += ` AND ${filterConditions.conditionString}`;
       queryParams.push(...filterConditions.params);
     }
 
-    const column = `${variableName}1`; // Assuming column naming convention
+    /*
+    console.log("Conditions:", conditions);
+    console.log("Params:", queryParams);
+    */
 
     // Query to get the total number of rows with filters
-    const totalQuery = `SELECT COUNT(${column}) AS total FROM registry WHERE ${conditions}`;
+    // only count from forms submitted 6 months after surgery
+    const totalQuery = `
+      SELECT COUNT(rfr.answervalue) AS total
+      FROM refformresponse rfr
+      JOIN refform f ON rfr.formid = f.formid
+      JOIN referencepatient p ON f.referencepatientid = p.referencepatientid
+      WHERE rfr.questionid = $1
+        AND f.term = 0
+        AND ${conditions}
+    `;
+
+    //console.log("Total Query:", totalQuery);
 
     const { rows: totalResult } = await pool.query<{ total: number }>(
       totalQuery,
@@ -439,23 +530,31 @@ router.post("/before", async (req: Request, res: Response) => {
       return;
     }
 
+    // for now, ensure term = 1 (6 months after surgery)
     for (const option of options) {
       const query = `
-        SELECT COUNT(${column}) AS count
-        FROM registry
-        WHERE ${conditions}
-        AND ${column} = $${queryParams.length + 1}
+        SELECT COUNT(rfr.answervalue) AS count
+        FROM refformresponse rfr
+        JOIN refform f ON rfr.formid = f.formid
+        JOIN referencepatient p ON f.referencepatientid = p.referencepatientid
+        WHERE rfr.questionid = $1
+          AND f.term = 0
+          AND rfr.answervalue = $${queryParams.length + 1}
+          AND ${conditions}
       `;
 
       const { rows: optionRows } = await pool.query<{ count: number }>(query, [
         ...queryParams,
         option,
       ]);
-      const count = optionRows[0]?.count || 0;
+
+      const count = Number(optionRows[0]?.count ?? 0);
       const percentage = Math.round((count / totalRows) * 100);
 
       results.push({ option, count, percentage });
     }
+
+    //console.log("Results:", results);
 
     res.status(200).json({
       message: "Data fetched successfully",
@@ -471,94 +570,20 @@ router.post("/before", async (req: Request, res: Response) => {
   }
 });
 
-interface Patient {
-  patientid: number;
-  fullname: string;
-  age: number;
-  sex: number;
-  ethnicity: number;
-  height: number;
-  weight: number;
-  bmi: number;
-  hasform: boolean;
-}
-
-const formatConditions = (
-  filters: {
-    categories: string[];
-    age?: { range: number };
-    bmi?: { range: number };
-  },
-  patient: Patient,
-  number = 0
-) => {
-  const conditions: string[] = [];
-  const params: (string | number)[] = [];
-
-  // Handle categorical filters (Ethnicity, Gender)
-  if (filters.categories.includes("Ethnicity")) {
-    conditions.push(`race = $${params.length + number + 1}`);
-    params.push(patient.ethnicity);
-  }
-  if (filters.categories.includes("Gender")) {
-    conditions.push(`gender = $${params.length + number + 1}`);
-    params.push(patient.sex);
-  }
-
-  // Handle Age Range Filter
-  if (
-    filters.categories.includes("Age Range") &&
-    filters.age?.range !== undefined &&
-    patient.age
-  ) {
-    conditions.push(
-      `age BETWEEN $${params.length + number + 1} AND $${
-        params.length + number + 2
-      }`
-    );
-    params.push(
-      patient.age - filters.age.range,
-      patient.age + Number(filters.age.range)
-    );
-  }
-
-  // Handle BMI Range Filter
-  if (
-    filters.categories.includes("BMI Range") &&
-    filters.bmi?.range !== undefined &&
-    patient.bmi
-  ) {
-    conditions.push(
-      `bmi BETWEEN $${params.length + number + 1} AND $${
-        params.length + number + 2
-      }`
-    );
-    params.push(
-      Math.floor(+patient.bmi - +filters.bmi.range),
-      Math.ceil(+patient.bmi + +filters.bmi.range)
-    );
-  }
-
-  // Return formatted conditions and parameters
-  return {
-    conditionString: conditions.length > 0 ? conditions.join(" AND ") : "1=1",
-    params,
-  };
-};
-
 router.post("/after", async (req: Request, res: Response) => {
   const {
-    variableName,
-    options,
-    filters,
+    questionid,   // this maps to question.code
+    options,        // possible answer values
+    filters,        // filtering params
     patient,
-    initial,
-    time = 6,
+    initial,        // initial answer value
+    term = 1,       // follow-up term (1, 2, 3...)
     median = false,
   } = req.body;
 
+  //console.log("Received /after request with:", questionid);
   try {
-    if (!variableName || !options) {
+    if (!questionid || !options) {
       res.status(400).json({ message: "Missing required parameters." });
       return;
     }
@@ -569,83 +594,93 @@ router.post("/after", async (req: Request, res: Response) => {
       percentage: number;
     }[] = [];
 
-    const initialVariable = `${variableName}1`;
-    const timePoint = time === 6 ? 2 : time === 12 ? 3 : 4;
-    const column = `${variableName}${timePoint}`;
-
-    // Construct conditions for filtering
-    let conditions = `${initialVariable} = $1`;
-    const queryParams: (string | number)[] = [initial];
+    // Step 1: Build conditions string + params
+    let conditions = `1=1`;
+    const queryParams: (string | number)[] = [];
 
     if (filters && Object.keys(filters).length > 0) {
-      const filterConditions = formatConditions(filters, patient, 1);
+      const filterConditions = formatConditions(filters, patient, questionid, 1);
       conditions += ` AND ${filterConditions.conditionString}`;
       queryParams.push(...filterConditions.params);
     }
 
-    // Get total count of rows matching the filters
-    const totalQuery = `
-      SELECT COUNT(${column}) AS total 
-      FROM registry
-      WHERE ${conditions}
+    // Step 2: Find all patients who had the initial value at baseline (term=0)
+    const baselineQuery = `
+      SELECT f.referencepatientid
+      FROM refformresponse rfr
+      JOIN refform f ON rfr.formid = f.formid
+      JOIN referencepatient p ON f.referencepatientid = p.referencepatientid
+      WHERE rfr.questionid = $2
+        AND f.term = 0
+        AND rfr.answervalue = $1
+        AND ${conditions}
     `;
 
-    const { rows: totalResult } = await pool.query<{ total: number }>(
-      totalQuery,
-      queryParams
+    const { rows: baselineRows } = await pool.query<{ referencepatientid: number }>(
+      baselineQuery,
+      [initial, ...queryParams]
     );
-    const totalRows = totalResult[0]?.total || 0;
 
-    if (totalRows === 0) {
+    //console.log("query params:", [initial, ...queryParams]);
+
+    const baselinePatientIds = baselineRows.map(r => r.referencepatientid);
+
+    if (baselinePatientIds.length === 0) {
       res.status(200).json({
-        message: "No data found for the given filters.",
-        totalRows,
+        message: "No baseline patients found for the given filters.",
+        totalRows: 0,
         data: [],
       });
       return;
     }
 
-    // Fetch data for each option using parameterized queries
+    // Step 3: For each option, count how many of those patients had that response at the given term
     for (let i = 0; i < options.length; i++) {
       const option = options[i];
-
-      if (option === undefined || option === null) {
-        continue;
-      }
+      if (option === undefined || option === null) continue;
 
       const optionQuery = `
-        SELECT COUNT(${column}) AS count
-        FROM registry
-        WHERE ${conditions} 
-        AND ${column} = $${queryParams.length + 1}
+        SELECT COUNT(rfr.answervalue) AS count
+        FROM refformresponse rfr
+        JOIN refform f ON rfr.formid = f.formid
+        WHERE rfr.questionid = $1
+          AND f.term = $2
+          AND rfr.answervalue = $3
+          AND f.referencepatientid = ANY($4::int[])
       `;
-
-      // console.log("Executing query:", optionQuery, queryParams, option);
       const { rows: optionRows } = await pool.query<{ count: number }>(
         optionQuery,
-        [...queryParams, option]
+        [questionid, term, option, baselinePatientIds]
       );
 
+      //console.log("Option query params:", [questionid, term, option, baselinePatientIds]);
+
       const count = optionRows[0]?.count || 0;
-      const percentage =
-        totalRows === 0 ? 0 : Math.round((count / totalRows) * 100);
 
       results.push({
         option: option.toString(),
         count,
-        percentage,
+        percentage : 0, // Placeholder, will calculate next
       });
     }
 
+    let totalCount = results.reduce((sum, r) => sum + Number(r.count), 0);
+
+    // Calculate percentages
+    for (let r of results) {
+      r.percentage =
+        totalCount > 0 ? Math.round((Number(r.count) / totalCount) * 100) : 0;
+    }
+
+    // Step 4: Optionally compute median
     let responsePayload: any = {
       message: "Data fetched successfully.",
-      totalRows,
+      totalRows: totalCount,
       data: results,
-      variableName,
+      questionid,
     };
 
     if (median) {
-      // Fetch values for median calculation
       const sorted = [...results].sort(
         (a, b) => Number(a.option) - Number(b.option)
       );
@@ -657,7 +692,6 @@ router.post("/after", async (req: Request, res: Response) => {
 
       for (let i = 0; i < sorted.length; i++) {
         cumulative += Number(sorted[i].count);
-
         if (cumulative >= midPoint) {
           medianValue = Number(sorted[i].option);
           break;
@@ -666,7 +700,9 @@ router.post("/after", async (req: Request, res: Response) => {
 
       responsePayload.median = medianValue;
     }
-    // console.log("Response Payload:", responsePayload);
+
+    //console.log("Response Payload:", responsePayload);
+
     res.status(200).json(responsePayload);
   } catch (error) {
     console.error("Error fetching data from registry:", error);

@@ -53,13 +53,25 @@ const FormContent: React.FC<FormContentProps> = ({ term }) => {
         setCurrentForm(formData, termToUse);
       }
 
-      const populatedAnswers = Questions.reduce((acc, q) => {
-        acc[q.code] = formData[q.code]?.toString() || "0";
+      console.log("Current patient from context:", patient);
+
+      // Map questionid -> code
+      const questionIdToCode = Questions.reduce((acc, q) => {
+        acc[q.id] = q.code;
+        return acc;
+      }, {} as Record<number, string>);
+
+      // Transform backend data into answers keyed by question code
+      const populatedAnswers = response.data.reduce((acc, item: { questionid: number; answervalue: number }) => {
+        const code = questionIdToCode[item.questionid];
+        if (code) {
+          acc[code] = item.answervalue?.toString() || "0";
+        }
         return acc;
       }, {} as Record<string, string>);
 
       setAnswers(populatedAnswers);
-      setIsDisabled(true); // disable editing if form already exists
+      setIsDisabled(true);
     } catch (error) {
       console.error("Error fetching form data:", error);
       showAlert("Error loading form data.", "error");
@@ -105,6 +117,8 @@ const FormContent: React.FC<FormContentProps> = ({ term }) => {
       term: termToUse,
       responses,
     };
+
+    console.log("Form data to submit:", formData);
 
     try {
       showAlert("Submitting form...", "info");

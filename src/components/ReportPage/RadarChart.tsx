@@ -26,6 +26,19 @@ const getPoint = (angle: number, value: number, scale: number) => {
   };
 };
 
+const remapInitial = (question: number, initial: number) => {
+  if (question === 2) {
+    if (initial >= 3) return initial - 1;
+  }
+  else if (question === 3) { 
+    if (initial === 3) return 2;
+    if (initial === 4 || initial === 5) return 3;
+    if (initial === 6) return 4;
+  }
+  return initial;
+}
+
+
 const RadarChartCustom: React.FC<RadarChartPDFProps> = ({
   onImageGenerated,
   radarData,
@@ -80,13 +93,13 @@ const RadarChartCustom: React.FC<RadarChartPDFProps> = ({
     );
   });
 
-  const getQuestionByName = (name: string): string | undefined => {
-    const found = Questions.find((q) => q.name === name);
-    return found ? found.question : undefined;
+  const getQuestionByName = (id: number): string | undefined => {
+    const found = Questions.find((q) => q.id === id);
+    return found ? found.description : undefined;
   };
 
-  const formatLabel = (variableName: string) => {
-    const label = getQuestionByName(variableName) || variableName;
+  const formatLabel = (id: number) => {
+    const label = getQuestionByName(id) || String(id);
     const trimmed = label.startsWith("Your ")
       ? label.replace("Your ", "")
       : label;
@@ -98,7 +111,7 @@ const RadarChartCustom: React.FC<RadarChartPDFProps> = ({
   const labels = radarData.map((d, i) => {
     const angle = angleForIndex(i, radarData.length);
     const { x, y } = getPoint(angle, labelOffset, radius);
-    const mainLabel = formatLabel(d.variableName);
+    const mainLabel = formatLabel(d.questionid);
 
     const isTooLong = mainLabel.length > 20;
     const splitPoint = mainLabel.lastIndexOf(
@@ -143,7 +156,7 @@ const RadarChartCustom: React.FC<RadarChartPDFProps> = ({
     if (valueKey === "initial") {
       return data.map((d, i) => {
         const angle = angleForIndex(i, axisCount);
-        const invertedValue = maxValue - d[valueKey];
+        const invertedValue = maxValue - remapInitial(d.questionid, d[valueKey]);
         const { x, y } = getPoint(angle, invertedValue, maxValue);
         return `${x},${y}`;
       });
@@ -158,7 +171,7 @@ const RadarChartCustom: React.FC<RadarChartPDFProps> = ({
 
     const points = data.map((d, i) => {
       const angle = angleForIndex(i, axisCount);
-      const invertedValue = maxValue - d[valueKey];
+      const invertedValue = maxValue - remapInitial(d.questionid, d[valueKey]);
       const { x, y } = getPoint(angle, invertedValue, maxValue);
       return { index: i, coord: `${x},${y}`, n: d.n };
     });

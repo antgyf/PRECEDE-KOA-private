@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import api from "../../../api/api";
 import { useForm } from "../../../hooks/FormContext";
 import {
@@ -11,7 +10,7 @@ import {
 import PatientDetail from "../../FormPage/PatientDetail";
 import FilterButtonsComponent from "./Filter";
 import SelectVariable from "../SelectVariable";
-import { colorScheme } from "../../../models/UI/Color";
+import { endColor, generateGradientColors, startColor } from "../../../models/UI/Color";
 import { useAlert } from "../../../hooks/AlertContext";
 import Alert from "../../UI/Alert";
 import { GraphData } from "../../../models/patient/patientReport";
@@ -41,35 +40,31 @@ const AfterSurgery: React.FC = () => {
   const { form, patient } = useForm();
   const { alert, showAlert } = useAlert();
 
+  const [question, setQuestion] = useState<QuestionType | null>(null);
+  const [gradientColors, setGradientScheme] = useState<string[]>([]);
+  const [afterData, setAfterData] = useState<AfterData | null>(null);
+  const [, setDescriptionList] = useState<Description[]>([]);
+  const [_, setGraphData] = useState<GraphData>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedTerm, setSelectedTerm] = useState<number>(1);
   const [filters, setFilters] = useState<FilterType>({
     categories: [],
     age: { range: 5 },
     bmi: { range: 5 },
   });
 
-  const [variable, setVariable] = useState<string | undefined>(undefined);
-  const [question, setQuestion] = useState<QuestionType | null>(null);
-  const [afterData, setAfterData] = useState<AfterData | null>(null);
-  const [_, setGraphData] = useState<GraphData>([]);
-  const [, setDescriptionList] = useState<Description[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedTime, setSelectedTime] = useState<number>(6);
-
-  // Set selected question based on selected variable chosen
-  useEffect(() => {
-    if (variable) {
-      const foundQuestion = Questions.find((q) => q.name === variable);
-      if (foundQuestion) {
-        setQuestion(foundQuestion);
-      }
-    } else {
-      setQuestion(null);
+  const termToMonths = (term: number) => {
+    switch (term) {
+      case 1: return 6;
+      case 2: return 12;
+      case 3: return 24;
+      default: return term; // fallback
     }
-  }, [variable]);
+  };
 
   // Fetch data whenever filters or variable change
   useEffect(() => {
-    if (!variable || !question) return;
+    if (!question) return;
 
     const fetchData = async () => {
       setIsLoading(true);
@@ -81,15 +76,28 @@ const AfterSurgery: React.FC = () => {
 
         const scrollY = window.scrollY; // Save current scroll position
 
+        console.log("Fetching data with:", {
+          questionid: question.id,
+          options: options,
+          filters: filters,
+          patient: patient,
+          term: selectedTerm,
+          initial: form?.responses.find(
+            (r) => r.questionid === question.id
+          )?.answervalue,
+        });
+
         const response = await api.post(
           "/patients/after",
           {
-            variableName: variable,
+            questionid: question.id,
             options: options,
             filters: filters,
             patient: patient,
-            time: selectedTime,
-            initial: form?.[question?.name as AllOptionsType],
+            term: selectedTerm,
+            initial: form?.responses.find(
+              (r) => r.questionid === question.id
+            )?.answervalue,
           }
         );
         showAlert("Successfuly fetched patient data", "success");
@@ -113,7 +121,7 @@ const AfterSurgery: React.FC = () => {
     };
 
     fetchData();
-  }, [question, filters, selectedTime]);
+  }, [question, filters, selectedTerm]);
 
   // Process data after `afterData` is updated
   useEffect(() => {
@@ -128,6 +136,9 @@ const AfterSurgery: React.FC = () => {
         return [];
       }
 
+      const gradient = generateGradientColors(afterData.data.length, startColor, endColor);
+      setGradientScheme(gradient);
+
       return [
         [
           "Option",
@@ -141,7 +152,7 @@ const AfterSurgery: React.FC = () => {
         ...afterData.data.map((item): [string, number, string, string] => [
           `${question.list[item.option]} `,
           +item.count,
-          colorScheme[item.option % colorScheme.length],
+          gradientColors[item.option % gradientColors.length],
           `${String(item.percentage)}%(${item.count})`,
         ]),
       ];
@@ -154,7 +165,7 @@ const AfterSurgery: React.FC = () => {
 
       return afterData.data.map((item, index) => ({
         description: `${question.list[item.option]}`,
-        color: colorScheme[index % colorScheme.length],
+        color: gradientColors[index % gradientColors.length],
       }));
     };
 
@@ -177,7 +188,7 @@ const AfterSurgery: React.FC = () => {
       <div key={index} className="flex items-start mb-4 w-full">
         {/* Fixed Left Space for "Currently Here" Box */}
         <div className="w-1/5 min-w-[150px] flex justify-start items-center">
-          {index == Number(form[question?.name as AllOptionsType]) ? (
+          {index == Number(form.responses.find((r) => r.questionid === question.id)?.answervalue) ? (
             <div className="flex items-center">
               <div className="bg-white rounded-md px-3 py-2 shadow-md">
                 {getName()} is currently here
@@ -195,7 +206,7 @@ const AfterSurgery: React.FC = () => {
             <div
               className="text-lg font-semibold mr-2 "
               style={{
-                color: colorScheme[index % colorScheme.length],
+                color: gradientColors[index % gradientColors.length],
               }}
             >
               {question.list[item.option]}
@@ -213,7 +224,7 @@ const AfterSurgery: React.FC = () => {
                   icon={faUser}
                   className="text-xl mx-1"
                   style={{
-                    color: colorScheme[index % colorScheme.length],
+                    color: gradientColors[index % gradientColors.length],
                     // filter:
                     //   "drop-shadow(0 0 .5px black) drop-shadow(0 0 .5px black)",
                   }}
@@ -239,9 +250,13 @@ const AfterSurgery: React.FC = () => {
               Select an area you wish to know how similar patients functioned
               after surgery
               <SelectVariable
-                value={variable || ""}
-                onChange={(e) => setVariable(e.target.value as AllOptionsType)}
-              />
+                value={question?.code || ""}
+                onChange={(e) => {
+                  const selectedCode = e.target.value;
+                  const foundQuestion = Questions.find(q => q.code === selectedCode);
+                  if (foundQuestion) setQuestion(foundQuestion);
+                }}
+          />
             </li>
             <li>
               <div className="flex flex-col sm:flex-row sm:items-center">
@@ -252,18 +267,22 @@ const AfterSurgery: React.FC = () => {
                 <form className="flex flex-wrap ml-2 gap-3 mt-2 items-center">
                   {/* Time Selection Buttons - Hide Others When One is Selected */}
                   <div className="flex flex-wrap gap-3">
-                    {["6", "12", "24"].map((time) => (
-                      <label key={time} className="cursor-pointer">
+                    {[
+                      { value: 1, label: "6" },
+                      { value: 2, label: "12" },
+                      { value: 3, label: "24" },
+                    ].map(({ value, label }) => (
+                      <label key={value} className="cursor-pointer">
                         <input
                           type="radio"
                           name="timePeriod"
-                          value={time}
+                          value={value}
                           className="hidden peer"
-                          onChange={() => setSelectedTime(Number(time))}
-                          checked={selectedTime === Number(time)}
+                          onChange={() => setSelectedTerm(value)}
+                          checked={selectedTerm === value}
                         />
                         <span className="btn bg-white peer-checked:bg-primary peer-checked:text-white">
-                          {time}
+                          {label}
                         </span>
                       </label>
                     ))}
@@ -283,7 +302,7 @@ const AfterSurgery: React.FC = () => {
         </article>
         {/* Filter Buttons */}
         <FilterButtonsComponent
-          key={variable}
+          key={question ? question.id : "no-question"}
           onFilterApply={handleFilterChange}
         />
 
@@ -302,7 +321,7 @@ const AfterSurgery: React.FC = () => {
                 <article className="prose max-w-none">
                   <p>
                     Below are what past patients reported{" "}
-                    <strong style={{ color: "#1976D2" }}>{selectedTime}</strong>{" "}
+                    <strong style={{ color: "#1976D2" }}>{termToMonths(selectedTerm)}</strong>{" "}
                     months after surgery. Those patients are similar to{" "}
                     {getName()}
                     {getFilterDescription(filters, patient)}, and they
@@ -312,7 +331,7 @@ const AfterSurgery: React.FC = () => {
                   <h3>{question.question}</h3>
                   <h4>
                     Responses of {afterData?.totalRows} patients similar to{" "}
-                    {getName()} {selectedTime} months after surgery
+                    {getName()} {termToMonths(selectedTerm)} months after surgery
                   </h4>
                 </article>
 

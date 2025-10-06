@@ -6,14 +6,6 @@ import {
   BarChartData,
   FilterType,
   OtherOptions,
-  OKSEase,
-  OKSFrequency,
-  OKSNightPain,
-  OKSStanding,
-  OKSWorkInterference,
-  OKSKneePain,
-  OKSKneeTrouble,
-  OKSWalking,
   QuestionData,
   Questions,
   QuestionType,
@@ -34,7 +26,7 @@ const ReportPage: React.FC = () => {
     bmi: { range: 5 },
   });
   const { alert, showAlert } = useAlert();
-  const [, setQuestionData] = useState<Record<string, QuestionData>>({});
+  const [, setQuestionData] = useState<Record<number, QuestionData>>({});
   const [barChartData, setBarChartData] = useState<BarChartData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [radarData, setRadarData] = useState<RadarDataPoint[]>([]);
@@ -46,40 +38,41 @@ const ReportPage: React.FC = () => {
     );
   }
 
-  const getImportance = (question: string): number => {
-    if (form.rank1 === question) return 1;
-    if (form.rank2 === question) return 2;
-    if (form.rank3 === question) return 3;
-    if (form.rank4 === question) return 4;
-    if (form.rank5 === question) return 5;
-    return 6; // default for unranked items, or use `null`, `undefined`, or `0` depending on your logic
+  if (!form.priorities || form.priorities.length === 0) {
+    return <>No priorities selected. Please go back to the previous page.</>;
+  }
+
+  const variables: number[] = form.priorities;
+
+  const getPriorityScore = (question: number): number => {
+    return question;
   };
 
-  const variables: AllOptionsType[] = [
-    form.rank1,
-    form.rank2,
-    form.rank3,
-    form.rank4,
-    form.rank5,
-  ].filter(Boolean);
+  const questionsWithOptions = (form.priorities || [])
+    .map((qid) => {
+      const question = Questions.find((q) => q.id === qid);
+      const response = form.responses.find((r) => r.questionid === qid);
 
-  const questionsWithOptions = variables
-    .map((variable) => {
-      const question = Questions.find((q) => q.code === variable);
       return question
         ? {
             ...question,
-            value: form[variable],
+            value: response?.answervalue ?? null,
           }
         : null;
     })
     .filter(Boolean) as (QuestionType & { value: any })[];
 
+
   useEffect(() => {
     if (variables.length === 0) return;
-
+    //console.log("Fetching data for variables:", variables);
     setIsLoading(true);
     setRadarImage(null);
+    
+    // Reset state to prevent accumulation when navigating back
+    setRadarData([]);
+    setQuestionData({});
+    setBarChartData([]);
 
     const fetchDataForVariable = async (
       item: QuestionType & { value: any }
@@ -87,16 +80,19 @@ const ReportPage: React.FC = () => {
       try {
         const options = Object.keys(item.list).map(Number);
 
+        //console.log("Fetching data for question:", item.id, item.question);
+
         showAlert("Loading...", "info");
 
         const response = await api.post(
           "/patients/after",
           {
-            variableName: item.name,
+            questionid: item.id,
             options: options,
             filters: filters,
             patient: patient,
-            initial: form?.[item.name],
+            initial: form?.responses.find((r) => r.questionid === item.id)
+              ?.answervalue,
             median: true,
           },
           {
@@ -108,93 +104,141 @@ const ReportPage: React.FC = () => {
         showAlert("Successfully loaded patient", "success");
 
         setRadarData((prevData) => {
-          const existsIndex = prevData.findIndex(
-            (d) => d.variableName === response.data.variableName
-          );
-          if (existsIndex !== -1) {
-            // Replace existing item
-            const newData = [...prevData];
-            newData[existsIndex] = {
-              variableName: response.data.variableName,
-              initial: form?.[item.name],
-              median: response.data.median,
-              n: response.data.totalRows ?? 0,
-              importance: getImportance(item.name),
-            };
-            return newData;
-          } else {
-            // Append new item
-            return [
-              ...prevData,
-              {
-                variableName: response.data.variableName,
-                initial: form?.[item.name],
-                median: response.data.median,
-                n: response.data.totalRows ?? 0,
-                importance: getImportance(item.name),
-              },
-            ];
-          }
+          // Find the corresponding response value from form.responses
+          const responseValue = form.responses.find(
+            (r) => r.questionid === item.id
+          )?.answervalue ?? -1;
+
+          const importance = getPriorityScore(item.id);
+          
+          const newEntry = {
+            questionid: response.data.questionid, // should now be the question ID
+            initial: responseValue,
+            median: response.data.median,
+            n: response.data.totalRows ?? 0,
+            importance,
+          };
+
+          // Always replace existing entry or add new one (no accumulation)
+          const filteredData = prevData.filter(d => d.questionid !== response.data.questionid);
+          return [...filteredData, newEntry];
         });
 
+
         setQuestionData((prevData) => {
-          const updatedData: Partial<Record<AllOptionsType, QuestionData>> = {
+          const updatedData: Record<number, QuestionData> = {
             ...prevData,
-            [response.data.variableName]: {
+            [response.data.questionid]: {
               totalRows: response.data.totalRows,
-              data: response.data.data,
-              variableName: response.data.variableName,
+              data: [...response.data.data], // Create new array to avoid reference issues
+              questionid: response.data.questionid,
             },
           };
 
-          const presentKeys: AllOptionsType[] = Questions.map(
-            (q) => q.name
-          ).filter((key) => updatedData[key]) as AllOptionsType[];
-
           // Sort keys based on importance
-          const sortedKeys = [...presentKeys].sort((a, b) => {
-            const importanceA = getImportance(a);
-            const importanceB = getImportance(b);
-            return importanceA - importanceB;
-          });
+          const sortedKeys = variables.filter((id) => updatedData[id]);
 
-          const updatedBarChartData = sortedKeys.map((key) => {
+          //console.log("Sorted Question IDs:", sortedKeys);
+
+          const updatedBarChartData: BarChartData[] = sortedKeys.map((key) => {
             const data = updatedData[key]!;
 
-            const title = `Responses of ${
-              data.totalRows
-            } patient(s) similar to ${patient?.sex ? "Ms." : "Mr."} ${
-              patient?.fullname
-            }`;
+            const title = `Responses of ${data.totalRows} patient(s) similar to ${
+              patient?.sex ? "Ms." : "Mr."
+            } ${patient?.fullname}`;
 
-            const labelsAndPercentages = data.data.map((value) => ({
-              label: `${OtherOptions[value.option]}`,
-              percentage: `${value.percentage}% (${value.count})`,
-            }));
+            // Clone data array for manipulation (deep copy to prevent mutations)
+            let chartData = data.data.map(item => ({ ...item }));
 
-            return {
-              title,
-              options: labelsAndPercentages,
-              variableName: data.variableName,
-              variableQuestion: Questions.find(
-                (q) => q.name === data.variableName
-              )?.question,
-              initial: form?.[data.variableName as AllOptionsType],
-            };
+            //console.log("Processing Question ID:", data.questionid);
+            //console.log("Original Chart Data:", chartData);
+
+            // ✅ Merge and shift for Question 2
+            if (data.questionid === 2) {
+              const opt2 = chartData.find((v) => Number(v.option) === 2);
+              const opt3 = chartData.find((v) => Number(v.option) === 3);
+
+              if (opt2 && opt3) {
+                // Merge option 3 into option 2
+                opt2.count = `${Number(opt2.count) + Number(opt3.count)}`;
+                chartData = chartData.filter((v) => Number(v.option) !== 3);
+
+                // Shift all options > 3 down by 1
+                chartData = chartData.map((v) => {
+                  const optNum = Number(v.option);
+                  if (optNum > 3) {
+                    return { ...v, option: (optNum - 1).toString() as "0" | "1" | "2" | "3" | "4" };
+                  }
+                  return v;
+                });
+              }
+            }
+
+        // ✅ Merge and shift for Question 3
+        if (data.questionid === 3) {
+          const mergeOptions = (a: number, b: number) => {
+            const optA = chartData.find((v) => Number(v.option) === a);
+            const optB = chartData.find((v) => Number(v.option) === b);
+            if (optA && optB) {
+              optA.count = `${Number(optA.count) + Number(optB.count)}`;
+              chartData = chartData.filter((v) => Number(v.option) !== b);
+            }
+          };
+
+          // Perform the merges
+          mergeOptions(2, 3);
+          mergeOptions(4, 5);
+
+          // Shift down all options above removed ones
+          const removed = [3, 5];
+          chartData = chartData.map((v) => {
+            const optNum = Number(v.option);
+            const shift = removed.filter((r) => optNum > r).length;
+            return { ...v, option: (optNum - shift).toString() as "0" | "1" | "2" | "3" | "4"  };
           });
+        }
 
-          setBarChartData(updatedBarChartData);
-          return updatedData;
+        //console.log("Chart Data after Merging and Shifting:", chartData);
+
+        // ✅ Calculate percentage labels
+        const labelsAndPercentages = chartData.map((v) => {
+          const total = Number(data.totalRows);
+          const count = Number(v.count);
+          const percentage =
+            total > 0 ? ((count / total) * 100).toFixed(0) : "0";
+          
+          return {
+            label: `${OtherOptions[v.option]}`,
+            percentage: `${percentage}% (${count})`,
+          };
         });
+
+        //console.log("Processed Chart Data:", chartData);
+        //console.log("Labels and Percentages:", labelsAndPercentages);
+
+        return {
+          title,
+          options: labelsAndPercentages,
+          questionid: data.questionid,
+          variableQuestion: Questions.find((q) => q.id === data.questionid)?.question,
+          initial: form?.responses.find((r) => r.questionid === key)?.answervalue ?? -1,
+        };
+      });
+
+      setBarChartData(updatedBarChartData);
+      return updatedData;
+    });
+
+
       } catch (error) {
         showAlert("Failed to fetch data. Please try again.", "error");
       }
     };
 
-    Promise.all(questionsWithOptions.map(fetchDataForVariable)).finally(() =>
-      setIsLoading(false)
-    );
-  }, [filters]);
+    Promise.all(questionsWithOptions.map(fetchDataForVariable))
+    .finally(() => setIsLoading(false));
+}, [filters]);
+  
   // Handle filter changes from FilterButtonsComponent
   const handleFilterChange = (selectedFilters: FilterType) => {
     setFilters(selectedFilters); // Update filter state

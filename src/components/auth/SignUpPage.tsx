@@ -85,7 +85,7 @@ const SignUpForm: React.FC = () => {
           password: form.password,
           ...(auth.isSurgeon && { surgeonid: selectedSurgeonId }),
         },
-        { headers: { "Content-Type": "application/json" } }
+        { headers: { "Content-Type": "application/json" } , withCredentials: true }
       );
 
       // Set auth context

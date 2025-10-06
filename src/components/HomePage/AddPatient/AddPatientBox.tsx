@@ -33,6 +33,7 @@ const AddPatientBox: React.FC<AddPatientBoxProps> = ({ onClose }) => {
     height: "",
     weight: "",
     surgeonid: "",
+    surgeontitle: "",
   });
 
   // Automatically calculate BMI whenever height or weight changes
@@ -51,12 +52,33 @@ const AddPatientBox: React.FC<AddPatientBoxProps> = ({ onClose }) => {
   const handleSubmitEvent = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // Check if all fields are filled (excluding surgeonid if user is a surgeon)
+    // Check if all fields are filled (excluding surgeonid and surgeontitle if user is a surgeon)
     const requiredFields = Object.entries(form).filter(([key, value]) => {
-      // If the user is a surgeon, exclude surgeonid from required fields
+      // Always exclude surgeontitle
+      if (key === "surgeontitle") return false;
+
+      // If the user is a surgeon, exclude surgeonid
       if (auth.user && auth.isSurgeon && key === "surgeonid") return false;
+
+      // Return fields that are missing/empty
       return value === "" || value === undefined;
     });
+
+    const response2 = await api.get(`/surgeons/${auth.user && auth.isSurgeon ? auth.user?.id : form.surgeonid}`);
+      
+      if (response2.status !== 200) {
+        showAlert("Failed to fetch surgeon title. Please try again.", "error");
+        return;
+      }
+
+    const surgeonTitle = response2.data.surgeontitle === undefined ? "N/A" : response2.data.surgeontitle;
+    form.surgeonid = auth.user && auth.isSurgeon ? auth.user?.id.toString() : form.surgeonid;
+    form.surgeontitle = surgeonTitle;
+
+    /*
+    console.log("Surgeon title fetched:", surgeonTitle);
+    console.log("Form data to submit:", { ...form });
+    */
 
     // Show alert if any required field is missing
     if (requiredFields.length > 0) {
@@ -69,8 +91,6 @@ const AddPatientBox: React.FC<AddPatientBoxProps> = ({ onClose }) => {
       const response = await api.post(`/patients/add`,
         {
           ...form,
-          surgeonid:
-            auth.user && auth.isSurgeon ? auth.user?.id : form.surgeonid,
         },
         {
           headers: {
@@ -80,6 +100,8 @@ const AddPatientBox: React.FC<AddPatientBoxProps> = ({ onClose }) => {
       );
 
       showAlert(response.data.message, "success");
+
+      // console.log("New patient added:", response.data.patient);
 
       // Reset form
       setForm({
@@ -91,12 +113,15 @@ const AddPatientBox: React.FC<AddPatientBoxProps> = ({ onClose }) => {
         height: "",
         weight: "",
         surgeonid: "",
+        surgeontitle: "",
       });
 
       // Ensure state updates before navigating
       setTimeout(() => {
-        setCurrentPatient(response.data.patient); // Set patient state
-        navigate("/form");
+      setCurrentPatient({ 
+        ...response.data.patient      
+      });
+      navigate(`/form?${response.data.patient.patientid}&term=0`); // Navigate to form page for the new patient
       }, 100);
     } catch (error) {
       console.error("Error submitting the form:", error);

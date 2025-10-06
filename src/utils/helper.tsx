@@ -10,22 +10,10 @@ import { Patient } from "../models/patient/patientReport";
 
 export const getRankDescription = () => {
   const { form, patient } = useForm();
-  const rankQuestions = [
-    form?.rank1,
-    form?.rank2,
-    form?.rank3,
-    form?.rank4,
-    form?.rank5,
-  ].map((rank) => {
-    const question = Questions.find((q) => q.name === rank)?.question || "N/A";
+  const priorityQuestions = form?.priorities?.map((id) => {
+    const description = Questions.find((q) => q.id === id)?.description || "N/A";
 
-    // Remove "Your " at the start, remove trailing "?", and capitalize the first letter
-    const cleanedQuestion = question
-      .replace(/^Your\s*/, "") // Remove starting "Your "
-      .replace(/\?$/, ""); // Remove trailing "?"
-
-    // Capitalize the first character if it exists
-    return cleanedQuestion.charAt(0).toUpperCase() + cleanedQuestion.slice(1);
+    return description;
   });
 
   return (
@@ -37,7 +25,7 @@ export const getRankDescription = () => {
       </strong>{" "}
       hopes to see improvement most are:
       <ul className="leading-tight">
-        {rankQuestions.map((q) => (
+        {priorityQuestions.map((q) => (
           <li key={q}>{q}</li>
         ))}
       </ul>
@@ -92,7 +80,25 @@ export const getFilterDescription = (filters: FilterType, patient: Patient) => {
         {Ethnicity[patient.ethnicity]})
       </>
     );
+
+  if (filters.categories.includes("Surgeon Title")) {
+    parts.push(
+      <>
+        <strong style={{ color: "#1976D2" }}>Surgeon Title</strong> (
+        {patient.surgeontitle})
+      </>
+    );
   }
+
+  if (filters.categories.includes("Surgeon ID")) {
+    parts.push(
+      <>
+        <strong style={{ color: "#1976D2" }}>Surgeon ID</strong> (
+        {patient.surgeonid})
+      </>
+    );
+  }
+}
 
   return (
     <>
