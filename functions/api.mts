@@ -14,6 +14,20 @@ const allowedOrigins = [
   "https://precedekoa.netlify.app",
 ];
 
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
+
 // Add this route to your main API file
 app.get("/env-check", (req: Request, res: Response) => {
   const envVars = {
@@ -32,20 +46,6 @@ app.get("/env-check", (req: Request, res: Response) => {
     environment: envVars
   });
 });
-
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl)
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  })
-);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
