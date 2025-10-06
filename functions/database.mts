@@ -15,10 +15,11 @@ const pool = new Pool({
   host: process.env.PGHOST,
   database: process.env.PGDATABASE,
   password: process.env.PGPASSWORD,
-  port: Number(process.env.PGPORT),
+  port: 5432,
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 pool.on("connect", () => console.log("Successfully connected to database!"));
+
 pool.on("error", (err) => {
   console.log("Unexpected error on idle client", err);
   process.exit(-1);

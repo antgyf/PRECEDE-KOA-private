@@ -24,8 +24,6 @@ router.use(
   })
 );
 
-
-
 // Get available surgeon IDs (without accounts)
 router.get("/available-ids", async (req: Request, res: Response): Promise<void> => {
   try {
