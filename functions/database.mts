@@ -2,13 +2,6 @@ import dotenv from "dotenv";
 import pkg from "pg";
 const { Pool } = pkg;
 
-// Choose env file based on NODE_ENV
-const envFile =
-  process.env.NODE_ENV === "production"
-    ? "./.env.production"
-    : "./.env.development";
-dotenv.config({ path: envFile });
-
 console.log("NODE_ENV:", process.env.NODE_ENV);
 console.log("DB Config:", {
   user: process.env.PGUSER,
@@ -17,15 +10,14 @@ console.log("DB Config:", {
   port: process.env.PGPORT,
 });
 
-
 const pool = new Pool({
   user: process.env.PGUSER,
   host: process.env.PGHOST,
   database: process.env.PGDATABASE,
   password: process.env.PGPASSWORD,
   port: Number(process.env.PGPORT),
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
-
 pool.on("connect", () => console.log("Successfully connected to database!"));
 pool.on("error", (err) => {
   console.log("Unexpected error on idle client", err);

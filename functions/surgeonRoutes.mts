@@ -28,53 +28,16 @@ router.use(
 
 // Get available surgeon IDs (without accounts)
 router.get("/available-ids", async (req: Request, res: Response): Promise<void> => {
-  const { Client } = require('pg');
-
-  console.log('🔧 DB Connection Details:', {
-    host: process.env.DBHOST,
-    user: process.env.DBUSER,
-    database: process.env.DBNAME,
-    port: process.env.DBPORT,
-    hasPassword: !!process.env.DBPASSWORD,
-    passwordLength: process.env.DBPASSWORD ? process.env.DBPASSWORD.length : 0
-  });
-
-  const client = new Client({
-    host: process.env.DBHOST!,
-    port: parseInt(process.env.DBPORT || '5432'),
-    user: process.env.DBUSER!,
-    password: process.env.DBPASSWORD!,
-    database: process.env.DBNAME || 'postgres',
-    ssl: { rejectUnauthorized: false },
-    connectionTimeoutMillis: 10000
-  });
-
   try {
-    console.log('🔄 Attempting database connection...');
-    await client.connect();
-    console.log('✅ Database connected successfully!');
+    // Fetch surgeon IDs that don't have username/password set
+    const availableSurgeons = await pool.query(
+      "SELECT surgeonid, surgeontitle FROM surgeon WHERE username IS NULL OR username = '' ORDER BY surgeonid ASC"
+    );
     
-    const result = await client.query('SELECT surgeonid FROM surgeon');
-    console.log(`✅ Query successful, found ${result.rows.length} rows`);
-    
-    await client.end();
-    
-    res.json(result.rows);
-    
-  } catch (error: unknown) {
-    // Convert unknown error to Error object
-    const err = error as Error;
-    console.error('❌ Database error:', {
-      code: (error as any).code,
-      message: err.message,
-      stack: err.stack
-    });
-    
-    res.status(500).json({
-      error: 'Database connection failed',
-      code: (error as any).code,
-      details: err.message
-    });
+    res.status(200).json(availableSurgeons.rows);
+  } catch (error) {
+    console.error("Error fetching available surgeon IDs:", error);
+    res.status(500).json({ message: "Internal server error", error });
   }
 });
 
