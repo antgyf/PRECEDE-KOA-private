@@ -397,7 +397,7 @@ SELECT
 FROM stagingraw sr
 WHERE sr.stabk_int >= 6
 
--- insert referencepatient for simbk patients
+-- insert referencepatient for one surgery only patients
 INSERT INTO referencepatient (
     referencepatientid,
     surgeontitle,
@@ -434,12 +434,12 @@ SELECT
     sr.weightkg,
     sr.bmi,
     sr.opdate,
-    TRUE AS simbilateral,      -- ✅ simultaneous
+    FALSE AS simbilateral,      -- ✅ simultaneous
     FALSE AS stagedbilateral,  -- ✅ not staged
     0 AS orderinstage,         -- always 0 since not staged
     0 AS stageinterval      -- no interval since not staged
 FROM stagingraw sr
-WHERE sr.simbk = 1
+WHERE sr.simbk = 0
   AND sr.stabk = 0
   AND sr.stabk_int IS NULL;
 
@@ -779,4 +779,5 @@ JOIN flattened fl
     AND f.term = fl.term
 JOIN question q
     ON q.code = fl.code
-WHERE fl.answervalue IS NOT NULL;
+WHERE fl.answervalue IS NOT NULL
+ON CONFLICT (formid, questionid) DO NOTHING;

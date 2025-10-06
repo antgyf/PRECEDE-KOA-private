@@ -113,14 +113,21 @@ const RadarChartCustom: React.FC<RadarChartPDFProps> = ({
     const { x, y } = getPoint(angle, labelOffset, radius);
     const mainLabel = formatLabel(d.questionid);
 
-    const isTooLong = mainLabel.length > 20;
-    const splitPoint = mainLabel.lastIndexOf(
-      " ",
-      Math.floor(mainLabel.length / 2)
-    );
+    const maxLen = 20; // max characters per line
+    let line1 = mainLabel;
+    let line2 = "";
+    const isTooLong = mainLabel.length > maxLen;
 
-    const line1 = isTooLong ? mainLabel.slice(0, splitPoint) : mainLabel;
-    const line2 = isTooLong ? mainLabel.slice(splitPoint + 1) : "";
+    if (isTooLong) {
+      // Find last space within the first maxLen characters
+      let splitPoint = mainLabel.lastIndexOf(" ", maxLen);
+
+      // Fallback: if no space found, just split at maxLen
+      if (splitPoint === -1) splitPoint = maxLen;
+
+      line1 = mainLabel.slice(0, splitPoint).trim();
+      line2 = mainLabel.slice(splitPoint).trim();
+}
 
     return (
       <text
