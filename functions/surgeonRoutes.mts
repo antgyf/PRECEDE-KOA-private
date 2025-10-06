@@ -31,20 +31,20 @@ router.get("/available-ids", async (req: Request, res: Response): Promise<void> 
   const { Client } = require('pg');
 
   console.log('🔧 DB Connection Details:', {
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    database: process.env.DB_NAME,
-    port: process.env.DB_PORT,
-    hasPassword: !!process.env.DB_PASSWORD,
-    passwordLength: process.env.DB_PASSWORD ? process.env.DB_PASSWORD.length : 0
+    host: process.env.DBHOST,
+    user: process.env.DBUSER,
+    database: process.env.DBNAME,
+    port: process.env.DBPORT,
+    hasPassword: !!process.env.DBPASSWORD,
+    passwordLength: process.env.DBPASSWORD ? process.env.DBPASSWORD.length : 0
   });
 
   const client = new Client({
-    host: process.env.DB_HOST!,
-    port: parseInt(process.env.DB_PORT || '5432'),
-    user: process.env.DB_USER!,
-    password: process.env.DB_PASSWORD!,
-    database: process.env.DB_NAME || 'postgres',
+    host: process.env.DBHOST!,
+    port: parseInt(process.env.DBPORT || '5432'),
+    user: process.env.DBUSER!,
+    password: process.env.DBPASSWORD!,
+    database: process.env.DBNAME || 'postgres',
     ssl: { rejectUnauthorized: false },
     connectionTimeoutMillis: 10000
   });
@@ -54,7 +54,7 @@ router.get("/available-ids", async (req: Request, res: Response): Promise<void> 
     await client.connect();
     console.log('✅ Database connected successfully!');
     
-    const result = await client.query('SELECT id FROM surgeons');
+    const result = await client.query('SELECT surgeonid FROM surgeon');
     console.log(`✅ Query successful, found ${result.rows.length} rows`);
     
     await client.end();
