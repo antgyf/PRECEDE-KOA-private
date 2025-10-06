@@ -29,7 +29,7 @@ app.use(
 );
 
 // Add this route to your main API file
-app.get("/env-check", (req: Request, res: Response) => {
+app.get("/.netlify/functions/api/env-check", (req: Request, res: Response) => {
   const envVars = {
     NODE_ENV: process.env.NODE_ENV,
     PGUSER: process.env.PGUSER,
