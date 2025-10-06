@@ -11,7 +11,7 @@ const app: Application = express();
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://precede-koa.netlify.app",
+  "https://precedekoa.netlify.app",
 ];
 
 app.use(
