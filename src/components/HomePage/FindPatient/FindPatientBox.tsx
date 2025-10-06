@@ -253,12 +253,13 @@ const FindPatientBox: React.FC<FindPatientBoxProps> = ({ onClose }) => {
         <table className="table">
           <thead className="text-lg">
             <tr>
-              <th>Study ID</th>
+              <th>Patient ID</th>
               <th>Name</th>
               <th>Age</th>
               <th>Sex</th>
               <th>Ethnicity</th>
               <th>BMI</th>
+              <th>Surgeon Title</th>
             </tr>
           </thead>
           <tbody className="text-[16px]">
@@ -270,6 +271,7 @@ const FindPatientBox: React.FC<FindPatientBoxProps> = ({ onClose }) => {
                 <td>{Sex[patient.sex]}</td>
                 <td>{Ethnicity[patient.ethnicity]}</td>
                 <td>{patient.bmi}</td>
+                <td>{SurgeonTitle[patient.surgeontitle]}</td>
                 <td
                   className="underline text-blue-600 cursor-pointer"
                   onClick={() => handleNavigate(patient)}

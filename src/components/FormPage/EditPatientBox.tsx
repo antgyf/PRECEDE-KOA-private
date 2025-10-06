@@ -28,6 +28,7 @@ const EditPatientBox: React.FC<EditPatientBoxProps> = ({ onClose }) => {
     bmi: patient?.bmi?.toString() || "0",
     height: patient?.height?.toString() || "0",
     weight: patient?.weight?.toString() || "0",
+    surgeontitle: patient?.surgeonTitle || "",
   });
 
   useEffect(() => {

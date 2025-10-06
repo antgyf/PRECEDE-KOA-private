@@ -28,6 +28,7 @@ DROP TABLE IF EXISTS patient CASCADE;
 CREATE TABLE patient (
     patientid SERIAL PRIMARY KEY,
     surgeonid INT NOT NULL,
+    surgeontitle TEXT NOT NULL,
     fullname TEXT NOT NULL,
     sex INT NOT NULL,
     ethnicity INT NOT NULL,
@@ -54,7 +55,8 @@ CREATE TABLE referencepatient (
     simbilateral BOOLEAN NOT NULL DEFAULT FALSE,     -- SimBK
     stagedbilateral BOOLEAN NOT NULL DEFAULT FALSE,  -- StaBK
     orderinstage INT,                               -- orderSID
-    stageinterval INT                                -- StaBKINT
+    stageinterval INT,                                -- StaBKINT
+    side INT                                      -- left/right/both
 );
 
 -- ==============================
@@ -66,7 +68,8 @@ DROP TABLE IF EXISTS refform CASCADE;
 CREATE TABLE refform (
     formid SERIAL PRIMARY KEY,
     referencepatientid INT NOT NULL REFERENCES referencepatient(referencepatientid) ON DELETE CASCADE,
-    term INT NOT NULL                
+    term INT NOT NULL,
+    UNIQUE (referencepatientid, term) -- prevent duplicates
 );
 
 -- Question table
@@ -83,14 +86,16 @@ CREATE TABLE refformresponse (
     responseid SERIAL PRIMARY KEY,
     formid INT NOT NULL REFERENCES refform(formid) ON DELETE CASCADE,
     questionid INT NOT NULL REFERENCES question(questionid) ON DELETE CASCADE,
-    answervalue INT NOT NULL                -- assuming integer scale responses
+    answervalue INT NOT NULL,   -- assuming integer scale responses
+    UNIQUE (formid, questionid) -- prevent duplicates
 );
 
 DROP TABLE IF EXISTS patientform CASCADE;
 CREATE TABLE patientform (
     formid SERIAL PRIMARY KEY,
     patientid INT NOT NULL REFERENCES patient(patientid) ON DELETE CASCADE,
-    term INT NOT NULL   -- 0 for 'T0', 1 for 'T1', etc.
+    term INT NOT NULL,   -- 0 for 'T0', 1 for 'T1', etc.
+    UNIQUE (patientid, term) -- prevent duplicates
 );
 
 DROP TABLE IF EXISTS patientformresponse CASCADE;
@@ -98,7 +103,8 @@ CREATE TABLE patientformresponse (
     responseid SERIAL PRIMARY KEY,
     formid INT NOT NULL REFERENCES patientform(formid) ON DELETE CASCADE,
     questionid INT NOT NULL REFERENCES question(questionid) ON DELETE CASCADE,
-    answervalue INT
+    answervalue INT,
+    UNIQUE (formid, questionid) -- prevent duplicates
 );
 
 CREATE TABLE patientpriority (
@@ -159,6 +165,9 @@ CREATE TABLE stagingraw (
     kfwt0 INT,
     kfst0 INT,
     kpaint0 INT,
+    okfwt0 INT,
+    okfst0 INT,
+    okpaint0 INT,
     oks1t0 INT,
     oks2t0 INT,
     oks3t0 INT,
@@ -179,6 +188,9 @@ CREATE TABLE stagingraw (
     kfwt1 INT,
     kfst1 INT,
     kpaint1 INT,
+    okfwt1 INT,
+    okfst1 INT,
+    okpaint1 INT,
     oks1t1 INT,
     oks2t1 INT,
     oks3t1 INT,
@@ -199,6 +211,9 @@ CREATE TABLE stagingraw (
     kfwt2 INT,
     kfst2 INT,
     kpaint2 INT,
+    okfwt2 INT,
+    okfst2 INT,
+    okpaint2 INT,
     oks1t2 INT,
     oks2t2 INT,
     oks3t2 INT,
@@ -219,6 +234,9 @@ CREATE TABLE stagingraw (
     kfwt3 INT,
     kfst3 INT,
     kpaint3 INT,
+    okfwt3 INT,
+    okfst3 INT,
+    okpaint3 INT,
     oks1t3 INT,
     oks2t3 INT,
     oks3t3 INT,
@@ -239,6 +257,9 @@ CREATE TABLE stagingraw (
     kfwt4 INT,
     kfst4 INT,
     kpaint4 INT,
+    okfwt4 INT,
+    okfst4 INT,
+    okpaint4 INT,
     oks1t4 INT,
     oks2t4 INT,
     oks3t4 INT,
@@ -375,6 +396,52 @@ SELECT
 	sr.stabk_int
 FROM stagingraw sr
 WHERE sr.stabk_int >= 6
+
+-- insert referencepatient for one surgery only patients
+INSERT INTO referencepatient (
+    referencepatientid,
+    surgeontitle,
+    sex,
+    ethnicity,
+    age,
+    height,
+    weight,
+    bmi,
+    operationdate,
+    simbilateral,
+    stagedbilateral,
+    orderinstage,
+    stageinterval
+)
+SELECT 
+    sr.pid,
+    sr.surgeont,
+    CASE 
+        WHEN sr.gender = 'Male' THEN 0
+        WHEN sr.gender = 'Female' THEN 1
+        ELSE 0
+    END AS gendercode,
+    CASE 
+        WHEN sr.race = 'Chinese' THEN 0
+        WHEN sr.race = 'Malay' THEN 1
+        WHEN sr.race = 'Indian' THEN 2
+        WHEN sr.race = 'Caucasian' THEN 3
+        WHEN sr.race = 'Others' THEN 4
+        ELSE -1
+    END AS ethnicitycode,
+    sr.age,
+    sr.heightcm,
+    sr.weightkg,
+    sr.bmi,
+    sr.opdate,
+    FALSE AS simbilateral,      -- ✅ simultaneous
+    FALSE AS stagedbilateral,  -- ✅ not staged
+    0 AS orderinstage,         -- always 0 since not staged
+    0 AS stageinterval      -- no interval since not staged
+FROM stagingraw sr
+WHERE sr.simbk = 0
+  AND sr.stabk = 0
+  AND sr.stabk_int IS NULL;
 
 -- Insert into form and formresponse from stagingraw
 -- This involves unpivoting the wide format of responses into a long format
@@ -712,4 +779,5 @@ JOIN flattened fl
     AND f.term = fl.term
 JOIN question q
     ON q.code = fl.code
-WHERE fl.answervalue IS NOT NULL;
+WHERE fl.answervalue IS NOT NULL
+ON CONFLICT (formid, questionid) DO NOTHING;

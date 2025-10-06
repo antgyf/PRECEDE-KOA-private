@@ -23,14 +23,13 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
 
   /** Fetch responses to determine available questions & previous priorities */
   useEffect(() => {
-    if (!form?.priorities || term === undefined) return;
+    if (!patient?.patientid || term === undefined) return;
 
     const fetchData = async () => {
-      setIsLoading(true);
-      showAlert("Loading priorities...", "info");
       
       try {
-
+      setIsLoading(true);
+      showAlert("Loading priorities...", "info");
         if (!patient?.patientid) throw new Error("No patient ID found");
 
         const response = await api.get("/patients/responses", {

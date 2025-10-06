@@ -95,12 +95,23 @@ const PDFReport: React.FC<PDFReportProps> = ({
     </Text>
   );
 
+  const remapInitial = (question: number, initial: number) => {
+    if (question === 2) {
+      if (initial >= 3) return initial - 1;
+    }
+    else if (question === 3) { 
+      if (initial === 3) return 2;
+      if (initial === 4 || initial === 5) return 3;
+      if (initial === 6) return 4;
+    }
+    return initial;
+  }
+
   const getFilterDescription = (filters: FilterType) => {
     if (!patient) return;
 
     const descriptionParts: React.ReactNode[] = [];
 
-    // Age
     if (filters.categories.includes("Age Range") && filters.age) {
       descriptionParts.push(
         <>
@@ -110,7 +121,6 @@ const PDFReport: React.FC<PDFReportProps> = ({
       );
     }
 
-    // BMI
     if (filters.categories.includes("BMI Range") && filters.bmi) {
       descriptionParts.push(
         <>
@@ -120,7 +130,6 @@ const PDFReport: React.FC<PDFReportProps> = ({
       );
     }
 
-    // Gender
     if (filters.categories.includes("Gender")) {
       descriptionParts.push(
         <>
@@ -129,12 +138,20 @@ const PDFReport: React.FC<PDFReportProps> = ({
       );
     }
 
-    // Ethnicity
     if (filters.categories.includes("Ethnicity")) {
       descriptionParts.push(
         <>
           <Text style={styles.boldText}>Ethnicity</Text> (
           {Ethnicity[patient.ethnicity]})
+        </>
+      );
+    }
+
+    if (filters.categories.includes("Surgeon Title")) {
+      descriptionParts.push(
+        <>
+          <Text style={styles.boldText}>Surgeon Title</Text> (
+          {patient.surgeontitle})
         </>
       );
     }
@@ -156,7 +173,47 @@ const PDFReport: React.FC<PDFReportProps> = ({
 
   const renderPDFDocument = (radarImage: string) => (
     <Document title={pdfFileName}>
-      {/* Page 1: Radar Chart */}
+      {/* Page 1: Bar Charts */}
+      <Page size="A4" style={styles.page}>
+        {patient && <Table data={patient} />}
+        <Text style={styles.instruction}>
+          Below are what past patients reported{" "}
+          <Text style={styles.bold}>6 months after surgery</Text> in the five
+          areas {getName()} hopes to see improvement most. Those patients are
+          similar to {getName()}
+          {getFilterDescription(filters)}, and they experienced the same level
+          of problems as {getName()} in those areas before surgery.
+        </Text>
+
+        {barChartData.map((data, index) => (
+          <View key={data.variableQuestion} wrap={false} style={styles.colContainer}>
+            <Text style={styles.title}>{data.variableQuestion}</Text>
+            <View style={styles.row}>
+              <View
+                style={[
+                  styles.nameBoxContainer,
+                  { marginTop: remapInitial(data.questionid, Number(data.initial)) * 22 + 8 },
+                ]}
+              >
+                <Text style={styles.nameBox}>
+                  {patient?.sex ? "Ms." : "Mr."} {patient?.fullname} {"\n"}is
+                  currently here
+                </Text>
+                <Text style={styles.pointer}>={`>`}</Text>
+              </View>
+              <View style={styles.chartContainer}>
+                {barChartData[index] ? (
+                  <BarChart data={barChartData[index]} />
+                ) : (
+                  <Text>No data available</Text>
+                )}
+              </View>
+            </View>
+          </View>
+        ))}
+      </Page>
+
+      {/* Page 2: Radar Chart + Legend */}
       <Page size="A4" style={styles.page}>
         {patient && <Table data={patient} />}
         <Text style={styles.title}>Patient Overview</Text>
@@ -187,9 +244,7 @@ const PDFReport: React.FC<PDFReportProps> = ({
             <Text style={{ fontSize: 10 }}>no problems</Text>
           </View>
           <View style={{ flexDirection: "row" }}>
-            <Text style={{ fontSize: 10, color: "#90ee90" }}>
-              Light green:{" "}
-            </Text>
+            <Text style={{ fontSize: 10, color: "#90ee90" }}>Light green: </Text>
             <Text style={{ fontSize: 10 }}>slight problems</Text>
           </View>
           <View style={{ flexDirection: "row" }}>
@@ -214,45 +269,6 @@ const PDFReport: React.FC<PDFReportProps> = ({
             marginTop: 20,
           }}
         />
-      </Page>
-
-      <Page size="A4" style={styles.page}>
-        {patient && <Table data={patient} />}
-        <Text style={styles.instruction}>
-          Below are what past patients reported{" "}
-          <Text style={styles.bold}>6 months after surgery</Text> in the five
-          areas {getName()} hopes to see improvement most. Those patients are
-          similar to {getName()}
-          {getFilterDescription(filters)}, and they experienced the same level
-          of problems as {getName()} in those areas before surgery.
-        </Text>
-
-        {barChartData.map((data, index) => (
-          <View key={data.variableQuestion} style={styles.colContainer}>
-            <Text style={styles.title}>{data.variableQuestion}</Text>
-            <View style={styles.row}>
-              <View
-                style={[
-                  styles.nameBoxContainer,
-                  { marginTop: Number(data.initial) * 22 + 8 },
-                ]}
-              >
-                <Text style={styles.nameBox}>
-                  {patient?.sex ? "Ms." : "Mr."} {patient?.fullname} {"\n"}is
-                  currently here
-                </Text>
-                <Text style={styles.pointer}>={`>`}</Text>
-              </View>
-              <View style={styles.chartContainer}>
-                {barChartData[index] ? (
-                  <BarChart data={barChartData[index]} />
-                ) : (
-                  <Text>No data available</Text>
-                )}
-              </View>
-            </View>
-          </View>
-        ))}
       </Page>
     </Document>
   );

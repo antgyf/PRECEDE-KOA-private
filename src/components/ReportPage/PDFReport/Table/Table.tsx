@@ -5,14 +5,14 @@ import TableHeader from "./TableHeader";
 
 const styles = StyleSheet.create({
   tableContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
+    width: "100%", // Ensure full width for proper alignment
+    marginVertical: 10,
   },
   line: {
-    height: 1, // Line height
-    backgroundColor: "#000", // Line color
-    marginVertical: 10, // Spacing above and below the line
-    width: "100%", // Full width
+    height: 1,
+    backgroundColor: "#000",
+    marginVertical: 10,
+    width: "100%",
   },
 });
 

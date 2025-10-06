@@ -60,7 +60,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = async () => {
     try {
-      await api.get(
+      await api.post(
         `/${
           isSurgeon ? "surgeons" : "researchers"
         }/logout`,

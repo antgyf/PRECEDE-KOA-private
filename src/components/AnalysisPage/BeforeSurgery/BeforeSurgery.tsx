@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import api from "../../../api/api";
 import {
-  AllOptionsType,
   FilterType,
   Questions,
   QuestionType,
 } from "../../../models/patient/patientDetails";
 import PatientDetail from "../../FormPage/PatientDetail";
 import SelectVariable from "../SelectVariable";
-import { colorScheme } from "../../../models/UI/Color";
+import { endColor, generateGradientColors, startColor } from "../../../models/UI/Color";
 import { useForm } from "../../../hooks/FormContext";
 import { useAlert } from "../../../hooks/AlertContext";
 import Alert from "../../UI/Alert";
@@ -41,10 +39,10 @@ const BeforeSurgery: React.FC = () => {
   const { form, patient } = useForm();
   const { alert, showAlert } = useAlert();
 
-  const [variable, setVariable] = useState<AllOptionsType>();
   const [question, setQuestion] = useState<QuestionType | null>(null);
-  const [, setDescriptionList] = useState<Description[]>([]);
+  const [gradientColors, setGradientScheme] = useState<string[]>([]);
   const [beforeData, setBeforeData] = useState<BeforeData | null>(null);
+  const [, setDescriptionList] = useState<Description[]>([]);
   const [, setGraphData] = useState<GraphData>([]);
   const [filters, setFilters] = useState<FilterType>({
     categories: ["Age Range", "BMI Range"],
@@ -57,21 +55,9 @@ const BeforeSurgery: React.FC = () => {
     setFilters(selectedFilters);
   };
 
-  // Set selected question based on selected variable chosen
-  useEffect(() => {
-    if (variable) {
-      const foundQuestion = Questions.find((q) => q.code === variable);
-      if (foundQuestion) {
-        setQuestion(foundQuestion);
-      }
-    } else {
-      setQuestion(null);
-    }
-  }, [variable]);
-
   // Fetch before surgery data when filters or variable change
   useEffect(() => {
-    if (!variable || !question) return;
+    if (!question) return;
 
     const fetchData = async () => {
       setIsLoading(true);
@@ -84,9 +70,9 @@ const BeforeSurgery: React.FC = () => {
         const response = await api.post(
           "/patients/before",
           {
-            variableName: variable,
+            questionid: question.id,
             filters: filters,
-            options: options.map(([key]) => +key),
+            options: options.map(([key]) => +key), // Convert keys from answer options to numbers
             patient: patient,
           }
         );
@@ -124,6 +110,9 @@ const BeforeSurgery: React.FC = () => {
         return [];
       }
 
+      const gradient = generateGradientColors(beforeData.data.length, startColor, endColor);
+      setGradientScheme(gradient);
+
       return [
         [
           "Option",
@@ -137,7 +126,7 @@ const BeforeSurgery: React.FC = () => {
         ...beforeData.data.map((item): [string, number, string, string] => [
           `${question.list[item.option]} \n (${item.count})`,
           +item.count,
-          colorScheme[item.option % colorScheme.length],
+          gradientColors[item.option % gradientColors.length],
           `${String(item.percentage)}%`,
         ]),
       ];
@@ -150,7 +139,7 @@ const BeforeSurgery: React.FC = () => {
 
       return beforeData.data.map((item, index) => ({
         description: `${question.list[item.option]}`,
-        color: colorScheme[index % colorScheme.length],
+        color: gradientColors[index % gradientColors.length],
       }));
     };
 
@@ -161,14 +150,28 @@ const BeforeSurgery: React.FC = () => {
   if (!form || !patient) {
     return <div>No patient form found.</div>;
   }
-  const renderHumanIcons = () => {
-    if (!beforeData || !beforeData.data || !question) return null;
 
-    return beforeData.data.map((item: any, index: number) => (
+const renderHumanIcons = () => {
+  if (!beforeData || !beforeData.data || !question) return null;
+
+  // Get the patient's selected answer value for this question
+  const patientAnswerValue = form.responses.find(
+    (r) => r.questionid === question.id
+  )?.answervalue;
+
+  beforeData.data.forEach((item, index) => {
+    console.log(`Item ${index} - option:`, item.option, typeof item.option, 'matches:', item.option == patientAnswerValue);
+  });
+
+  return beforeData.data.map((item: any, index: number) => {
+    // Check if this item's option matches the patient's answer
+    const isPatientHere = item.option == patientAnswerValue;
+
+    return (
       <div key={index} className="flex items-start mb-4 w-full">
         {/* Fixed Left Space for "Currently Here" Box */}
         <div className="w-1/5 min-w-[150px] flex justify-start items-center">
-          {index == Number(form[question?.name as AllOptionsType]) ? (
+          {isPatientHere ? (
             <div className="flex items-center">
               <div className="bg-white rounded-md px-3 py-2 shadow-md">
                 {getName()} is currently here
@@ -186,7 +189,7 @@ const BeforeSurgery: React.FC = () => {
             <div
               className="text-lg font-semibold mr-2 "
               style={{
-                color: colorScheme[index % colorScheme.length],
+                color: gradientColors[index % gradientColors.length],
               }}
             >
               {question.list[item.option]}
@@ -204,7 +207,7 @@ const BeforeSurgery: React.FC = () => {
                   icon={faUser}
                   className="text-xl mx-1"
                   style={{
-                    color: colorScheme[index % colorScheme.length],
+                    color: gradientColors[index % gradientColors.length],
                   }}
                 />
               </div>
@@ -212,8 +215,10 @@ const BeforeSurgery: React.FC = () => {
           </div>
         </div>
       </div>
-    ));
-  };
+    );
+  });
+};
+
 
   return (
     <div className="w-full rounded-lg">
@@ -235,10 +240,13 @@ const BeforeSurgery: React.FC = () => {
           </li>
           {/* Variable Selection */}
           <SelectVariable
-            value={variable || ""}
-            onChange={(e) => setVariable(e.target.value as AllOptionsType)}
+            value={question?.code || ""}
+            onChange={(e) => {
+              const selectedCode = e.target.value;
+              const foundQuestion = Questions.find(q => q.code === selectedCode);
+              if (foundQuestion) setQuestion(foundQuestion);
+            }}
           />
-
           <li>
             Use the filters below to redefine similar patients based on their
             characteristics before surgery
@@ -247,7 +255,7 @@ const BeforeSurgery: React.FC = () => {
       </article>
 
       <FilterButtonsComponent
-        key={variable}
+        key={question?.id}
         onFilterApply={handleFilterChange}
       />
 

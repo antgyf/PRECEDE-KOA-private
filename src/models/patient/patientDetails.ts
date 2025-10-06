@@ -7,6 +7,7 @@ export interface AddPatientForm {
   height?: string;
   weight?: string;
   surgeonid?: string;
+  surgeontitle?: string;
 }
 
 export const Sex: Record<string, string> = {
@@ -69,8 +70,8 @@ export const Pain = {
   1: "Mild / Occasional",
   2: "Mild (Stairs only)",
   3: "Mild (Walking and Stairs)",
-  4: "Moderate -Occasional",
-  5: "Moderate -Occasional",
+  4: "Moderate - Occasional",
+  5: "Moderate - Continual",
   6: "Severe",
 };
 
@@ -251,35 +252,36 @@ export type QuestionType = {
   code: AllOptionsType;    // match DB code
   question: string;        // display text
   list: Record<number, string>; // Likert or option scale
+  description: string;  // optional description
 };
 
 // Actual questions list aligned with DB
 export const Questions: QuestionType[] = [
-  { id: 1, code: "KFS", question: "Function stairs", list: FunctionStairs },
-  { id: 2, code: "KFW", question: "Function walking", list: FunctionWalking },
-  { id: 3, code: "KPAIN", question: "Knee pain overall", list: Pain },
-  { id: 4, code: "EQ5D-MOB", question: "Mobility", list: Mobility },
-  { id: 5, code: "EQ5D-SC", question: "Self-care", list: SelfCare },
-  { id: 6, code: "EQ5D-UA", question: "Usual activities", list: UsualActivities },
-  { id: 7, code: "EQ5D-PD", question: "Pain/discomfort", list: PainDiscomfort },
-  { id: 8, code: "EQ5D-AD", question: "Anxiety/depression", list: AnxietyDepression },
-  { id: 9, code: "OKS1", question: "How would you describe the pain you usually have from your knee?", list: OKSKneePain },
-  { id: 10, code: "OKS2", question: "Have you had any trouble with washing and drying yourself (all over) because of your knee?", list: OKSKneeTrouble },
-  { id: 11, code: "OKS3", question: "Have you had any trouble getting in and out of a car or using public transport because of your knee? (whichever you tend to use)", list: OKSKneeTrouble },
-  { id: 12, code: "OKS4", question: "For how long have you been able to walk before pain from your knee becomes severe? (with or without a stick)", list: OKSWalking },
-  { id: 13, code: "OKS5", question: "After a meal (sat at a table), how painful has it been for you to stand up from a chair because of your knee?", list: OKSStanding },
-  { id: 14, code: "OKS6", question: "Have you been limping when walking, because of your knee?", list: OKSFrequency },
-  { id: 15, code: "OKS7", question: "Could you kneel down and get up again afterwards?", list: OKSEase },
-  { id: 16, code: "OKS8", question: "Have you been troubled by pain from your knee in bed at night?", list: OKSNightPain },
-  { id: 17, code: "OKS9", question: "How much has pain from your knee interfered with your usual work (including housework)?", list: OKSWorkInterference },
-  { id: 18, code: "OKS10", question: "Have you felt that your knee might suddenly 'give way' or let you down?", list: OKSFrequency },
-  { id: 19, code: "OKS11", question: "Could you do the household shopping on your own?", list: OKSEase },
-  { id: 20, code: "OKS12", question: "Could you walk down one flight of stairs?", list: OKSEase },
+  { id: 1, code: "KFS", question: "Function stairs", list: FunctionStairs, description: "Ability to use stairs" },
+  { id: 2, code: "KFW", question: "Function walking", list: FunctionWalking, description: "Ability to walk" },
+  { id: 3, code: "KPAIN", question: "Knee pain overall", list: Pain, description: "Overall knee pain" },
+  { id: 4, code: "EQ5D-MOB", question: "Mobility", list: Mobility, description: "Mobility level" },
+  { id: 5, code: "EQ5D-SC", question: "Self-care", list: SelfCare, description: "Self-care ability" },
+  { id: 6, code: "EQ5D-UA", question: "Usual activities", list: UsualActivities, description: "Ability to conduct usual activities" },
+  { id: 7, code: "EQ5D-PD", question: "Pain/discomfort", list: PainDiscomfort, description: "Pain/discomfort level" },
+  { id: 8, code: "EQ5D-AD", question: "Anxiety/depression", list: AnxietyDepression, description: "Anxiety/depression level" },
+  { id: 9, code: "OKS1", question: "How would you describe the pain you usually have from your knee?", list: OKSKneePain, description: "Knee pain severity" },
+  { id: 10, code: "OKS2", question: "Have you had any trouble with washing and drying yourself (all over) because of your knee?", list: OKSKneeTrouble, description: "Difficulty with washing and drying" },
+  { id: 11, code: "OKS3", question: "Have you had any trouble getting in and out of a car or using public transport because of your knee? (whichever you tend to use)", list: OKSKneeTrouble, description: "Difficulty with taking cars/public transport" },
+  { id: 12, code: "OKS4", question: "For how long have you been able to walk before pain from your knee becomes severe? (with or without a stick)", list: OKSWalking, description: "Walking duration before severe pain" },
+  { id: 13, code: "OKS5", question: "After a meal (sat at a table), how painful has it been for you to stand up from a chair because of your knee?", list: OKSStanding, description: "Difficulty with standing up" },
+  { id: 14, code: "OKS6", question: "Have you been limping when walking, because of your knee?", list: OKSFrequency, description: "Frequency of limping" },
+  { id: 15, code: "OKS7", question: "Could you kneel down and get up again afterwards?", list: OKSEase, description: "Difficulty with kneeling" },
+  { id: 16, code: "OKS8", question: "Have you been troubled by pain from your knee in bed at night?", list: OKSNightPain, description: "Frequency of night pains" },
+  { id: 17, code: "OKS9", question: "How much has pain from your knee interfered with your usual work (including housework)?", list: OKSWorkInterference, description: "Work interference" },
+  { id: 18, code: "OKS10", question: "Have you felt that your knee might suddenly 'give way' or let you down?", list: OKSFrequency, description: "Frequency of knee giving way" },
+  { id: 19, code: "OKS11", question: "Could you do the household shopping on your own?", list: OKSEase, description: "Ability to do household shopping" },
+  { id: 20, code: "OKS12", question: "Could you walk down one flight of stairs?", list: OKSEase, description: "Ability to walk down stairs" },
 ];
 
 export type BarChartData = {
   title: string;
-  variableName: string;
+  questionid: number;
   variableQuestion: string | undefined;
   initial: number;
   options: {
@@ -290,7 +292,7 @@ export type BarChartData = {
 
 export type QuestionData = {
   totalRows: number;
-  variableName: string;
+  questionid: number;
   data: {
     option: `${keyof typeof OtherOptions}`;
     count: string;

@@ -1,23 +1,5 @@
-import { Text, View, StyleSheet } from "@react-pdf/renderer";
-
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#EEE", // Highlight the header row
-    padding: 5,
-  },
-  shortcell: {
-    width: "10%",
-    textAlign: "center",
-    fontWeight: "bold",
-  },
-  longcell: {
-    width: "18%",
-    textAlign: "center",
-    fontWeight: "bold",
-  },
-});
+import { Text, View } from "@react-pdf/renderer";
+import { columnStyles, columnConfig } from "./ColumnStyles";
 
 const TableHeader: React.FC = () => {
   const headers = [
@@ -26,23 +8,22 @@ const TableHeader: React.FC = () => {
     "Age",
     "Sex",
     "Ethnicity",
-    "BMI(kg/m^2)",
+    "BMI(kg/m²)",
+    "Surgeon Title",
   ];
 
-  const isShortCell = (header: string) => {
-    return header === "Study ID";
-  };
-
   return (
-    <View style={styles.row}>
-      {headers.map((header, index) => (
-        <Text
-          key={index}
-          style={isShortCell(header) ? styles.shortcell : styles.longcell}
-        >
-          {header}
-        </Text>
-      ))}
+    <View style={columnStyles.headerRow}>
+      {headers.map((header, index) => {
+        const isShort = columnConfig[index].width === "short";
+        const style = isShort ? columnStyles.headerShortCell : columnStyles.headerCell;
+        
+        return (
+          <Text key={index} style={style}>
+            {header}
+          </Text>
+        );
+      })}
     </View>
   );
 };

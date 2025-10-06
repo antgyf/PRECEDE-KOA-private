@@ -19,7 +19,7 @@ const AnalysisPage: React.FC = () => {
       {/* Fixed Tab Navigation */}
       <div className="fixed top-0 left-0 w-full bg-white z-50 shadow-md p-5">
         <div className="flex justify-between">
-          <BackButton target="Form Page" to="/form" />
+          <BackButton target="Priority Page" to="/priorities" />
           <LogoutButton />
         </div>
         <div className="flex justify-center">
