@@ -441,7 +441,8 @@ SELECT
 FROM stagingraw sr
 WHERE sr.simbk = 0
   AND sr.stabk = 0
-  AND sr.stabk_int IS NULL;
+  AND sr.stabk_int IS NULL
+  AND sr.age IS NOT NULL;
 
 -- Insert into form and formresponse from stagingraw
 -- This involves unpivoting the wide format of responses into a long format

@@ -2,12 +2,18 @@ import dotenv from "dotenv";
 import pkg from "pg";
 const { Pool } = pkg;
 
-console.log("NODE_ENV:", process.env.NODE_ENV);
-console.log("DB Config:", {
+if (process.env.NODE_ENV === "production") {
+  dotenv.config({ path: ".env.production" });
+} else {
+  dotenv.config({ path: ".env.development" });
+}
+
+console.log("Database Config:", {
   user: process.env.PGUSER,
   host: process.env.PGHOST,
   database: process.env.PGDATABASE,
   port: process.env.PGPORT,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 
 const pool = new Pool({
