@@ -37,43 +37,46 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   });
   const [isSurgeon, setIsSurgeon] = useState<boolean>(true);
 
-  // On app load, fetch /me to check if user is logged in
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await api.get("/surgeons/me", { withCredentials: true });
-        setUser({ id: res.data.id, name: res.data.username });
+        const res = await api.get(`/${isSurgeon ? "surgeons" : "researchers"}/me`, { withCredentials: true });
+        const userData = { id: res.data.id, name: res.data.username };
+        setUser(userData);
+        localStorage.setItem("user", JSON.stringify(userData));
       } catch (error) {
-        console.warn("No logged-in user"); // don't treat as fatal
+        console.warn("No logged-in user");
         setUser(null);
+        localStorage.removeItem("user");
       }
-
-    }; 
+    };
     fetchUser();
-  }, []);
+  }, [isSurgeon]);
 
   const toggleIsSurgeon = () => setIsSurgeon(!isSurgeon);
 
   const login = (username: string, id: number) => {
-    setUser({ name: username, id });
+    const userData = { name: username, id };
+    setUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData));
   };
+
 
   const logout = async () => {
     try {
       await api.post(
-        `/${
-          isSurgeon ? "surgeons" : "researchers"
-        }/logout`,
-        {
-          method: "POST",
-          withCredentials: true, // important to send cookies
-        }
+        `/${isSurgeon ? "surgeons" : "researchers"}/logout`,
+        {},
+        { withCredentials: true }
       );
     } catch (err) {
       console.error("Logout failed", err);
+    } finally {
+      setUser(null);
+      localStorage.removeItem("user");
     }
-    setUser(null);
   };
+
 
   return (
     <AuthContext.Provider

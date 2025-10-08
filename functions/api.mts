@@ -28,25 +28,6 @@ app.use(
   })
 );
 
-// Add this route to your main API file
-app.get("/.netlify/functions/api/env-check", (req: Request, res: Response) => {
-  const envVars = {
-    NODE_ENV: process.env.NODE_ENV,
-    PGUSER: process.env.PGUSER,
-    PGHOST: process.env.PGHOST, 
-    PGDATABASE: process.env.PGDATABASE,
-    PGPORT: process.env.PGPORT,
-    PGPASSWORD: process.env.PGPASSWORD ? '***SET***' : 'MISSING'
-  };
-  
-  console.log('🎯 Environment Variables in API Route:', envVars);
-  
-  res.json({
-    message: 'Environment check',
-    environment: envVars
-  });
-});
-
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.json({ type: "application/vnd.api+json" }));
