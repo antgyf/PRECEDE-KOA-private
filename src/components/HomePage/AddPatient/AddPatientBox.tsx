@@ -57,23 +57,25 @@ const AddPatientBox: React.FC<AddPatientBoxProps> = ({ onClose }) => {
       // Always exclude surgeontitle
       if (key === "surgeontitle") return false;
 
-      // If the user is a surgeon, exclude surgeonid
-      if (auth.user && auth.isSurgeon && key === "surgeonid") return false;
+      // If the user is a surgeon with id, exclude surgeonid
+      if (auth.user?.id && auth.isSurgeon && key === "surgeonid") return false;
 
       // Return fields that are missing/empty
       return value === "" || value === undefined;
     });
 
-    const response2 = await api.get(`/surgeons/${auth.user && auth.isSurgeon ? auth.user?.id : form.surgeonid}`);
-      
-      if (response2.status !== 200) {
-        showAlert("Failed to fetch surgeon title. Please try again.", "error");
-        return;
-      }
+    
+    const response2 = await api.get(`/surgeons/${auth.user && auth.isSurgeon ? auth.user.id : form.surgeonid}`);
+    
+    if (response2.status !== 200) {
+      showAlert("Failed to fetch surgeon title. Please try again.", "error");
+      return;
+    }
 
     const surgeonTitle = response2.data.surgeontitle === undefined ? "N/A" : response2.data.surgeontitle;
     form.surgeonid = auth.user && auth.isSurgeon ? auth.user?.id.toString() : form.surgeonid;
     form.surgeontitle = surgeonTitle;
+    
 
     /*
     console.log("Surgeon title fetched:", surgeonTitle);
@@ -277,7 +279,7 @@ const AddPatientBox: React.FC<AddPatientBoxProps> = ({ onClose }) => {
               list={Sex}
               value={form.sex}
             />
-            {auth.user && !auth.isSurgeon && (
+            {((auth.user && !auth.isSurgeon) || (!auth.user?.id )) && (
               <TextInput
                 name="surgeonid"
                 label="Surgeon ID"
