@@ -7,8 +7,6 @@ export interface Patient {
   height: number;
   weight: number;
   bmi: number;
-  surgeonid: number;
-  surgeontitle: string;
   hasform: boolean;
 }
 

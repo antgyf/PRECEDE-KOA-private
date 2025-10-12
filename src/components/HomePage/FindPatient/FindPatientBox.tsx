@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
-import { BMI, Ethnicity, Sex , SurgeonTitle} from "../../../models/patient/patientDetails";
+import { BMI, Ethnicity, Sex } from "../../../models/patient/patientDetails";
 import FilterInput from "../../UI/Form/FilterInput";
-import FilterTextInput from "../../UI/Form/FilterTextInput";
 import SearchBar from "./SearchBar";
 import ToggleUp from "../../UI/Button/ToggleUp";
 import { useNavigate } from "react-router-dom";
@@ -18,8 +17,6 @@ interface FilterState {
   sex?: number;
   ethnicity?: number;
   bmi?: number;
-  surgeonid?: number;
-  surgeontitle?: string;
 }
 
 interface FindPatientBoxProps {
@@ -55,39 +52,6 @@ const FindPatientBox: React.FC<FindPatientBoxProps> = ({ onClose }) => {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-
-    // Surgeon ID input
-    if (name === "surgeonid") {
-      const newSurgeonId = value !== "" ? Number(value) : - 1;
-
-      setFilters((prev) => ({
-        ...prev,
-        surgeonid: newSurgeonId,
-        surgeontitle: "", // reset title while fetching
-      }));
-
-      // If a valid number, fetch surgeon title
-      if (newSurgeonId > 0) {
-        try {
-          const response = await api.get(`/surgeon/${newSurgeonId}`);
-          setFilters((prev) => ({
-            ...prev,
-            surgeontitle: response.data.title, // use the { title: ... } response
-          }));
-        } catch (error) {
-          console.error("Error fetching surgeon title:", error);
-          setFilters((prev) => ({
-            ...prev,
-            surgeontitle: "",
-          }));
-        }
-      } else {
-        // reset title if input is empty or invalid
-        setFilters((prev) => ({ ...prev, surgeontitle: "" }));
-      }
-
-      return;
-    }
 
     // Default case for other filters
     const numericFields = ["ethnicity", "bmi", "sex"];
@@ -225,27 +189,6 @@ const FindPatientBox: React.FC<FindPatientBoxProps> = ({ onClose }) => {
           onChange={handleFilterChange}
         />
 
-        {/* Surgeon Title dropdown */}
-        <fieldset disabled={!!filters.surgeonid}>
-          <FilterInput
-            label="Surgeon Title"
-            list={SurgeonTitle}
-            name="surgeontitle"
-            value={filters.surgeontitle || ""}
-            onChange={handleFilterChange}
-          />
-        </fieldset>
-
-        {/* Surgeon ID numeric input */}
-        <fieldset disabled={!!filters.surgeontitle}>
-        <FilterTextInput
-          label="Surgeon ID"
-          name="surgeonid"
-          value={filters.surgeonid?.toString() || ""} // convert back to string for the input
-          onChange={handleFilterChange}
-          type="number" // optional: restrict typing to numbers only
-        />
-        </fieldset>
         <BrownButton buttonText="Clear" onButtonClick={handleClearFilters} />
       </div>
       
@@ -261,7 +204,7 @@ const FindPatientBox: React.FC<FindPatientBoxProps> = ({ onClose }) => {
               <th>Sex</th>
               <th>Ethnicity</th>
               <th>BMI</th>
-              <th>Surgeon Title</th>
+              <th>Forms</th>
             </tr>
           </thead>
           <tbody className="text-[16px]">
@@ -273,7 +216,6 @@ const FindPatientBox: React.FC<FindPatientBoxProps> = ({ onClose }) => {
                 <td>{Sex[patient.sex]}</td>
                 <td>{Ethnicity[patient.ethnicity]}</td>
                 <td>{patient.bmi}</td>
-                <td>{SurgeonTitle[patient.surgeontitle]}</td>
                 <td
                   className="underline text-blue-600 cursor-pointer"
                   onClick={() => handleNavigate(patient)}

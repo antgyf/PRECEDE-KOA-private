@@ -30,7 +30,7 @@ const FilterButton: React.FC<FilterButtonProps> = ({
 const FilterButtonsComponent: React.FC<{
   onFilterApply: (selectedFilters: FilterType) => void;
 }> = ({ onFilterApply }) => {
-  const filterCategories = ["Gender", "Ethnicity", "Surgeon Title"];
+  const filterCategories = ["Gender", "Ethnicity", "Surgeon Title", "Surgeon ID"];
 
   const [selectedFilters, setSelectedFilters] = useState<FilterType>({
     categories: ["Age Range", "BMI Range"],

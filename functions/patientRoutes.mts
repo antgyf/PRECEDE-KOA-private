@@ -15,10 +15,10 @@ router.post("/add", async (req: Request, res: Response) => {
   try {
     // Insert patient data into the database
     const result = await pool.query(
-      `INSERT INTO patient (fullname, surgeonid, surgeontitle, sex, ethnicity, age, bmi, height, weight)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-         RETURNING patientid, fullname, surgeonid, surgeontitle, sex, ethnicity, age, bmi, height, weight;`,
-      [fullname, surgeonid, surgeontitle, sex, ethnicity, age, bmi, height, weight]
+      `INSERT INTO patient (fullname, sex, ethnicity, age, bmi, height, weight)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
+         RETURNING patientid, fullname, sex, ethnicity, age, bmi, height, weight;`,
+      [fullname, sex, ethnicity, age, bmi, height, weight]
     );
 
     res.status(201).json({
@@ -36,7 +36,6 @@ router.put("/edit", async (req: Request, res: Response): Promise<any> => {
   const {
     patientid,
     fullname,
-    surgeonid,
     sex,
     ethnicity,
     age,
@@ -54,11 +53,11 @@ router.put("/edit", async (req: Request, res: Response): Promise<any> => {
     // Update patient data in the database
     const result = await pool.query(
       `UPDATE patient
-       SET fullname = $1, surgeonid = $2, sex = $3, ethnicity = $4, 
-           age = $5, bmi = $6, height = $7, weight = $8
-       WHERE patientid = $9
-       RETURNING patientid, fullname, surgeonid, sex, ethnicity, age, bmi, height, weight;`,
-      [fullname, surgeonid, sex, ethnicity, age, bmi, height, weight, patientid]
+       SET fullname = $1, sex = $2, ethnicity = $3, 
+           age = $4, bmi = $5, height = $6, weight = $7
+       WHERE patientid = $8
+       RETURNING patientid, fullname, sex, ethnicity, age, bmi, height, weight;`,
+      [fullname, sex, ethnicity, age, bmi, height, weight, patientid]
     );
 
     // If no rows were updated, return an error
@@ -79,8 +78,6 @@ router.put("/edit", async (req: Request, res: Response): Promise<any> => {
 // Define expected request body interface
 interface AddPatientRequest {
   fullname: string;
-  surgeonid: number;
-  surgeontitle: string;
   sex: number;
   ethnicity: number;
   age: number;
@@ -145,9 +142,7 @@ router.get("/filter", async (req: Request, res: Response) => {
     sex,
     ethnicity,
     age,
-    bmi,
-    surgeonid,
-    surgeontitle,
+    bmi
   } = req.query;
 
   try {
@@ -162,30 +157,8 @@ router.get("/filter", async (req: Request, res: Response) => {
     let query = `SELECT p.* FROM patient p`;
     let countQuery = `SELECT COUNT(*) FROM patient p`;
 
-    // Add JOIN only if surgeontitle is being filtered
-    if (surgeontitle) {
-      query += ` JOIN surgeon s ON p.surgeonid = s.surgeonid`;
-      countQuery += ` JOIN surgeon s ON p.surgeonid = s.surgeonid`;
-    }
-
     query += ` WHERE 1=1`;
     countQuery += ` WHERE 1=1`;
-
-    // surgeonid filter (direct filter on patient table)
-    if (surgeonid) {
-      query += ` AND p.surgeonid = $${conditionIndex}`;
-      countQuery += ` AND p.surgeonid = $${conditionIndex}`;
-      values.push(Number(surgeonid));
-      conditionIndex++;
-    }
-
-    // surgeontitle filter (requires JOIN)
-    if (surgeontitle) {
-      query += ` AND s.surgeontitle ILIKE $${conditionIndex}`;
-      countQuery += ` AND s.surgeontitle ILIKE $${conditionIndex}`;
-      values.push(`%${surgeontitle}%`);
-      conditionIndex++;
-    }
 
     // sex filter
     if (sex) {
@@ -437,6 +410,7 @@ router.post("/priorities", async (req: Request, res: Response) => {
 
 interface Patient {
   referencepatientid: number;
+  surgeonid: number;
   surgeontitle: string;
   age: number;
   sex: number;
@@ -444,7 +418,6 @@ interface Patient {
   height: number;
   weight: number;
   bmi: number;
-
 }
 
 const formatConditions = (
@@ -468,6 +441,11 @@ const formatConditions = (
   if (filters.categories.includes("Gender")) {
     conditions.push(`p.sex = $${params.length + number + 1}`);
     params.push(patient.sex);
+  }
+
+  if (filters.categories.includes("Surgeon ID")) {
+    conditions.push(`p.surgeonid = $${params.length + number + 1}`);
+    params.push(patient.surgeonid);
   }
 
   if (filters.categories.includes("Surgeon Title")) {

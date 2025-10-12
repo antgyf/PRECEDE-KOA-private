@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAlert } from "../../hooks/AlertContext";
-import { Questions } from "../../models/patient/patientDetails";
+import { Questions, QuestionType } from "../../models/patient/patientDetails";
 import api from "../../api/api";
 import { useForm,  } from "../../hooks/FormContext";
 import GreenButton from "../UI/Button/GreenButton";
+import RadioChoice from "../UI/Form/RadioChoice";
 
 interface PriorityContentProps {
   term: number;
@@ -15,10 +16,10 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
   const { showAlert } = useAlert();
   const navigate = useNavigate();
   const { patient, form, setPriorities } = useForm();
-  const [availableQuestions, setAvailableQuestions] = useState(Questions);
+  const [availableQuestions, setAvailableQuestions] = useState<{ question : QuestionType, answervalue: number }[]>([]);
   const [selectedPriorities, setSelectedPriorities] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [minPriorities, setMinPriorities] = useState(5);
+  const [maxPriorities, setMaxPriorities] = useState(5);
   const [isDisabled, setIsDisabled] = useState(false);
 
   /** Fetch responses to determine available questions & previous priorities */
@@ -36,40 +37,49 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
           params: { patientid: patient.patientid, term },
         });
 
-        const responses = response.data;
-        const filteredResponses = responses.filter((r: any) => r.answervalue !== 0);
+        const filteredResponses = response.data
+          .filter((r: { code: string; answervalue: number }) => r.answervalue !== 0)
 
-        const filteredQuestions = Questions.filter(q =>
-          filteredResponses.some((r: any) => r.code === q.code)
-        );
+        const questionsWithAnswers = filteredResponses.map((r) => {
+                const question = Questions.find((q) => q.code === r.code);
+                return question ? { question, answervalue: r.answervalue } : null;
+        });
+        
+        setAvailableQuestions(questionsWithAnswers);
+        const calculatedMinPriorities = Math.min(5, questionsWithAnswers.length);
+        setMaxPriorities(calculatedMinPriorities);
 
-        setAvailableQuestions(filteredQuestions);
-        const calculatedMinPriorities = Math.min(5, filteredQuestions.length);
-        setMinPriorities(calculatedMinPriorities);
-
-        if (filteredQuestions.length < 5) {
+        if (filteredResponses.length < 5) {
           showAlert(`Only ${calculatedMinPriorities} problem areas available for prioritization.`, "info");
         }
 
-        // Check if priorities already exist
-        const existingPriorities = filteredResponses
-          .filter((r: any) => r.priority) // API marks previous priorities
-          .map((r: any) => r.questionid);
+        console.log("form from context:", form?.priorities);
+      
+        if (form && !form.priorities) {
+          setSelectedPriorities([]);
+          setIsDisabled(false);
+        }
 
-        if (existingPriorities.length > 0 && term != form?.term) {
-          setPriorities(existingPriorities);
-          setSelectedPriorities(existingPriorities);
-          setIsDisabled(true); // disable checkboxes & submission
+        const existingPriorities = await api.get("/patients/priority", {
+          params: { patientid: patient.patientid, term }
+        });
+
+        if (existingPriorities.data?.priorities?.length) {
+          console.log("Existing priorities found from backend:", existingPriorities.data.priorities);
+          setSelectedPriorities(existingPriorities.data.priorities);
+          setPriorities(existingPriorities.data.priorities);
+          setIsDisabled(true);
           return;
         }
 
+        // If priorities already exist for this term, load them and disable further changes
         if (form?.priorities && form.term === term) {
+          console.log("Existing priorities found:", form.priorities);
           setSelectedPriorities(form.priorities);
           setPriorities(form.priorities);
           setIsDisabled(true);
           return;
         }
-
 
       } catch (err) {
         console.error("Error fetching responses:", err);
@@ -87,7 +97,7 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
     setSelectedPriorities((prev) =>
       prev.includes(questionId)
         ? prev.filter((id) => id !== questionId)
-        : prev.length < minPriorities
+        : prev.length < maxPriorities
         ? [...prev, questionId]
         : prev
     );
@@ -98,8 +108,8 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
     e.preventDefault();
     if (!patient?.patientid || term === undefined) return;
 
-    if (selectedPriorities.length < minPriorities) {
-      showAlert(`Please select exactly ${minPriorities} priorities.`, "error");
+    if (selectedPriorities.length > maxPriorities) {
+      showAlert(`Please select ${maxPriorities} or less priorities.`, "error");
       return;
     }
 
@@ -107,7 +117,7 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
       patientid: patient.patientid,
       term,
       priorities: selectedPriorities,
-      minPriorities,
+      maxPriorities: maxPriorities,
     };
 
     try {
@@ -131,18 +141,41 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
 
   return (
     <form className="flex flex-col gap-4 text-lg" onSubmit={handleSubmit}>
-      <h3>Select your top priorities ({minPriorities} priorities):</h3>
-      {availableQuestions.map((q) => (
-        <div key={q.id} className="flex items-center gap-2 text-lg">
-          <input
-            type="checkbox"
-            checked={selectedPriorities.includes(q.id)}
-            onChange={() => handleTogglePriority(q.id)}
-            disabled={isDisabled}
-          />
-          <span>{q.question}</span>
-        </div>
-      ))}
+      <h3>Select your top priorities ({maxPriorities} priorities):</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {availableQuestions.map((q, index) => (
+          <div
+            key={q.question.id}
+            className="p-4 border rounded-xl shadow-sm bg-white flex flex-col gap-2"
+          >
+            {/* Checkbox row */}
+            <div className="flex items-start gap-3">
+              <input
+                type="checkbox"
+                checked={selectedPriorities.includes(q.question.id)}
+                disabled={isDisabled}
+                onChange={() => handleTogglePriority(q.question.id)}
+                className="mt-1 h-5 w-5 accent-green-600 cursor-pointer"
+              />
+              <div className="flex flex-col">
+                <span className="font-medium">{`${index + 1}. ${q.question.question}`}</span>
+              </div>
+            </div>
+
+            {/* Previous response (disabled radio buttons) */}
+            <div className="ml-8">
+              <RadioChoice
+                name={q.question.code}
+                question=""
+                list={q.question.list}
+                value={String(q.answervalue)}
+                disabled={true}
+                onChange={() => {}}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
       {!isDisabled && (
         <div className="mt-4">
           <GreenButton buttonText="Submit Priorities" />

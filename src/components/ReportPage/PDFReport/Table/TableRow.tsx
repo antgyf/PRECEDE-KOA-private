@@ -1,6 +1,6 @@
 import { Text, View } from "@react-pdf/renderer";
 import { Patient } from "../../../../models/patient/patientReport";
-import { Ethnicity, Sex, SurgeonTitle } from "../../../../models/patient/patientDetails";
+import { Ethnicity, Sex } from "../../../../models/patient/patientDetails";
 import { columnStyles, columnConfig } from "./ColumnStyles";
 
 interface TableRowProps {
@@ -15,7 +15,6 @@ const TableRow: React.FC<TableRowProps> = ({ data }) => {
     Sex[data.sex],
     Ethnicity[data.ethnicity],
     data.bmi, 
-    SurgeonTitle[data.surgeontitle],
   ];
 
   return (

@@ -6,8 +6,6 @@ export interface AddPatientForm {
   bmi: string;
   height?: string;
   weight?: string;
-  surgeonid?: string;
-  surgeontitle?: string;
 }
 
 export const Sex: Record<string, string> = {
