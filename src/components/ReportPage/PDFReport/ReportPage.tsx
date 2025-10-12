@@ -63,7 +63,7 @@ const ReportPage: React.FC = () => {
 
   useEffect(() => {
     if (variables.length === 0) return;
-    console.log("Fetching data for variables:", variables);
+    //console.log("Fetching data for variables:", variables);
     setIsLoading(true);
     setRadarImage(null);
     
@@ -136,7 +136,7 @@ const ReportPage: React.FC = () => {
           // Sort keys based on importance
           const sortedKeys = variables.filter((id) => updatedData[id]);
 
-          console.log("Sorted Question IDs:", sortedKeys);
+          //console.log("Sorted Question IDs:", sortedKeys);
 
           const updatedBarChartData: BarChartData[] = sortedKeys.map((key) => {
             const data = updatedData[key]!;
@@ -277,7 +277,7 @@ const ReportPage: React.FC = () => {
           filters={filters}
           radarImage={radarImage}
           barChartData={barChartData}
-          renderRadar={false}
+          renderRadar={form.priorities.length > 2}
         />
       )}
     </div>

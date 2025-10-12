@@ -510,7 +510,7 @@ router.post("/before", async (req: Request, res: Response) => {
         AND ${conditions}
     `;
 
-    //console.log("Total Query:", totalQuery);
+    console.log("Total Query:", totalQuery);
 
     const { rows: totalResult } = await pool.query<{ total: number }>(
       totalQuery,

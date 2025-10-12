@@ -53,7 +53,7 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
           showAlert(`Only ${calculatedMinPriorities} problem areas available for prioritization.`, "info");
         }
 
-        console.log("form from context:", form?.priorities);
+        //console.log("form from context:", form?.priorities);
       
         if (form && !form.priorities) {
           setSelectedPriorities([]);
@@ -64,8 +64,8 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
           params: { patientid: patient.patientid, term }
         });
 
-        if (existingPriorities.data?.priorities?.length) {
-          console.log("Existing priorities found from backend:", existingPriorities.data.priorities);
+        if (existingPriorities.data?.priorities?.length > 0) {
+          //console.log("Existing priorities found from backend:", existingPriorities.data.priorities);
           setSelectedPriorities(existingPriorities.data.priorities);
           setPriorities(existingPriorities.data.priorities);
           setIsDisabled(true);
@@ -74,7 +74,7 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
 
         // If priorities already exist for this term, load them and disable further changes
         if (form?.priorities && form.term === term) {
-          console.log("Existing priorities found:", form.priorities);
+          //console.log("Existing priorities found:", form.priorities);
           setSelectedPriorities(form.priorities);
           setPriorities(form.priorities);
           setIsDisabled(true);
@@ -141,7 +141,7 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
 
   return (
     <form className="flex flex-col gap-4 text-lg" onSubmit={handleSubmit}>
-      <h3>Select your top priorities ({maxPriorities} priorities):</h3>
+      <h3>Select your top priorities (Up to {maxPriorities} priorities):</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {availableQuestions.map((q, index) => (
           <div

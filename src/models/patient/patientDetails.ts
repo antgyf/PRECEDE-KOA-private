@@ -42,10 +42,11 @@ export const SurgeonTitle: Record<string, string> = {
 export type FilterType = {
   age?: { range: number };
   bmi?: { range: number };
-  surgeonid?: { number: number };
-  surgeontitle?: { string: string };
+  surgeonid?: string;
+  surgeontitle?: string;
   categories: string[];
 };
+
 export const FunctionWalking = {
   0: "Unlimited",
   1: ">2 bus-stops",

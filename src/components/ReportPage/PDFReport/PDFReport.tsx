@@ -114,24 +114,25 @@ const PDFReport: React.FC<PDFReportProps> = ({
 
     const descriptionParts: React.ReactNode[] = [];
 
+    // Age
     if (filters.categories.includes("Age Range") && filters.age) {
       descriptionParts.push(
         <>
-          <Text style={styles.boldText}>Age</Text> (within {filters.age.range}{" "}
-          years)
+          <Text style={styles.boldText}>Age</Text> (within {filters.age.range} years)
         </>
       );
     }
 
+    // BMI
     if (filters.categories.includes("BMI Range") && filters.bmi) {
       descriptionParts.push(
         <>
-          <Text style={styles.boldText}>BMI</Text> (within {filters.bmi.range}{" "}
-          kg/m²)
+          <Text style={styles.boldText}>BMI</Text> (within {filters.bmi.range} kg/m²)
         </>
       );
     }
 
+    // Gender
     if (filters.categories.includes("Gender")) {
       descriptionParts.push(
         <>
@@ -140,24 +141,34 @@ const PDFReport: React.FC<PDFReportProps> = ({
       );
     }
 
+    // Ethnicity
     if (filters.categories.includes("Ethnicity")) {
       descriptionParts.push(
         <>
-          <Text style={styles.boldText}>Ethnicity</Text> (
-          {Ethnicity[patient.ethnicity]})
+          <Text style={styles.boldText}>Ethnicity</Text> ({Ethnicity[patient.ethnicity]})
         </>
       );
     }
 
-    if (filters.categories.includes("Surgeon Title")) {
+    // Surgeon Title — applies to reference patients, not live patient
+    if (filters.surgeontitle) {
       descriptionParts.push(
         <>
-          <Text style={styles.boldText}>Surgeon Title</Text> (
-          {patient.surgeontitle})
+          and were operated on by a <Text style={styles.boldText}>{filters.surgeontitle}</Text> surgeon
         </>
       );
     }
 
+    // Surgeon ID — applies to reference patients, not live patient
+    if (filters.surgeonid) {
+      descriptionParts.push(
+        <>
+          and were operated on by Surgeon with Surgeon ID <Text style={styles.boldText}>{filters.surgeonid}</Text>
+        </>
+      );
+    }
+
+    // Assemble text
     return (
       <Text>
         {descriptionParts.length > 0 && " in "}
