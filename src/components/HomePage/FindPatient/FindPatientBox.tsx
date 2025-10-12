@@ -237,6 +237,7 @@ const FindPatientBox: React.FC<FindPatientBoxProps> = ({ onClose }) => {
         </fieldset>
 
         {/* Surgeon ID numeric input */}
+        <fieldset disabled={!!filters.surgeontitle}>
         <FilterTextInput
           label="Surgeon ID"
           name="surgeonid"
@@ -244,6 +245,7 @@ const FindPatientBox: React.FC<FindPatientBoxProps> = ({ onClose }) => {
           onChange={handleFilterChange}
           type="number" // optional: restrict typing to numbers only
         />
+        </fieldset>
         <BrownButton buttonText="Clear" onButtonClick={handleClearFilters} />
       </div>
       

@@ -51,7 +51,6 @@ const ReportPage: React.FC = () => {
     .map((qid) => {
       const question = Questions.find((q) => q.id === qid);
       const response = form.responses.find((r) => r.questionid === qid);
-
       return question
         ? {
             ...question,
@@ -64,7 +63,7 @@ const ReportPage: React.FC = () => {
 
   useEffect(() => {
     if (variables.length === 0) return;
-    //console.log("Fetching data for variables:", variables);
+    console.log("Fetching data for variables:", variables);
     setIsLoading(true);
     setRadarImage(null);
     
@@ -137,7 +136,7 @@ const ReportPage: React.FC = () => {
           // Sort keys based on importance
           const sortedKeys = variables.filter((id) => updatedData[id]);
 
-          //console.log("Sorted Question IDs:", sortedKeys);
+          console.log("Sorted Question IDs:", sortedKeys);
 
           const updatedBarChartData: BarChartData[] = sortedKeys.map((key) => {
             const data = updatedData[key]!;
@@ -219,7 +218,7 @@ const ReportPage: React.FC = () => {
           title,
           options: labelsAndPercentages,
           questionid: data.questionid,
-          variableQuestion: Questions.find((q) => q.id === data.questionid)?.question,
+          variableQuestion: Questions.find((q) => q.id === data.questionid)?.description,
           initial: form?.responses.find((r) => r.questionid === key)?.answervalue ?? -1,
         };
       });
@@ -278,6 +277,7 @@ const ReportPage: React.FC = () => {
           filters={filters}
           radarImage={radarImage}
           barChartData={barChartData}
+          renderRadar={false}
         />
       )}
     </div>

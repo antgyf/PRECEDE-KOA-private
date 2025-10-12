@@ -5,8 +5,7 @@
 -- Surgeon table
 DROP TABLE IF EXISTS surgeon CASCADE;
 CREATE TABLE surgeon (
-    surgeonid INT PRIMARY KEY,
-    surgeontitle TEXT NOT NULL,
+    surgeonid SERIAL PRIMARY KEY,
     username TEXT UNIQUE,
     password TEXT
 );
@@ -284,6 +283,7 @@ CREATE TABLE stagingraw (
 -- 6. INSERTING DATA
 --==============================--
 -- Insert into surgeon from stagingraw
+-- Not needed in next version, surgeons will create their own accounts
 INSERT INTO surgeon (surgeonid, surgeontitle, username, password)
 SELECT DISTINCT
     surgeon     AS surgeonid,

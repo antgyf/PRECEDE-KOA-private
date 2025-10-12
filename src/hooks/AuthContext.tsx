@@ -61,7 +61,6 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.setItem("user", JSON.stringify(userData));
   };
 
-
   const logout = async () => {
     try {
       await api.post(

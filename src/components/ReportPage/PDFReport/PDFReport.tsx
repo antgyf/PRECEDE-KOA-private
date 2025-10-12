@@ -80,12 +80,14 @@ interface PDFReportProps {
   filters: FilterType;
   barChartData: BarChartData[];
   radarImage: string;
+  renderRadar: boolean;
 }
 
 const PDFReport: React.FC<PDFReportProps> = ({
   filters,
   barChartData,
   radarImage,
+  renderRadar,
 }) => {
   const { patient } = useForm();
 
@@ -214,65 +216,67 @@ const PDFReport: React.FC<PDFReportProps> = ({
       </Page>
 
       {/* Page 2: Radar Chart + Legend */}
-      <Page size="A4" style={styles.page}>
-        {patient && <Table data={patient} />}
-        <Text style={styles.title}>Patient Overview</Text>
-        <Text style={styles.instruction}>
-          The chart below compares what {getName()} is currently experiencing in
-          the five areas {getName()} cares most about, against the experience of
-          similar patients 6 months after surgery. Those patients were similar
-          to {getName()}
-          {getFilterDescription(filters)}, and they experienced the same level
-          of problems as {getName()} in those areas before surgery.
-        </Text>
-
-        <View style={{ marginTop: 20, gap: 2 }}>
-          <View style={{ flexDirection: "row" }}>
-            <Text style={{ fontSize: 10, color: "#003f5c" }}>Dark blue: </Text>
-            <Text style={{ fontSize: 10 }}>
-              The experience of similar patients 6 months after surgery
+        {renderRadar && (
+          <Page size="A4" style={styles.page}>
+            {patient && <Table data={patient} />}
+            <Text style={styles.title}>Patient Overview</Text>
+            <Text style={styles.instruction}>
+              The chart below compares what {getName()} is currently experiencing in
+              the five areas {getName()} cares most about, against the experience of
+              similar patients 6 months after surgery. Those patients were similar
+              to {getName()}
+              {getFilterDescription(filters)}, and they experienced the same level
+              of problems as {getName()} in those areas before surgery.
             </Text>
-          </View>
-          <View style={{ flexDirection: "row" }}>
-            <Text style={{ fontSize: 10, color: "#00BFFF" }}>Light blue: </Text>
-            <Text style={{ fontSize: 10 }}>
-              current experience of {getName()}
-            </Text>
-          </View>
-          <View style={{ flexDirection: "row" }}>
-            <Text style={{ fontSize: 10, color: "green" }}>Green: </Text>
-            <Text style={{ fontSize: 10 }}>no problems</Text>
-          </View>
-          <View style={{ flexDirection: "row" }}>
-            <Text style={{ fontSize: 10, color: "#90ee90" }}>Light green: </Text>
-            <Text style={{ fontSize: 10 }}>slight problems</Text>
-          </View>
-          <View style={{ flexDirection: "row" }}>
-            <Text style={{ fontSize: 10, color: "#FFD700" }}>Yellow: </Text>
-            <Text style={{ fontSize: 10 }}>moderate problems</Text>
-          </View>
-          <View style={{ flexDirection: "row" }}>
-            <Text style={{ fontSize: 10, color: "#FFA500" }}>Orange: </Text>
-            <Text style={{ fontSize: 10 }}>severe problems</Text>
-          </View>
-          <View style={{ flexDirection: "row" }}>
-            <Text style={{ fontSize: 10, color: "red" }}>Red: </Text>
-            <Text style={{ fontSize: 10 }}>extreme problems</Text>
-          </View>
-        </View>
 
-        <Image
-          src={radarImage}
-          style={{
-            width: "80%",
-            margin: "0 auto",
-            marginTop: 20,
-          }}
-        />
-      </Page>
+            <View style={{ marginTop: 20, gap: 2 }}>
+              <View style={{ flexDirection: "row" }}>
+                <Text style={{ fontSize: 10, color: "#003f5c" }}>Dark blue: </Text>
+                <Text style={{ fontSize: 10 }}>
+                  The experience of similar patients 6 months after surgery
+                </Text>
+              </View>
+              <View style={{ flexDirection: "row" }}>
+                <Text style={{ fontSize: 10, color: "#00BFFF" }}>Light blue: </Text>
+                <Text style={{ fontSize: 10 }}>
+                  current experience of {getName()}
+                </Text>
+              </View>
+              <View style={{ flexDirection: "row" }}>
+                <Text style={{ fontSize: 10, color: "green" }}>Green: </Text>
+                <Text style={{ fontSize: 10 }}>no problems</Text>
+              </View>
+              <View style={{ flexDirection: "row" }}>
+                <Text style={{ fontSize: 10, color: "#90ee90" }}>Light green: </Text>
+                <Text style={{ fontSize: 10 }}>slight problems</Text>
+              </View>
+              <View style={{ flexDirection: "row" }}>
+                <Text style={{ fontSize: 10, color: "#FFD700" }}>Yellow: </Text>
+                <Text style={{ fontSize: 10 }}>moderate problems</Text>
+              </View>
+              <View style={{ flexDirection: "row" }}>
+                <Text style={{ fontSize: 10, color: "#FFA500" }}>Orange: </Text>
+                <Text style={{ fontSize: 10 }}>severe problems</Text>
+              </View>
+              <View style={{ flexDirection: "row" }}>
+                <Text style={{ fontSize: 10, color: "red" }}>Red: </Text>
+                <Text style={{ fontSize: 10 }}>extreme problems</Text>
+              </View>
+            </View>
+
+            <Image
+              src={radarImage}
+              style={{
+                width: "80%",
+                margin: "0 auto",
+                marginTop: 20,
+              }}
+            />
+          </Page>
+        )}
     </Document>
   );
-
+  
   return (
     <div className="w-full flex flex-col justify-center items-center">
       <PDFDownloadLink

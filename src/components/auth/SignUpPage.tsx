@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/AuthContext";
 import { useAlert } from "../../hooks/AlertContext";
@@ -13,11 +13,6 @@ interface SignUpInterface {
   confirmPassword: string;
 }
 
-interface Surgeon {
-  surgeonid: number;
-  surgeontitle: string;
-}
-
 const SignUpForm: React.FC = () => {
   const auth = useAuth();
   const navigate = useNavigate();
@@ -29,12 +24,9 @@ const SignUpForm: React.FC = () => {
     confirmPassword: "",
   });
 
-  const [availableSurgeons, setAvailableSurgeons] = useState<Surgeon[]>([]);
-  const [selectedSurgeonId, setSelectedSurgeonId] = useState<number | "">("");
-  const [selectedSurgeonTitle, setSelectedSurgeonTitle] = useState("");
-
   // Fetch available surgeon IDs if user is a surgeon
-  useEffect(() => {
+  // Not needed anymore, surgeons will create their own accounts
+  /*useEffect(() => {
     if (auth.isSurgeon) {
       const fetchAvailableSurgeons = async () => {
         try {
@@ -48,6 +40,7 @@ const SignUpForm: React.FC = () => {
       fetchAvailableSurgeons();
     }
   }, [auth.isSurgeon]);
+  */
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -70,11 +63,6 @@ const SignUpForm: React.FC = () => {
       return;
     }
 
-    if (auth.isSurgeon && selectedSurgeonId === "") {
-      showAlert("Please select a Surgeon ID.", "error");
-      return;
-    }
-
     try {
       showAlert("Signing up...", "info");
 
@@ -83,7 +71,6 @@ const SignUpForm: React.FC = () => {
         {
           username: form.username,
           password: form.password,
-          ...(auth.isSurgeon && { surgeonid: selectedSurgeonId }),
         },
         { headers: { "Content-Type": "application/json" } , withCredentials: true }
       );
@@ -121,46 +108,6 @@ const SignUpForm: React.FC = () => {
 
       <form onSubmit={handleSubmitEvent} className="w-full px-2 max-w-sm">
         <TextInput label="Username" name="username" onChange={handleInput} />
-
-        {auth.isSurgeon && (
-          <div className="my-3 flex gap-2 items-center">
-            {/* Surgeon ID dropdown */}
-            <div className="flex-1">
-              <label className="block mb-1 font-semibold">Select Surgeon ID</label>
-              <select
-                className="w-full p-2 border rounded"
-                value={selectedSurgeonId}
-                onChange={(e) => {
-                  const id = Number(e.target.value);
-                  setSelectedSurgeonId(id);
-
-                  const surgeon = availableSurgeons.find((s) => s.surgeonid === id);
-                  setSelectedSurgeonTitle(surgeon ? surgeon.surgeontitle : "");
-                }}
-                required
-              >
-                <option value="">-- Select an ID --</option>
-                {availableSurgeons.map((surgeon) => (
-                  <option key={surgeon.surgeonid} value={surgeon.surgeonid}>
-                    {surgeon.surgeonid}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Surgeon title display */}
-            <div className="flex-1">
-              <label className="block mb-1 font-semibold">Surgeon Title</label>
-              <input
-                type="text"
-                className="w-full p-2 border rounded bg-gray-100"
-                value={selectedSurgeonTitle}
-                readOnly
-                placeholder="Title will appear here"
-              />
-            </div>
-          </div>
-        )}
 
         <TextInput
           label="Password"

@@ -53,8 +53,6 @@ const FormContent: React.FC<FormContentProps> = ({ term }) => {
         setCurrentForm(formData, termToUse);
       }
 
-      console.log("Current patient from context:", patient);
-
       // Map questionid -> code
       const questionIdToCode = Questions.reduce((acc, q) => {
         acc[q.id] = q.code;

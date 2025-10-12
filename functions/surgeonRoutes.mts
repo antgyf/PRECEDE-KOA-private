@@ -41,10 +41,10 @@ router.get("/available-ids", async (req: Request, res: Response): Promise<void> 
 
 // Create a surgeon account
 router.post("/create", async (req: Request, res: Response): Promise<void> => {
-  const { surgeonid, username, password } = req.body;
+  const { username, password } = req.body;
 
-  if (!username || !password || !surgeonid) {
-    res.status(400).json({ message: "Surgeon ID, username, and password are required" });
+  if (!username || !password) {
+    res.status(400).json({ message: "Username and password are required" });
     return;
   }
 
@@ -59,27 +59,11 @@ router.post("/create", async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Check if surgeonid exists
-    const existingSurgeon = await pool.query(
-      "SELECT surgeonid, username FROM surgeon WHERE surgeonid = $1",
-      [surgeonid]
-    );
-
-    if (existingSurgeon.rows.length === 0) {
-      res.status(404).json({ message: "Surgeon ID not found" });
-      return;
-    }
-
-    if (existingSurgeon.rows[0].username) {
-      res.status(409).json({ message: "This surgeon ID already has an account" });
-      return;
-    }
-
     // Update existing surgeon with username/password
     const hashedPassword = await bcrypt.hash(password, 10);
     const surgeonRecord = await pool.query(
-      "UPDATE surgeon SET username = $1, password = $2 WHERE surgeonid = $3 RETURNING surgeonid",
-      [username, hashedPassword, surgeonid]
+      "INSERT INTO surgeon (username, password) VALUES ($1, $2) RETURNING surgeonid",
+      [username, hashedPassword]
     );
 
     res.status(201).json({
@@ -191,7 +175,7 @@ router.get("/:surgeonid", async (req: Request, res: Response) => {
 
   try {
     const result = await pool.query(
-      "SELECT surgeonid, surgeontitle FROM surgeon WHERE surgeonid = $1",
+      "SELECT surgeonid FROM surgeon WHERE surgeonid = $1",
       [surgeonid]
     );
 
@@ -200,7 +184,7 @@ router.get("/:surgeonid", async (req: Request, res: Response) => {
       return;
     }
 
-    res.json(result.rows[0]); // { surgeonid: ..., surgeontitle: ... }
+    res.json(result.rows[0]); // { surgeonid: ... }
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });

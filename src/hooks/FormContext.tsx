@@ -13,7 +13,8 @@ interface FormContextProps {
   term: number | undefined;
   setCurrentForm: (form: PatientForm, term: number, priorities?: number[]) => void;
   setCurrentPatient: (patient: Patient | undefined) => void;
-  setPriorities: (priorities: number[]) => void; // optional
+  setPriorities: (priorities: number[]) => void;
+  clearFormContext: () => void;
 }
 
 export const FormContext = createContext<FormContextProps | undefined>(
@@ -21,56 +22,64 @@ export const FormContext = createContext<FormContextProps | undefined>(
 );
 
 const FormProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [patient, setPatient] = useState<Patient | undefined>(() => {
+  // --- Utility: safely parse JSON from localStorage
+  const parseSafe = <T,>(key: string): T | undefined => {
     try {
-      const storedPatient = localStorage.getItem("patient");
-      return storedPatient ? JSON.parse(storedPatient) : undefined;
-    } catch (error) {
-      console.error("Error loading patient from localStorage:", error);
+      const item = localStorage.getItem(key);
+      return item ? JSON.parse(item) : undefined;
+    } catch {
+      console.warn(`Corrupted localStorage item: ${key}`);
+      localStorage.removeItem(key);
       return undefined;
     }
+  };
+
+  // --- Load initial state from localStorage
+  const [patient, setPatient] = useState<Patient | undefined>(() =>
+    parseSafe("patient")
+  );
+  const [form, setForm] = useState<PatientForm | undefined>(() =>
+    parseSafe("form")
+  );
+  const [term, setTerm] = useState<number | undefined>(() => {
+    const stored = localStorage.getItem("term");
+    return stored ? Number(stored) : undefined;
   });
 
-  const [form, setForm] = useState<PatientForm | undefined>(() => {
-    try {
-      const storedForm = localStorage.getItem("form");
-      return storedForm ? JSON.parse(storedForm) : undefined;
-    } catch (error) {
-      console.error("Error loading form from localStorage:", error);
-      return undefined;
-    }
-  });
-
-  const [term, setTerm] = useState<number | undefined>(undefined);
-
-  // Save patient to localStorage whenever it updates
+  // --- Persist patient
   useEffect(() => {
     try {
-      if (patient) {
-        localStorage.setItem("patient", JSON.stringify(patient));
-      } else {
-        localStorage.removeItem("patient");
-      }
+      if (patient) localStorage.setItem("patient", JSON.stringify(patient));
+      else localStorage.removeItem("patient");
     } catch (error) {
       console.error("Error saving patient to localStorage:", error);
     }
   }, [patient]);
 
-  // Save form to localStorage whenever it updates
+  // --- Persist form
   useEffect(() => {
     try {
-      if (form) {
-        localStorage.setItem("form", JSON.stringify(form));
-      } else {
-        localStorage.removeItem("form");
-      }
+      if (form) localStorage.setItem("form", JSON.stringify(form));
+      else localStorage.removeItem("form");
     } catch (error) {
       console.error("Error saving form to localStorage:", error);
     }
   }, [form]);
 
-  const setCurrentPatient = (patient: Patient | undefined) =>
+  // --- Persist term
+  useEffect(() => {
+    try {
+      if (term !== undefined) localStorage.setItem("term", String(term));
+      else localStorage.removeItem("term");
+    } catch (error) {
+      console.error("Error saving term to localStorage:", error);
+    }
+  }, [term]);
+
+  // --- Setters
+  const setCurrentPatient = (patient: Patient | undefined) => {
     setPatient(patient);
+  };
 
   const setCurrentForm = (form: PatientForm, term: number, priorities?: number[]) => {
     setForm({
@@ -86,9 +95,27 @@ const FormProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     setForm({ ...form, priorities });
   };
 
+  // --- Clear everything (for logout / switching patient)
+  const clearFormContext = () => {
+    setPatient(undefined);
+    setForm(undefined);
+    setTerm(undefined);
+    localStorage.removeItem("patient");
+    localStorage.removeItem("form");
+    localStorage.removeItem("term");
+  };
+
   return (
     <FormContext.Provider
-      value={{ patient, form, term, setCurrentPatient, setCurrentForm, setPriorities }}
+      value={{
+        patient,
+        form,
+        term,
+        setCurrentPatient,
+        setCurrentForm,
+        setPriorities,
+        clearFormContext,
+      }}
     >
       {children}
     </FormContext.Provider>

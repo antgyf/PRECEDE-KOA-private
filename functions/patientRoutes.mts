@@ -355,21 +355,41 @@ router.get("/responses", async (req: Request, res: Response) => {
   }
 });
 
+router.get("/priority", async (req: Request, res: Response) => {
+  const { patientid, term } = req.query;
+  if (!patientid || term === undefined) {
+    return res.status(400).json({ message: "patientid and term are required" });
+  }
+  try {
+    const query = 
+    `SELECT questionid
+     FROM patientpriority
+     WHERE patientid = $1 AND term = $2
+     ORDER BY questionid ASC
+     `;
+
+    const { rows } = await pool.query<{ questionid: number }>(query, [Number(patientid), Number(term)]);
+    res.status(200).json(rows.map(r => r.questionid));
+  } catch (error) {
+    console.error("Error fetching priorities:", error);
+    res.status(500).json({ message: "Failed to fetch priorities", error });
+  }
+});
 
 router.post("/priorities", async (req: Request, res: Response) => {
   const client = await pool.connect();
   try {
-    const { patientid, term, priorities , minPriorities } = req.body;
+    const { patientid, term, priorities , maxPriorities } = req.body;
     // priorities = [1, 5, 8, 10, 12] (array of questionids)
 
     if (
       !patientid ||
       term === undefined ||
       !Array.isArray(priorities) ||
-      priorities.length !== (Number(minPriorities) || 5)
+      priorities.length > (Number(maxPriorities) || 5)
     ) {
       return res.status(400).json({
-        message: `You must provide exactly ${minPriorities} priorities for this term.`,
+        message: `You must provide exactly ${maxPriorities} priorities for this term.`,
       });
     }
 
