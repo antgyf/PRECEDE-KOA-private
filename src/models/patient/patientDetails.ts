@@ -6,8 +6,6 @@ export interface AddPatientForm {
   bmi: string;
   height?: string;
   weight?: string;
-  surgeonid?: string;
-  surgeontitle?: string;
 }
 
 export const Sex: Record<string, string> = {
@@ -44,10 +42,11 @@ export const SurgeonTitle: Record<string, string> = {
 export type FilterType = {
   age?: { range: number };
   bmi?: { range: number };
-  surgeonid?: { number: number };
-  surgeontitle?: { string: string };
+  surgeonid?: string;
+  surgeontitle?: string;
   categories: string[];
 };
+
 export const FunctionWalking = {
   0: "Unlimited",
   1: ">2 bus-stops",

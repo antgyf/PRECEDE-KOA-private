@@ -6,14 +6,14 @@
 DROP TABLE IF EXISTS surgeon CASCADE;
 CREATE TABLE surgeon (
     surgeonid SERIAL PRIMARY KEY,
-    username TEXT UNIQUE,
-    password TEXT
+    username TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL
 );
 
 -- Researcher table
 DROP TABLE IF EXISTS researcher CASCADE;
 CREATE TABLE researcher (
-    researcherID SERIAL PRIMARY KEY,
+    researcherid SERIAL PRIMARY KEY,
     username TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL
 );
@@ -27,7 +27,7 @@ DROP TABLE IF EXISTS patient CASCADE;
 CREATE TABLE patient (
     patientid SERIAL PRIMARY KEY,
     surgeonid INT NOT NULL,
-    surgeontitle TEXT NOT NULL,
+    --surgeontitle TEXT NOT NULL,
     fullname TEXT NOT NULL,
     sex INT NOT NULL,
     ethnicity INT NOT NULL,
@@ -35,14 +35,14 @@ CREATE TABLE patient (
     height NUMERIC(5, 2) NOT NULL,
     weight NUMERIC(5, 2) NOT NULL,
     bmi NUMERIC(5, 2) NOT NULL,
-    hasform BOOLEAN NOT NULL DEFAULT FALSE,
-    CONSTRAINT fksurgeon FOREIGN KEY (surgeonid) REFERENCES surgeon(surgeonid) ON DELETE CASCADE
+    hasform BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 -- Reference Patient table (patients from dataset)
 DROP TABLE IF EXISTS referencepatient CASCADE;
 CREATE TABLE referencepatient (
-    referencepatientid INT PRIMARY KEY,
+    referencepatientid INT NOT NULL PRIMARY KEY,  -- from dataset, not serial
+    surgeonid INT NOT NULL,
     surgeontitle TEXT NOT NULL,                  -- keep snapshot like surgery
     sex INT NOT NULL,
     ethnicity INT NOT NULL,
@@ -55,7 +55,7 @@ CREATE TABLE referencepatient (
     stagedbilateral BOOLEAN NOT NULL DEFAULT FALSE,  -- StaBK
     orderinstage INT,                               -- orderSID
     stageinterval INT,                                -- StaBKINT
-    side INT                                      -- left/right/both
+    side INT NOT NULL                                -- left/right/both
 );
 
 -- ==============================
@@ -68,7 +68,7 @@ CREATE TABLE refform (
     formid SERIAL PRIMARY KEY,
     referencepatientid INT NOT NULL REFERENCES referencepatient(referencepatientid) ON DELETE CASCADE,
     term INT NOT NULL,
-    UNIQUE (referencepatientid, term) -- prevent duplicates
+    UNIQUE (referencepatientid, term) -- prevent duplicates, may need to include side if both knees
 );
 
 -- Question table
@@ -106,6 +106,7 @@ CREATE TABLE patientformresponse (
     UNIQUE (formid, questionid) -- prevent duplicates
 );
 
+DROP TABLE IF EXISTS patientpriority CASCADE;
 CREATE TABLE patientpriority (
     priorityid SERIAL PRIMARY KEY,
     patientid INT NOT NULL REFERENCES patient(patientid) ON DELETE CASCADE,
@@ -119,26 +120,26 @@ CREATE TABLE patientpriority (
 -- ==============================
 
 INSERT INTO question (code, text) VALUES
-('KFS', 'Function stairs'),
-('KFW', 'Function walking'),
-('KPAIN', 'Knee pain overall'),
-('EQ5D-MOB', 'EQ-5D: Mobility'),
-('EQ5D-SC', 'EQ-5D: Self-care'),
-('EQ5D-UA', 'EQ-5D: Usual activities'),
-('EQ5D-PD', 'EQ-5D: Pain/discomfort'),
-('EQ5D-AD', 'EQ-5D: Anxiety/depression'),
-('OKS1', 'During the past 4 weeks, how severe was your knee pain?'),
-('OKS2', 'Can you wash and dry yourself?'),
-('OKS3', 'Do you have pain when using transport?'),
-('OKS4', 'Do you have pain walking?'),
-('OKS5', 'Do you have pain rising from sitting?'),
-('OKS6', 'Do you limp when walking?'),
-('OKS7', 'Do you have pain kneeling?'),
-('OKS8', 'Do you have pain lying in bed?'),
-('OKS9', 'Do you have pain doing usual activities?'),
-('OKS10', 'Does your knee ever give way?'),
-('OKS11', 'Can you go shopping?'),
-('OKS12', 'Do you have difficulty with stairs?');
+('KFS', 'How well can you use stairs?'),
+('KFW', 'How far can you walk?'),
+('KPAIN', 'How is your overall knee pain?'),
+('EQ5D-MOB', 'Did you have problems in walking about today?'),
+('EQ5D-SC', 'Did you have problems in washing or dressing yourself today?'),
+('EQ5D-UA', 'Did you have problems in doing your usual activities today? (e.g. work, study, housework, family or leisure activities)'),
+('EQ5D-PD', 'Did you have any pain/discomfort today?'),
+('EQ5D-AD', 'Did you feel anxious/depressed today?'),
+('OKS1', 'How would you describe the pain you usually have from your knee?'),
+('OKS2', 'Have you had any trouble with washing and drying yourself (all over) because of your knee?'),
+('OKS3', 'Have you had any trouble getting in and out of a car or using public transport because of your knee? (whichever you tend to use)'),
+('OKS4', 'For how long have you been able to walk before pain from your knee becomes severe? (with or without a stick)'),
+('OKS5', 'After a meal (sat at a table), how painful has it been for you to stand up from a chair because of your knee?'),
+('OKS6', 'Have you been limping when walking, because of your knee?'),
+('OKS7', 'Could you kneel down and get up again afterwards?'),
+('OKS8', 'Have you been troubled by pain from your knee in bed at night?'),
+('OKS9', 'How much has pain from your knee interfered with your usual work (including housework)?'),
+('OKS10', 'Have you felt that your knee might suddenly "give way" or let you down?'),
+('OKS11', 'Could you do the household shopping on your own?'),
+('OKS12', 'Could you walk down one flight of stairs?');
 
 -- ==============================
 -- 5. Staging Raw Table
@@ -278,84 +279,15 @@ CREATE TABLE stagingraw (
     eadt4 INT
 );
 
-
 --==============================--
 -- 6. INSERTING DATA
 --==============================--
--- Insert into surgeon from stagingraw
--- Not needed in next version, surgeons will create their own accounts
-INSERT INTO surgeon (surgeonid, surgeontitle, username, password)
-SELECT DISTINCT
-    surgeon     AS surgeonid,
-    surgeont    AS surgeontitle,
-    NULL        AS username,
-    NULL        AS password
-FROM stagingraw
-ON CONFLICT (surgeonid) DO NOTHING;
 
 -- Insert into referencepatient from stagingraw where stab
 -- Insert staged bilateral patients from stagingraw into referencepatient
-
-WITH ops AS (
-  SELECT
-    sr.*,
-    ROW_NUMBER() OVER (PARTITION BY pid ORDER BY opdate) AS rn,
-    COUNT(*)     OVER (PARTITION BY pid) AS totalops
-  FROM stagingraw sr
-  WHERE pid IS NOT NULL
-    AND opdate IS NOT NULL
-),
-
-onetkr AS (
-  SELECT *
-  FROM ops
-  WHERE totalops = 1
-    AND rn = 1
-)
-
-INSERT INTO referencepatient (
-  surgeontitle,
-  sex,
-  ethnicity,
-  age,
-  height,
-  weight,
-  bmi,
-  operationdate,
-  simbilateral,
-  stagedbilateral,
-  orderinstage,
-  stageinterval
-)
-SELECT
-  surgeont AS surgeontitle,
-  CASE gender
-    WHEN 'Male' THEN 1
-    WHEN 'Female' THEN 2
-    ELSE 0
-  END AS gender,
-  CASE race
-    WHEN 'Chinese' THEN 1
-    WHEN 'Malay' THEN 2
-    WHEN 'Indian' THEN 3
-    WHEN 'Caucasian' THEN 4
-    ELSE 0
-  END AS ethnicity,
-  age,
-  heightcm::numeric(5,2) AS height,
-  weightkg::numeric(5,2) AS weight,
-  bmi::numeric(5,2) AS bmi,
-  opdate,
-  FALSE AS simbilateral,
-  TRUE AS stagedbilateral,
-  ordersid,
-  stabk_int
-FROM onetkr
-WHERE stabk = 1;
-
-
 INSERT INTO referencepatient (
     referencepatientid,
+    surgeonid,
     surgeontitle,
     sex,
     ethnicity,
@@ -367,11 +299,13 @@ INSERT INTO referencepatient (
 	simbilateral,
     stagedbilateral,
 	orderinstage,
-	stageinterval
+	stageinterval,
+	side
 )
 SELECT 
-    sr.pid,
-    sr.surgeont,
+    sr.pid AS referencepatientid,
+    sr.surgeon AS surgeonid,
+    sr.surgeont AS surgeontitle,
     CASE 
         WHEN sr.gender = 'Male' THEN 0
         WHEN sr.gender = 'Female' THEN 1
@@ -393,13 +327,24 @@ SELECT
 	FALSE,
 	TRUE,
 	sr.ordersid,
-	sr.stabk_int
+	sr.stabk_int,
+    CASE 
+        WHEN sr.side = 'L' THEN 0
+        WHEN sr.side = 'R' THEN 1
+        WHEN sr.side = 'Lt' THEN 0
+        WHEN sr.side = 'Rt' THEN 1
+        WHEN sr.side = 'Left' THEN 0
+        WHEN sr.side = 'Right' THEN 1
+        ELSE -1
+    END AS side
 FROM stagingraw sr
 WHERE sr.stabk_int >= 6
+AND sr.ordersid = 1
 
 -- insert referencepatient for one surgery only patients
 INSERT INTO referencepatient (
     referencepatientid,
+    surgeonid,
     surgeontitle,
     sex,
     ethnicity,
@@ -411,11 +356,13 @@ INSERT INTO referencepatient (
     simbilateral,
     stagedbilateral,
     orderinstage,
-    stageinterval
+    stageinterval,
+    side
 )
 SELECT 
-    sr.pid,
-    sr.surgeont,
+    sr.pid AS referencepatientid,
+    sr.surgeon AS surgeonid,
+    sr.surgeont AS surgeontitle,
     CASE 
         WHEN sr.gender = 'Male' THEN 0
         WHEN sr.gender = 'Female' THEN 1
@@ -437,7 +384,16 @@ SELECT
     FALSE AS simbilateral,      -- ✅ simultaneous
     FALSE AS stagedbilateral,  -- ✅ not staged
     0 AS orderinstage,         -- always 0 since not staged
-    0 AS stageinterval      -- no interval since not staged
+    0 AS stageinterval,       -- no interval since not staged
+    CASE 
+        WHEN sr.side = 'L' THEN 0
+        WHEN sr.side = 'R' THEN 1
+        WHEN sr.side = 'Lt' THEN 0
+        WHEN sr.side = 'Rt' THEN 1
+        WHEN sr.side = 'Left' THEN 0
+        WHEN sr.side = 'Right' THEN 1
+        ELSE -1
+    END AS side
 FROM stagingraw sr
 WHERE sr.simbk = 0
   AND sr.stabk = 0

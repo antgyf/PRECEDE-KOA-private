@@ -74,6 +74,17 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: "bold",
   },
+    noDataContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 200, // Adjust based on your chart height
+  },
+  noDataText: {
+    fontSize: 14,
+    color: '#666',
+    fontStyle: 'italic',
+  },
 });
 
 interface PDFReportProps {
@@ -114,24 +125,25 @@ const PDFReport: React.FC<PDFReportProps> = ({
 
     const descriptionParts: React.ReactNode[] = [];
 
+    // Age
     if (filters.categories.includes("Age Range") && filters.age) {
       descriptionParts.push(
         <>
-          <Text style={styles.boldText}>Age</Text> (within {filters.age.range}{" "}
-          years)
+          <Text style={styles.boldText}>Age</Text> (within {filters.age.range} years)
         </>
       );
     }
 
+    // BMI
     if (filters.categories.includes("BMI Range") && filters.bmi) {
       descriptionParts.push(
         <>
-          <Text style={styles.boldText}>BMI</Text> (within {filters.bmi.range}{" "}
-          kg/m²)
+          <Text style={styles.boldText}>BMI</Text> (within {filters.bmi.range} kg/m²)
         </>
       );
     }
 
+    // Gender
     if (filters.categories.includes("Gender")) {
       descriptionParts.push(
         <>
@@ -140,24 +152,34 @@ const PDFReport: React.FC<PDFReportProps> = ({
       );
     }
 
+    // Ethnicity
     if (filters.categories.includes("Ethnicity")) {
       descriptionParts.push(
         <>
-          <Text style={styles.boldText}>Ethnicity</Text> (
-          {Ethnicity[patient.ethnicity]})
+          <Text style={styles.boldText}>Ethnicity</Text> ({Ethnicity[patient.ethnicity]})
         </>
       );
     }
 
-    if (filters.categories.includes("Surgeon Title")) {
+    // Surgeon Title — applies to reference patients, not live patient
+    if (filters.surgeontitle) {
       descriptionParts.push(
         <>
-          <Text style={styles.boldText}>Surgeon Title</Text> (
-          {patient.surgeontitle})
+          and were operated on by a <Text style={styles.boldText}>{filters.surgeontitle}</Text> surgeon
         </>
       );
     }
 
+    // Surgeon ID — applies to reference patients, not live patient
+    if (filters.surgeonid) {
+      descriptionParts.push(
+        <>
+          and were operated on by Surgeon with Surgeon ID <Text style={styles.boldText}>{filters.surgeonid}</Text>
+        </>
+      );
+    }
+
+    // Assemble text
     return (
       <Text>
         {descriptionParts.length > 0 && " in "}
@@ -187,10 +209,12 @@ const PDFReport: React.FC<PDFReportProps> = ({
           of problems as {getName()} in those areas before surgery.
         </Text>
 
-        {barChartData.map((data, index) => (
-          <View key={data.variableQuestion} wrap={false} style={styles.colContainer}>
-            <Text style={styles.title}>{data.variableQuestion}</Text>
-            <View style={styles.row}>
+      {barChartData.map((data, index) => (
+        <View key={data.variableQuestion} wrap={false} style={styles.colContainer}>
+          <Text style={styles.title}>{data.variableQuestion}</Text>
+          <View style={styles.row}>
+            {/* Only show patient position if there's data */}
+            {data.options.length > 0 && data.options[0].label !== "No data available" ? (
               <View
                 style={[
                   styles.nameBoxContainer,
@@ -203,16 +227,23 @@ const PDFReport: React.FC<PDFReportProps> = ({
                 </Text>
                 <Text style={styles.pointer}>={`>`}</Text>
               </View>
-              <View style={styles.chartContainer}>
-                {barChartData[index] ? (
-                  <BarChart data={barChartData[index]} />
-                ) : (
-                  <Text>No data available</Text>
-                )}
-              </View>
+            ) : (
+              // Empty spacer to maintain layout when no data
+              <View style={styles.nameBoxContainer} />
+            )}
+            
+            <View style={styles.chartContainer}>
+              {data.options.length > 0 && data.options[0].label !== "No data available" ? (
+                <BarChart data={data} />
+              ) : (
+                <View style={styles.noDataContainer}>
+                  <Text style={styles.noDataText}>No similar patients found for this question</Text>
+                </View>
+              )}
             </View>
           </View>
-        ))}
+        </View>
+      ))}
       </Page>
 
       {/* Page 2: Radar Chart + Legend */}

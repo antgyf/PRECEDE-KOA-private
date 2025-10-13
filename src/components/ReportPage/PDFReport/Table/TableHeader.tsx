@@ -9,7 +9,6 @@ const TableHeader: React.FC = () => {
     "Sex",
     "Ethnicity",
     "BMI(kg/m²)",
-    "Surgeon Title",
   ];
 
   return (

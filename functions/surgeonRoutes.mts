@@ -29,7 +29,10 @@ router.get("/available-ids", async (req: Request, res: Response): Promise<void> 
   try {
     // Fetch surgeon IDs that don't have username/password set
     const availableSurgeons = await pool.query(
-      "SELECT surgeonid, surgeontitle FROM surgeon WHERE username IS NULL OR username = '' ORDER BY surgeonid ASC"
+      `SELECT surgeonid, surgeontitle 
+        FROM referencepatient 
+        GROUP BY surgeonid, surgeontitle 
+        ORDER BY surgeonid ASC`
     );
     
     res.status(200).json(availableSurgeons.rows);
