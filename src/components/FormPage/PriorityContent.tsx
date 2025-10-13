@@ -40,7 +40,7 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
         const filteredResponses = response.data
           .filter((r: { code: string; answervalue: number }) => r.answervalue !== 0)
 
-        const questionsWithAnswers = filteredResponses.map((r) => {
+        const questionsWithAnswers = filteredResponses.map((r : { code: string; answervalue: number }) => {
                 const question = Questions.find((q) => q.code === r.code);
                 return question ? { question, answervalue: r.answervalue } : null;
         });
