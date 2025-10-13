@@ -73,18 +73,15 @@ const AfterSurgery: React.FC = () => {
           parseInt(key, 10)
         );
 
-        const scrollY = window.scrollY; // Save current scroll position
+        if (filters.surgeonid && !filters.categories.includes("Surgeon ID")) {
+          filters.categories = [...filters.categories, "Surgeon ID"];
+        }
 
-        console.log("Fetching data with:", {
-          questionid: question.id,
-          options: options,
-          filters: filters,
-          patient: patient,
-          term: selectedTerm,
-          initial: form?.responses.find(
-            (r) => r.questionid === question.id
-          )?.answervalue,
-        });
+        if (filters.surgeontitle && !filters.categories.includes("Surgeon Title")) {
+          filters.categories = [...filters.categories, "Surgeon Title"];
+        }
+
+        const scrollY = window.scrollY; // Save current scroll position
 
         const response = await api.post(
           "/patients/after",

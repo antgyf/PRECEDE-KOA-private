@@ -425,6 +425,8 @@ const formatConditions = (
     categories: string[];
     age?: { range: number };
     bmi?: { range: number };
+    surgeonid?: string;
+    surgeontitle?: string;
   },
   patient: Patient,
   questionid: number = 0,
@@ -432,6 +434,27 @@ const formatConditions = (
 ) => {
   const conditions: string[] = [];
   const params: (string | number)[] = [questionid];
+  let surgeont = "";
+
+  if (filters.surgeontitle) {
+    switch (filters.surgeontitle) {
+      case "Associate Consultant":
+        surgeont = "AC";
+        break;
+      case "Consultant":
+        surgeont = "C";
+        break;
+      case "Associate Professor":
+        surgeont = "AP";
+        break;
+      case "Professor":
+        surgeont = "P";
+        break;
+      default:
+        surgeont = "";
+        break;
+    }
+  }
 
   // Handle categorical filters (Ethnicity, Gender)
   if (filters.categories.includes("Ethnicity")) {
@@ -443,14 +466,14 @@ const formatConditions = (
     params.push(patient.sex);
   }
 
-  if (filters.categories.includes("Surgeon ID")) {
+  if (filters.categories.includes("Surgeon ID") && filters.surgeonid) {
     conditions.push(`p.surgeonid = $${params.length + number + 1}`);
-    params.push(patient.surgeonid);
+    params.push(Number(filters.surgeonid));
   }
 
-  if (filters.categories.includes("Surgeon Title")) {
+  if (filters.categories.includes(`Surgeon Title`) && filters.surgeontitle) {
     conditions.push(`p.surgeontitle = $${params.length + number + 1}`);
-    params.push(patient.surgeontitle);
+    params.push(surgeont);
   }
 
   // Handle Age Range Filter
@@ -467,6 +490,9 @@ if (filters.categories.includes("BMI Range") && filters.bmi?.range !== undefined
   params.push(Math.floor(Number(patient.bmi) - Number(filters.bmi.range)));
   params.push(Math.ceil(Number(patient.bmi) + Number(filters.bmi.range)));
 }
+
+  //console.log("Formatted conditions:", { conditions, params });
+
 
   // Return formatted conditions and parameters
   return {
@@ -493,10 +519,8 @@ router.post("/before", async (req: Request, res: Response) => {
       queryParams.push(...filterConditions.params);
     }
 
-    /*
     console.log("Conditions:", conditions);
     console.log("Params:", queryParams);
-    */
 
     // Query to get the total number of rows with filters
     // only count from forms submitted 6 months after surgery
@@ -510,8 +534,6 @@ router.post("/before", async (req: Request, res: Response) => {
         AND ${conditions}
     `;
 
-    console.log("Total Query:", totalQuery);
-
     const { rows: totalResult } = await pool.query<{ total: number }>(
       totalQuery,
       queryParams
@@ -520,6 +542,7 @@ router.post("/before", async (req: Request, res: Response) => {
     const totalRows = totalResult[0]?.total || 0;
 
     if (totalRows === 0) {
+      console.log("No data found for the given filters.");
       res.status(200).json({
         message: "No data found for the given filters.",
         totalRows,

@@ -74,6 +74,17 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: "bold",
   },
+    noDataContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 200, // Adjust based on your chart height
+  },
+  noDataText: {
+    fontSize: 14,
+    color: '#666',
+    fontStyle: 'italic',
+  },
 });
 
 interface PDFReportProps {
@@ -198,10 +209,12 @@ const PDFReport: React.FC<PDFReportProps> = ({
           of problems as {getName()} in those areas before surgery.
         </Text>
 
-        {barChartData.map((data, index) => (
-          <View key={data.variableQuestion} wrap={false} style={styles.colContainer}>
-            <Text style={styles.title}>{data.variableQuestion}</Text>
-            <View style={styles.row}>
+      {barChartData.map((data, index) => (
+        <View key={data.variableQuestion} wrap={false} style={styles.colContainer}>
+          <Text style={styles.title}>{data.variableQuestion}</Text>
+          <View style={styles.row}>
+            {/* Only show patient position if there's data */}
+            {data.options.length > 0 && data.options[0].label !== "No data available" ? (
               <View
                 style={[
                   styles.nameBoxContainer,
@@ -214,16 +227,23 @@ const PDFReport: React.FC<PDFReportProps> = ({
                 </Text>
                 <Text style={styles.pointer}>={`>`}</Text>
               </View>
-              <View style={styles.chartContainer}>
-                {barChartData[index] ? (
-                  <BarChart data={barChartData[index]} />
-                ) : (
-                  <Text>No data available</Text>
-                )}
-              </View>
+            ) : (
+              // Empty spacer to maintain layout when no data
+              <View style={styles.nameBoxContainer} />
+            )}
+            
+            <View style={styles.chartContainer}>
+              {data.options.length > 0 && data.options[0].label !== "No data available" ? (
+                <BarChart data={data} />
+              ) : (
+                <View style={styles.noDataContainer}>
+                  <Text style={styles.noDataText}>No similar patients found for this question</Text>
+                </View>
+              )}
             </View>
           </View>
-        ))}
+        </View>
+      ))}
       </Page>
 
       {/* Page 2: Radar Chart + Legend */}
