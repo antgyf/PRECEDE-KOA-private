@@ -8,7 +8,6 @@ import { useAlert } from "../../../hooks/AlertContext";
 import ToggleUp from "../../UI/Button/ToggleUp";
 import { useNavigate } from "react-router-dom";
 import api from "../../../api/api";
-import { useAuth } from "../../../hooks/AuthContext";
 import SelectInput from "../../UI/Form/SelectInput";
 import TextInput from "../../UI/Form/TextInput";
 import RadioChoice from "../../UI/Form/RadioChoice";
@@ -19,7 +18,6 @@ interface AddPatientBoxProps {
 }
 
 const AddPatientBox: React.FC<AddPatientBoxProps> = ({ onClose }) => {
-  const auth = useAuth();
   const { showAlert } = useAlert();
   const { setCurrentPatient } = useForm();
   const navigate = useNavigate();
@@ -51,7 +49,7 @@ const AddPatientBox: React.FC<AddPatientBoxProps> = ({ onClose }) => {
     e.preventDefault();
 
     // Check if all fields are filled (excluding surgeonid and surgeontitle if user is a surgeon)
-    const requiredFields = Object.entries(form).filter(([key, value]) => {
+    const requiredFields = Object.entries(form).filter(([value]) => {
 
       // Return fields that are missing/empty
       return value === "" || value === undefined;

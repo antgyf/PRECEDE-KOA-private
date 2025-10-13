@@ -209,7 +209,7 @@ const PDFReport: React.FC<PDFReportProps> = ({
           of problems as {getName()} in those areas before surgery.
         </Text>
 
-      {barChartData.map((data, index) => (
+      {barChartData.map((data) => (
         <View key={data.variableQuestion} wrap={false} style={styles.colContainer}>
           <Text style={styles.title}>{data.variableQuestion}</Text>
           <View style={styles.row}>

@@ -84,8 +84,7 @@ export const getFilterDescription = (filters: FilterType, patient: Patient) => {
   if (filters.categories.includes("Surgeon Title")) {
     parts.push(
       <>
-        <strong style={{ color: "#1976D2" }}>Surgeon Title</strong> (
-        {patient.surgeontitle})
+        with a <strong style={{ color: "#1976D2" }}>{filters.surgeontitle}</strong> surgeon
       </>
     );
   }
@@ -93,8 +92,8 @@ export const getFilterDescription = (filters: FilterType, patient: Patient) => {
   if (filters.categories.includes("Surgeon ID")) {
     parts.push(
       <>
-        <strong style={{ color: "#1976D2" }}>Surgeon ID</strong> (
-        {patient.surgeonid})
+        and were operated on by Surgeon <strong style={{ color: "#1976D2" }}>
+        {filters.surgeonid}</strong> 
       </>
     );
   }
