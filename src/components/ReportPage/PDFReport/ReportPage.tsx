@@ -167,7 +167,10 @@ const ReportPage: React.FC = () => {
   };
 
   useEffect(() => {
-    if (variables.length === 0) return;
+    if (variables.length === 0) {
+      console.log("No variables to process");
+      return;
+    }
     
     setIsLoading(true);
     setRadarImage(null);
@@ -209,6 +212,15 @@ const ReportPage: React.FC = () => {
         );
         
         showAlert("Successfully loaded patient", "success");
+
+        if (response.data.message === "No baseline patients found for the given filters.") {
+          response.data = {
+            questionid: item.id,
+            totalRows: 0,
+            data: [],
+            median: 0,
+          };
+        }
 
         // Update radar data
         setRadarData((prevData) => {
@@ -282,11 +294,11 @@ const ReportPage: React.FC = () => {
         </div>
       )}
       {radarImage && (
-        <PDFReport
+        <PDFReport          
           filters={filters}
           radarImage={radarImage}
           barChartData={barChartData}
-          renderRadar={form.priorities.length > 2}
+          renderRadar={true} 
         />
       )}
     </div>

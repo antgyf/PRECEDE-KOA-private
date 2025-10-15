@@ -75,10 +75,10 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
     noDataContainer: {
-    flex: 1,
+    flexDirection: "row",
     justifyContent: 'center',
     alignItems: 'center',
-    height: 200, // Adjust based on your chart height
+    height: 50, // Adjust based on your chart height
   },
   noDataText: {
     fontSize: 14,

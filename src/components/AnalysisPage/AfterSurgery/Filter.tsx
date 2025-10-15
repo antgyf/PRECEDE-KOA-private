@@ -213,7 +213,6 @@ const FilterButtonsComponent: React.FC<{
                 <option value="Consultant">Consultant</option>
                 <option value="Associate Professor">Associate Professor</option>
                 <option value="Professor">Professor</option>
-                <option value="Other">Other</option>
               </select>
             </div>
 

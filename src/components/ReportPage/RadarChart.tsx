@@ -38,7 +38,6 @@ const remapInitial = (question: number, initial: number) => {
   return initial;
 }
 
-
 const RadarChartCustom: React.FC<RadarChartPDFProps> = ({
   onImageGenerated,
   radarData,
@@ -53,15 +52,16 @@ const RadarChartCustom: React.FC<RadarChartPDFProps> = ({
     });
   }, []);
 
+  const dataCount = radarData.length;
+
   const levelPolygons = Array.from({ length: levels }, (_, levelIndex) => {
     const levelValue = ((levelIndex + 1) / levels) * maxValue;
-    const points = radarData
-      .map((_, i) => {
-        const angle = angleForIndex(i, 5);
-        const { x, y } = getPoint(angle, levelValue, maxValue);
-        return `${x},${y}`;
-      })
-      .join(" ");
+    const points = Array.from({ length: dataCount }, (_, i) => {
+      const angle = angleForIndex(i, dataCount);
+      const { x, y } = getPoint(angle, levelValue, maxValue);
+      return `${x},${y}`;
+    }).join(" ");
+    
     return (
       <polygon
         key={levelIndex}
@@ -75,11 +75,10 @@ const RadarChartCustom: React.FC<RadarChartPDFProps> = ({
     );
   });
 
-  const axisLines = radarData.map((_, i) => {
-    const angle = angleForIndex(i, radarData.length);
-    // Axis line to stop at innermost red polygon
-    const start = getPoint(angle, 1, maxValue); // start from innermost polygon
-    const end = getPoint(angle, maxValue, maxValue); // end at chart edge
+  const axisLines = Array.from({ length: dataCount }, (_, i) => {
+    const angle = angleForIndex(i, dataCount);
+    const start = getPoint(angle, 1, maxValue);
+    const end = getPoint(angle, maxValue, maxValue);
     return (
       <line
         key={i}
@@ -108,26 +107,22 @@ const RadarChartCustom: React.FC<RadarChartPDFProps> = ({
   };
 
   const labelOffset = radius + 130;
-  const labels = radarData.map((d, i) => {
-    const angle = angleForIndex(i, radarData.length);
+  const labels = Array.from({ length: dataCount }, (_, i) => {
+    const angle = angleForIndex(i, dataCount);
     const { x, y } = getPoint(angle, labelOffset, radius);
-    const mainLabel = formatLabel(d.questionid);
+    const mainLabel = formatLabel(radarData[i].questionid);
 
-    const maxLen = 20; // max characters per line
+    const maxLen = 20;
     let line1 = mainLabel;
     let line2 = "";
     const isTooLong = mainLabel.length > maxLen;
 
     if (isTooLong) {
-      // Find last space within the first maxLen characters
       let splitPoint = mainLabel.lastIndexOf(" ", maxLen);
-
-      // Fallback: if no space found, just split at maxLen
       if (splitPoint === -1) splitPoint = maxLen;
-
       line1 = mainLabel.slice(0, splitPoint).trim();
       line2 = mainLabel.slice(splitPoint).trim();
-}
+    }
 
     return (
       <text
@@ -138,7 +133,7 @@ const RadarChartCustom: React.FC<RadarChartPDFProps> = ({
         textAnchor="middle"
         dominantBaseline="middle"
         fill="#333"
-      >
+      >   
         <tspan x={x} dy="0">
           {line1}
         </tspan>
@@ -148,7 +143,7 @@ const RadarChartCustom: React.FC<RadarChartPDFProps> = ({
           </tspan>
         )}
         <tspan x={x} dy="1.2em">
-          ({d.n} similar patients)
+          ({radarData[i].n} similar patients)
         </tspan>
       </text>
     );
@@ -157,19 +152,20 @@ const RadarChartCustom: React.FC<RadarChartPDFProps> = ({
   const makeDataPolygon = (
     data: RadarDataPoint[],
     valueKey: "initial" | "median",
-    axisCount: number,
     maxValue: number
   ): string[] => {
+    console.log("Making polygon for", valueKey, data);
+
     if (valueKey === "initial") {
       return data.map((d, i) => {
-        const angle = angleForIndex(i, axisCount);
+        const angle = angleForIndex(i, dataCount);
         const invertedValue = maxValue - remapInitial(d.questionid, d[valueKey]);
         const { x, y } = getPoint(angle, invertedValue, maxValue);
         return `${x},${y}`;
       });
     }
 
-    if (data.length < 5) {
+    if (data.length < dataCount) {
       return [];
     }
 
@@ -177,7 +173,7 @@ const RadarChartCustom: React.FC<RadarChartPDFProps> = ({
     let currentSegment: string[] = [];
 
     const points = data.map((d, i) => {
-      const angle = angleForIndex(i, axisCount);
+      const angle = angleForIndex(i, dataCount);
       const invertedValue = maxValue - remapInitial(d.questionid, d[valueKey]);
       const { x, y } = getPoint(angle, invertedValue, maxValue);
       return { index: i, coord: `${x},${y}`, n: d.n };
@@ -204,18 +200,14 @@ const RadarChartCustom: React.FC<RadarChartPDFProps> = ({
 
     if (currentSegment.length > 0) {
       if (isValid(firstPoint) && isValid(lastOriginalPoint)) {
-        // Merge last segment with first if both ends are valid
         if (segments.length > 0) {
           const firstSegmentCoords = segments[0].split(" ");
-          const mergedSegment = [...currentSegment, ...firstSegmentCoords].join(
-            " "
-          );
+          const mergedSegment = [...currentSegment, ...firstSegmentCoords].join(" ");
           segments[0] = mergedSegment;
         } else {
           segments.push(currentSegment.join(" "));
         }
       } else {
-        // No wraparound, just push last segment
         segments.push(currentSegment.join(" "));
       }
     }
@@ -223,18 +215,8 @@ const RadarChartCustom: React.FC<RadarChartPDFProps> = ({
     return segments;
   };
 
-  const initialPolygon = makeDataPolygon(
-    radarData,
-    "initial",
-    radarData.length,
-    maxValue
-  );
-  const medianPolygon = makeDataPolygon(
-    radarData,
-    "median",
-    radarData.length,
-    maxValue
-  );
+  const initialPolygon = makeDataPolygon(radarData, "initial", maxValue);
+  const medianPolygon = makeDataPolygon(radarData, "median", maxValue);
 
   return (
     <div ref={chartRef} style={{ width: "800px", height: "700px" }}>
@@ -259,13 +241,12 @@ const RadarChartCustom: React.FC<RadarChartPDFProps> = ({
           />
           {initialPolygon.map((point, index) => {
             const [x, y] = point.split(",").map((coord) => coord.trim());
-
             return (
               <circle
                 key={index}
                 cx={parseFloat(x)}
                 cy={parseFloat(y)}
-                r={6} // Radius of the node
+                r={6}
                 fill="#00BFFF"
               />
             );
