@@ -102,6 +102,7 @@ const ReportPage: React.FC = () => {
       // Clone data array for manipulation
       let chartData = data.data.map(item => ({ ...item }));
 
+      /*
       // ✅ Merge and shift for Question 2
       if (data.questionid === 2) {
         const opt2 = chartData.find((v) => Number(v.option) === 2);
@@ -141,6 +142,7 @@ const ReportPage: React.FC = () => {
           return { ...v, option: (optNum - shift).toString() as "0" | "1" | "2" | "3" | "4" };
         });
       }
+      */
 
       // Calculate percentage labels
       const labelsAndPercentages = chartData.map((v) => {
@@ -149,7 +151,7 @@ const ReportPage: React.FC = () => {
         const percentage = total > 0 ? ((count / total) * 100).toFixed(0) : "0";
         
         return {
-          label: `${OtherOptions[v.option]}`,
+          label: `${Questions.find((q) => q.id === data.questionid)?.list?.[Number(v.option)] || v.option}`,
           percentage: `${percentage}% (${count})`,
         };
       });
@@ -230,6 +232,10 @@ const ReportPage: React.FC = () => {
 
           const importance = getPriorityScore(item.id);
           
+          if (response.data.totalRows === 0 || !response.data.data || response.data.data.length === 0) {
+            return prevData;
+          }
+
           const newEntry = {
             questionid: response.data.questionid,
             initial: responseValue,
@@ -298,7 +304,7 @@ const ReportPage: React.FC = () => {
           filters={filters}
           radarImage={radarImage}
           barChartData={barChartData}
-          renderRadar={true} 
+          renderRadar={radarData.length > 2} 
         />
       )}
     </div>

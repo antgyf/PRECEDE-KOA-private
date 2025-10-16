@@ -102,6 +102,8 @@ const PDFReport: React.FC<PDFReportProps> = ({
 }) => {
   const { patient } = useForm();
 
+  const numPriorities = barChartData.length;
+
   const getName = () => (
     <Text style={styles.boldText}>
       {patient?.sex ? "Ms." : "Mr."} {patient?.fullname}
@@ -202,8 +204,8 @@ const PDFReport: React.FC<PDFReportProps> = ({
         {patient && <Table data={patient} />}
         <Text style={styles.instruction}>
           Below are what past patients reported{" "}
-          <Text style={styles.bold}>6 months after surgery</Text> in the five
-          areas {getName()} hopes to see improvement most. Those patients are
+          <Text style={styles.bold}>6 months after surgery</Text> in the {numPriorities}
+          {numPriorities > 1 ? " areas " : " area "} {getName()} hopes to see improvement most. Those patients are
           similar to {getName()}
           {getFilterDescription(filters)}, and they experienced the same level
           of problems as {getName()} in those areas before surgery.
@@ -253,7 +255,7 @@ const PDFReport: React.FC<PDFReportProps> = ({
             <Text style={styles.title}>Patient Overview</Text>
             <Text style={styles.instruction}>
               The chart below compares what {getName()} is currently experiencing in
-              the five areas {getName()} cares most about, against the experience of
+              the {numPriorities} {numPriorities > 1 ? " areas " : " area "} {getName()} cares most about, against the experience of
               similar patients 6 months after surgery. Those patients were similar
               to {getName()}
               {getFilterDescription(filters)}, and they experienced the same level
@@ -305,8 +307,16 @@ const PDFReport: React.FC<PDFReportProps> = ({
             />
           </Page>
         )}
-    </Document>
-  );
+        {!renderRadar && (
+            <Page size="A4" style={styles.page}>
+              <Text style={styles.title}>No Radar Data Available</Text>
+              <Text style={styles.instruction}>
+                Unfortunately, there is not enough data to generate a radar chart for this patient.
+              </Text>
+            </Page>
+          )}
+          </Document>
+        )
   
   return (
     <div className="w-full flex flex-col justify-center items-center">

@@ -6,9 +6,27 @@ export const colorScheme = [
   "#D50000", // Vivid Red (Extreme)
 ];
 
+export const colorScheme6 = [
+  "#1B5E20", // Dark Green (None)
+  "#66BB6A", // Medium Green (Very Mild)
+  "#8BC34A", // Light Green (Mild)
+  "#CC9900", // Darker Yellow (Moderate)
+  "#FF9800", // Orange (Severe)
+  "#D50000", // Vivid Red (Extreme)
+];
+
+export const colorScheme7 = [
+  "#1B5E20", // Dark Green (None)
+  "#66BB6A", // Medium Green (Very Mild)
+  "#8BC34A", // Light Green (Mild)
+  "#CC9900", // Darker Yellow (Moderate)
+  "#FF9800", // Orange (Severe)
+  "#FF5722", // Deep Orange (Very Severe)
+  "#D50000", // Vivid Red (Extreme)
+];
+
 export const startColor = "#1B5E20"; // Dark Green
 export const endColor = "#D50000";   // Vivid Red
-
 // Generate a gradient of colors between start and end colors
 
 export const generateGradientColors = (steps: number, start: string, end: string): string[] => {

@@ -154,7 +154,10 @@ const RadarChartCustom: React.FC<RadarChartPDFProps> = ({
     valueKey: "initial" | "median",
     maxValue: number
   ): string[] => {
-    console.log("Making polygon for", valueKey, data);
+
+    if (dataCount === 0) return [];
+
+    console.log("Making data polygon for", valueKey, "with data:", data);
 
     if (valueKey === "initial") {
       return data.map((d, i) => {

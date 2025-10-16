@@ -1,5 +1,5 @@
 import { Text, View, StyleSheet, Font } from "@react-pdf/renderer";
-import { colorScheme } from "../../../../models/UI/Color";
+import { colorScheme, colorScheme6, colorScheme7 } from "../../../../models/UI/Color";
 import { BarChartData } from "../../../../models/patient/patientDetails";
 
 Font.register({
@@ -73,7 +73,13 @@ const BarChart: React.FC<BarChartProps> = ({ data }) => {
                   styles.bar,
                   {
                     width: `${numericPercentage}%`,
-                    backgroundColor: colorScheme[index % colorScheme.length],
+                    backgroundColor: data.options.length === 5 
+                    ? colorScheme[index % colorScheme.length] 
+                    : data.options.length === 6
+                    ? colorScheme6[index % 6]
+                    : data.options.length === 7
+                    ? colorScheme7[index % 7]
+                    : colorScheme[index % colorScheme.length],
                   },
                 ]}
               ></View>
