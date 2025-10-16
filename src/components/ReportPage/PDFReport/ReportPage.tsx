@@ -303,7 +303,7 @@ const ReportPage: React.FC = () => {
           filters={filters}
           radarImage={radarImage}
           barChartData={barChartData}
-          renderRadar={radarData.length > 2} 
+          renderRadar={false} 
         />
       )}
     </div>

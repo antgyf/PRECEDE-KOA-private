@@ -247,7 +247,7 @@ const PDFReport: React.FC<PDFReportProps> = ({
         </View>
       ))}
       </Page>
-
+      
       {/* Page 2: Radar Chart + Legend */}
         {renderRadar && (
           <Page size="A4" style={styles.page}>
@@ -307,14 +307,6 @@ const PDFReport: React.FC<PDFReportProps> = ({
             />
           </Page>
         )}
-        {!renderRadar && (
-            <Page size="A4" style={styles.page}>
-              <Text style={styles.title}>No Radar Data Available</Text>
-              <Text style={styles.instruction}>
-                Unfortunately, there is not enough data to generate a radar chart for this patient.
-              </Text>
-            </Page>
-          )}
           </Document>
         )
   
