@@ -4,7 +4,6 @@ import FilterButtonsComponent from "../../AnalysisPage/AfterSurgery/Filter";
 import {
   BarChartData,
   FilterType,
-  OtherOptions,
   QuestionData,
   Questions,
   QuestionType,
