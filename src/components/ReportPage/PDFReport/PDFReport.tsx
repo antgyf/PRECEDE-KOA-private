@@ -205,7 +205,7 @@ const PDFReport: React.FC<PDFReportProps> = ({
         <Text style={styles.instruction}>
           Below are what past patients reported{" "}
           <Text style={styles.bold}>6 months after surgery</Text> in the {numPriorities}
-          {numPriorities > 1 ? " areas " : " area "} {getName()} hopes to see improvement most. Those patients are
+          {numPriorities > 1 ? " areas" : " area"} {getName()} hopes to see improvement most. Those patients are
           similar to {getName()}
           {getFilterDescription(filters)}, and they experienced the same level
           of problems as {getName()} in those areas before surgery.
