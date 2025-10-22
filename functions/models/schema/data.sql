@@ -71,14 +71,6 @@ CREATE TABLE refform (
     UNIQUE (referencepatientid, term) -- prevent duplicates, may need to include side if both knees
 );
 
--- Question table
-DROP TABLE IF EXISTS question CASCADE;
-CREATE TABLE question (
-    questionid SERIAL PRIMARY KEY,
-    code VARCHAR(20) UNIQUE NOT NULL,        -- e.g. 'OKS1', 'EQ5D-Mobility'
-    text TEXT NOT NULL
-);
-
 -- Form Response table
 DROP TABLE IF EXISTS refformresponse CASCADE;
 CREATE TABLE refformresponse (
@@ -113,6 +105,14 @@ CREATE TABLE patientpriority (
     questionid INT NOT NULL REFERENCES question(questionid) ON DELETE CASCADE,
     term INT NOT NULL,  -- so priorities can differ at T0, T1, etc
     UNIQUE (patientid, questionid, term) -- prevent duplicates
+);
+
+-- Question table
+DROP TABLE IF EXISTS question CASCADE;
+CREATE TABLE question (
+    questionid SERIAL PRIMARY KEY,
+    code VARCHAR(20) UNIQUE NOT NULL,        -- e.g. 'OKS1', 'EQ5D-Mobility'
+    text TEXT NOT NULL
 );
 
 -- ==============================
