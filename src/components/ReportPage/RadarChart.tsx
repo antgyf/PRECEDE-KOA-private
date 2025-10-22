@@ -157,8 +157,6 @@ const RadarChartCustom: React.FC<RadarChartPDFProps> = ({
 
     if (dataCount === 0) return [];
 
-    console.log("Making data polygon for", valueKey, "with data:", data);
-
     if (valueKey === "initial") {
       return data.map((d, i) => {
         const angle = angleForIndex(i, dataCount);

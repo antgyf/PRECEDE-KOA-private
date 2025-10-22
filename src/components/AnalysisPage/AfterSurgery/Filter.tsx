@@ -25,9 +25,15 @@ const FilterButton: React.FC<FilterButtonProps> = ({
   </button>
 );
 
-const FilterButtonsComponent: React.FC<{
+interface FilterButtonsComponentProps {
   onFilterApply: (selectedFilters: FilterType) => void;
-}> = ({ onFilterApply }) => {
+  activeTab: "summary" | "before" | "after";
+}
+
+const FilterButtonsComponent: React.FC<FilterButtonsComponentProps> = ({
+  onFilterApply,
+  activeTab,
+}) => {
   const [selectedFilters, setSelectedFilters] = useState<FilterType>({
     categories: ["Age Range", "BMI Range"],
     age: { range: 5 },
@@ -195,6 +201,7 @@ const FilterButtonsComponent: React.FC<{
           </div>
 
           {/* SURGEON FILTERS - Positioned next to ethnicity */}
+          {activeTab !== "before" && (
           <div className="flex flex-wrap gap-4 items-start">
             {/* SURGEON TITLE DROPDOWN */}
             <div className="flex flex-col gap-2">
@@ -247,21 +254,23 @@ const FilterButtonsComponent: React.FC<{
                   </select>
                 )}
               </div>
-              
-              {/* CLEAR BUTTON */}
-              <button
-                onClick={clearAllFilters}
-                className="btn btn-outline h-10 min-h-10 text-sm border-gray-400 text-gray-700 hover:bg-gray-100 hover:border-gray-600"
-                title="Clear all filters"
-              >
-                Clear
-              </button>
             </div>
           </div>
+          )}
         </div>
 
+        
+
         {/* APPLY BUTTON */}
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-2">
+          {/* CLEAR BUTTON */}
+          <button
+            onClick={clearAllFilters}
+            className="py-2 px-6 bg-accent text-white rounded-md transition-all hover:bg-accent-dark"
+            title="Clear all filters"
+          >
+            Clear
+          </button>
           <button
             className="py-2 px-6 bg-accent text-white rounded-md transition-all hover:bg-accent-dark"
             onClick={handleApplyFilters}

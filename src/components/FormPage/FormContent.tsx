@@ -116,8 +116,6 @@ const FormContent: React.FC<FormContentProps> = ({ term }) => {
       responses,
     };
 
-    console.log("Form data to submit:", formData);
-
     try {
       showAlert("Submitting form...", "info");
       const response = await api.post(`/patients/forms`, formData, {

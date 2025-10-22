@@ -35,7 +35,11 @@ interface Description {
   color: string; // The corresponding color for the description
 }
 
-const BeforeSurgery: React.FC = () => {
+interface BeforeSurgeryProps {
+  activeTab: "summary" | "before" | "after";
+}
+
+const BeforeSurgery: React.FC<BeforeSurgeryProps> = ({ activeTab }) => {
   const { form, patient } = useForm();
   const { alert, showAlert } = useAlert();
 
@@ -269,6 +273,7 @@ const renderHumanIcons = () => {
       <FilterButtonsComponent
         key={question?.id}
         onFilterApply={handleFilterChange}
+        activeTab={activeTab}
       />
 
       <PatientDetail />

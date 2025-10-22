@@ -59,13 +59,13 @@ const AnalysisPage: React.FC = () => {
       {/* Tab Content */}
       <div className="flex-1 mt-40 bg-neutral p-6">
         <div style={{ display: activeTab === "summary" ? "block" : "none" }}>
-          <ReportPage />
+          <ReportPage activeTab={activeTab} />
         </div>
         <div style={{ display: activeTab === "before" ? "block" : "none" }}>
-          <BeforeSurgery />
+          <BeforeSurgery activeTab={activeTab} />
         </div>
         <div style={{ display: activeTab === "after" ? "block" : "none" }}>
-          <AfterSurgery />
+          <AfterSurgery activeTab={activeTab} />
         </div>
       </div>
     </div>

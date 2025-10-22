@@ -123,11 +123,6 @@ INSERT INTO question (code, text) VALUES
 ('KFS', 'How well can you use stairs?'),
 ('KFW', 'How far can you walk?'),
 ('KPAIN', 'How is your overall knee pain?'),
-('EQ5D-MOB', 'Did you have problems in walking about today?'),
-('EQ5D-SC', 'Did you have problems in washing or dressing yourself today?'),
-('EQ5D-UA', 'Did you have problems in doing your usual activities today? (e.g. work, study, housework, family or leisure activities)'),
-('EQ5D-PD', 'Did you have any pain/discomfort today?'),
-('EQ5D-AD', 'Did you feel anxious/depressed today?'),
 ('OKS1', 'How would you describe the pain you usually have from your knee?'),
 ('OKS2', 'Have you had any trouble with washing and drying yourself (all over) because of your knee?'),
 ('OKS3', 'Have you had any trouble getting in and out of a car or using public transport because of your knee? (whichever you tend to use)'),
@@ -140,6 +135,12 @@ INSERT INTO question (code, text) VALUES
 ('OKS10', 'Have you felt that your knee might suddenly "give way" or let you down?'),
 ('OKS11', 'Could you do the household shopping on your own?'),
 ('OKS12', 'Could you walk down one flight of stairs?');
+
+--('EQ5D-MOB', 'Did you have problems in walking about today?'),
+--('EQ5D-SC', 'Did you have problems in washing or dressing yourself today?'),
+--('EQ5D-UA', 'Did you have problems in doing your usual activities today? (e.g. work, study, housework, family or leisure activities)'),
+--('EQ5D-PD', 'Did you have any pain/discomfort today?'),
+--('EQ5D-AD', 'Did you feel anxious/depressed today?'),
 
 -- ==============================
 -- 5. Staging Raw Table
@@ -276,7 +277,67 @@ CREATE TABLE stagingraw (
     esct4 INT,
     euat4 INT,
     epdt4 INT,
-    eadt4 INT
+    eadt4 INT,
+    ooks1t0 INT,
+    ooks2t0 INT,
+    ooks3t0 INT,
+    ooks4t0 INT,
+    ooks5t0 INT,
+    ooks6t0 INT,
+    ooks7t0 INT,
+    ooks8t0 INT,
+    ooks9t0 INT,
+    ooks10t0 INT,
+    ooks11t0 INT,
+    ooks12t0 INT,
+    ooks1t1 INT,
+    ooks2t1 INT,
+    ooks3t1 INT,
+    ooks4t1 INT,
+    ooks5t1 INT,
+    ooks6t1 INT,
+    ooks7t1 INT,
+    ooks8t1 INT,
+    ooks9t1 INT,
+    ooks10t1 INT,
+    ooks11t1 INT,
+    ooks12t1 INT,
+    ooks1t2 INT,
+    ooks2t2 INT,
+    ooks3t2 INT,
+    ooks4t2 INT,
+    ooks5t2 INT,
+    ooks6t2 INT,
+    ooks7t2 INT,
+    ooks8t2 INT,
+    ooks9t2 INT,
+    ooks10t2 INT,
+    ooks11t2 INT,
+    ooks12t2 INT,
+    ooks1t3 INT,
+    ooks2t3 INT,
+    ooks3t3 INT,
+    ooks4t3 INT,
+    ooks5t3 INT,
+    ooks6t3 INT,
+    ooks7t3 INT,
+    ooks8t3 INT,
+    ooks9t3 INT,
+    ooks10t3 INT,
+    ooks11t3 INT,
+    ooks12t3 INT,
+    ooks1t4 INT,
+    ooks2t4 INT,
+    ooks3t4 INT,
+    ooks4t4 INT,
+    ooks5t4 INT,
+    ooks6t4 INT,
+    ooks7t4 INT,
+    ooks8t4 INT,
+    ooks9t4 INT,
+    ooks10t4 INT,
+    ooks11t4 INT,
+    ooks12t4 INT
 );
 
 --==============================--
@@ -338,8 +399,9 @@ SELECT
         ELSE -1
     END AS side
 FROM stagingraw sr
-WHERE sr.stabk_int >= 6
+WHERE sr.stabk = 1
 AND sr.ordersid = 1
+AND sr.stabk_int >= 6
 
 -- insert referencepatient for one surgery only patients
 INSERT INTO referencepatient (
@@ -381,7 +443,7 @@ SELECT
     sr.weightkg,
     sr.bmi,
     sr.opdate,
-    FALSE AS simbilateral,      -- ✅ simultaneous
+    FALSE AS simbilateral,      -- ✅ not simultaneous
     FALSE AS stagedbilateral,  -- ✅ not staged
     0 AS orderinstage,         -- always 0 since not staged
     0 AS stageinterval,       -- no interval since not staged
@@ -397,7 +459,6 @@ SELECT
 FROM stagingraw sr
 WHERE sr.simbk = 0
   AND sr.stabk = 0
-  AND sr.stabk_int IS NULL
   AND sr.age IS NOT NULL;
 
 -- Insert into form and formresponse from stagingraw
@@ -409,311 +470,311 @@ WITH flattened AS (
     SELECT rp.referencepatientid, 0 AS term, 'KFW' AS code, sr.kfwt0 AS answervalue
     FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1)) 
     UNION ALL
     SELECT rp.referencepatientid, 0, 'KFS', sr.kfst0 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1)) 
     UNION ALL
     SELECT rp.referencepatientid, 0, 'KPAIN', sr.kpaint0 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1)) 
     UNION ALL
     SELECT rp.referencepatientid, 0, 'OKS1', sr.oks1t0 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1)) 
     UNION ALL
     SELECT rp.referencepatientid, 0, 'OKS2', sr.oks2t0 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1)) 
     UNION ALL
     SELECT rp.referencepatientid, 0, 'OKS3', sr.oks3t0 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1)) 
     UNION ALL
     SELECT rp.referencepatientid, 0, 'OKS4', sr.oks4t0 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1)) 
     UNION ALL
     SELECT rp.referencepatientid, 0, 'OKS5', sr.oks5t0 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1)) 
     UNION ALL
     SELECT rp.referencepatientid, 0, 'OKS6', sr.oks6t0 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1)) 
     UNION ALL
     SELECT rp.referencepatientid, 0, 'OKS7', sr.oks7t0 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1)) 
     UNION ALL
     SELECT rp.referencepatientid, 0, 'OKS8', sr.oks8t0 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1)) 
     UNION ALL
     SELECT rp.referencepatientid, 0, 'OKS9', sr.oks9t0 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1)) 
     UNION ALL
     SELECT rp.referencepatientid, 0, 'OKS10', sr.oks10t0 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1)) 
     UNION ALL
     SELECT rp.referencepatientid, 0, 'OKS11', sr.oks11t0 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1)) 
     UNION ALL
     SELECT rp.referencepatientid, 0, 'OKS12', sr.oks12t0 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
-    UNION ALL
-    SELECT rp.referencepatientid, 0, 'EQ5D-MOB', sr.emot0 FROM stagingraw sr
-    JOIN referencepatient rp ON rp.referencepatientid = sr.pid
-    UNION ALL
-    SELECT rp.referencepatientid, 0, 'EQ5D-SC', sr.esct0 FROM stagingraw sr
-    JOIN referencepatient rp ON rp.referencepatientid = sr.pid
-    UNION ALL
-    SELECT rp.referencepatientid, 0, 'EQ5D-UA', sr.euat0 FROM stagingraw sr
-    JOIN referencepatient rp ON rp.referencepatientid = sr.pid
-    UNION ALL
-    SELECT rp.referencepatientid, 0, 'EQ5D-PD', sr.epdt0 FROM stagingraw sr
-    JOIN referencepatient rp ON rp.referencepatientid = sr.pid
-    UNION ALL
-    SELECT rp.referencepatientid, 0, 'EQ5D-AD', sr.eadt0 FROM stagingraw sr
-    JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1)) 
 
     -- T1
     UNION ALL
     SELECT rp.referencepatientid, 1, 'KFW', sr.kfwt1 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 1, 'KFS', sr.kfst1 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 1, 'KPAIN', sr.kpaint1 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 1, 'OKS1', sr.oks1t1 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 1, 'OKS2', sr.oks2t1 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 1, 'OKS3', sr.oks3t1 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 1, 'OKS4', sr.oks4t1 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 1, 'OKS5', sr.oks5t1 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 1, 'OKS6', sr.oks6t1 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 1, 'OKS7', sr.oks7t1 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 1, 'OKS8', sr.oks8t1 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 1, 'OKS9', sr.oks9t1 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 1, 'OKS10', sr.oks10t1 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 1, 'OKS11', sr.oks11t1 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 1, 'OKS12', sr.oks12t1 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
-    UNION ALL
-    SELECT rp.referencepatientid, 1, 'EQ5D-MOB', sr.emot1 FROM stagingraw sr
-    JOIN referencepatient rp ON rp.referencepatientid = sr.pid
-    UNION ALL
-    SELECT rp.referencepatientid, 1, 'EQ5D-SC', sr.esct1 FROM stagingraw sr
-    JOIN referencepatient rp ON rp.referencepatientid = sr.pid
-    UNION ALL
-    SELECT rp.referencepatientid, 1, 'EQ5D-UA', sr.euat1 FROM stagingraw sr
-    JOIN referencepatient rp ON rp.referencepatientid = sr.pid
-    UNION ALL
-    SELECT rp.referencepatientid, 1, 'EQ5D-PD', sr.epdt1 FROM stagingraw sr
-    JOIN referencepatient rp ON rp.referencepatientid = sr.pid
-    UNION ALL
-    SELECT rp.referencepatientid, 1, 'EQ5D-AD', sr.eadt1 FROM stagingraw sr
-    JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
 
     -- T2
     UNION ALL
     SELECT rp.referencepatientid, 2, 'KFW', sr.kfwt2 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 2, 'KFS', sr.kfst2 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 2, 'KPAIN', sr.kpaint2 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 2, 'OKS1', sr.oks1t2 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 2, 'OKS2', sr.oks2t2 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 2, 'OKS3', sr.oks3t2 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 2, 'OKS4', sr.oks4t2 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 2, 'OKS5', sr.oks5t2 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 2, 'OKS6', sr.oks6t2 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 2, 'OKS7', sr.oks7t2 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 2, 'OKS8', sr.oks8t2 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 2, 'OKS9', sr.oks9t2 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 2, 'OKS10', sr.oks10t2 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 2, 'OKS11', sr.oks11t2 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 2, 'OKS12', sr.oks12t2 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
-    UNION ALL
-    SELECT rp.referencepatientid, 2, 'EQ5D-MOB', sr.emot2 FROM stagingraw sr
-    JOIN referencepatient rp ON rp.referencepatientid = sr.pid
-    UNION ALL
-    SELECT rp.referencepatientid, 2, 'EQ5D-SC', sr.esct2 FROM stagingraw sr
-    JOIN referencepatient rp ON rp.referencepatientid = sr.pid
-    UNION ALL
-    SELECT rp.referencepatientid, 2, 'EQ5D-UA', sr.euat2 FROM stagingraw sr
-    JOIN referencepatient rp ON rp.referencepatientid = sr.pid
-    UNION ALL
-    SELECT rp.referencepatientid, 2, 'EQ5D-PD', sr.epdt2 FROM stagingraw sr
-    JOIN referencepatient rp ON rp.referencepatientid = sr.pid
-    UNION ALL
-    SELECT rp.referencepatientid, 2, 'EQ5D-AD', sr.eadt2 FROM stagingraw sr
-    JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
 
     -- T3
     UNION ALL
     SELECT rp.referencepatientid, 3, 'KFW', sr.kfwt3 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 3, 'KFS', sr.kfst3 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 3, 'KPAIN', sr.kpaint3 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 3, 'OKS1', sr.oks1t3 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 3, 'OKS2', sr.oks2t3 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 3, 'OKS3', sr.oks3t3 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 3, 'OKS4', sr.oks4t3 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 3, 'OKS5', sr.oks5t3 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))   
     UNION ALL
     SELECT rp.referencepatientid, 3, 'OKS6', sr.oks6t3 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 3, 'OKS7', sr.oks7t3 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 3, 'OKS8', sr.oks8t3 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 3, 'OKS9', sr.oks9t3 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 3, 'OKS10', sr.oks10t3 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 3, 'OKS11', sr.oks11t3 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 3, 'OKS12', sr.oks12t3 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
-    UNION ALL
-    SELECT rp.referencepatientid, 3, 'EQ5D-MOB', sr.emot3 FROM stagingraw sr
-    JOIN referencepatient rp ON rp.referencepatientid = sr.pid
-    UNION ALL
-    SELECT rp.referencepatientid, 3, 'EQ5D-SC', sr.esct3 FROM stagingraw sr
-    JOIN referencepatient rp ON rp.referencepatientid = sr.pid
-    UNION ALL
-    SELECT rp.referencepatientid, 3, 'EQ5D-UA', sr.euat3 FROM stagingraw sr
-    JOIN referencepatient rp ON rp.referencepatientid = sr.pid
-    UNION ALL
-    SELECT rp.referencepatientid, 3, 'EQ5D-PD', sr.epdt3 FROM stagingraw sr
-    JOIN referencepatient rp ON rp.referencepatientid = sr.pid
-    UNION ALL
-    SELECT rp.referencepatientid, 3, 'EQ5D-AD', sr.eadt3 FROM stagingraw sr
-    JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
 
     -- T4
     UNION ALL
     SELECT rp.referencepatientid, 4, 'KFW', sr.kfwt4 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 4, 'KFS', sr.kfst4 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 4, 'KPAIN', sr.kpaint4 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 4, 'OKS1', sr.oks1t4 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 4, 'OKS2', sr.oks2t4 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 4, 'OKS3', sr.oks3t4 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 4, 'OKS4', sr.oks4t4 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 4, 'OKS5', sr.oks5t4 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 4, 'OKS6', sr.oks6t4 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 4, 'OKS7', sr.oks7t4 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 4, 'OKS8', sr.oks8t4 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 4, 'OKS9', sr.oks9t4 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 4, 'OKS10', sr.oks10t4 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 4, 'OKS11', sr.oks11t4 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
     UNION ALL
     SELECT rp.referencepatientid, 4, 'OKS12', sr.oks12t4 FROM stagingraw sr
     JOIN referencepatient rp ON rp.referencepatientid = sr.pid
-    UNION ALL
-    SELECT rp.referencepatientid, 4, 'EQ5D-MOB', sr.emot4 FROM stagingraw sr
-    JOIN referencepatient rp ON rp.referencepatientid = sr.pid
-    UNION ALL
-    SELECT rp.referencepatientid, 4, 'EQ5D-SC', sr.esct4 FROM stagingraw sr
-    JOIN referencepatient rp ON rp.referencepatientid = sr.pid
-    UNION ALL
-    SELECT rp.referencepatientid, 4, 'EQ5D-UA', sr.euat4 FROM stagingraw sr
-    JOIN referencepatient rp ON rp.referencepatientid = sr.pid
-    UNION ALL
-    SELECT rp.referencepatientid, 4, 'EQ5D-PD', sr.epdt4 FROM stagingraw sr
-    JOIN referencepatient rp ON rp.referencepatientid = sr.pid
-    UNION ALL
-    SELECT rp.referencepatientid, 4, 'EQ5D-AD', sr.eadt4 FROM stagingraw sr
-    JOIN referencepatient rp ON rp.referencepatientid = sr.pid
+    WHERE ((sr.stabk = 0 AND sr.simbk = 0) OR (sr.stabk = 1 AND sr.ordersid = 1))
 ),
 
 -- Step 2: Insert forms
@@ -736,5 +797,21 @@ JOIN flattened fl
     AND f.term = fl.term
 JOIN question q
     ON q.code = fl.code
-WHERE fl.answervalue IS NOT NULL
-ON CONFLICT (formid, questionid) DO NOTHING;
+WHERE fl.answervalue IS NOT NULL;
+
+
+--ON CONFLICT (formid, questionid) DO NOTHING;
+/*
+duplicate_check AS (
+    SELECT 
+        f.referencepatientid,
+        f.term,
+        f.code,
+        COUNT(*) as record_count,
+        COUNT(DISTINCT f.answervalue) as distinct_values
+    FROM flattened f
+    GROUP BY f.referencepatientid, f.term, f.code
+    HAVING COUNT(*) > 1
+)
+SELECT * FROM duplicate_check;
+*/

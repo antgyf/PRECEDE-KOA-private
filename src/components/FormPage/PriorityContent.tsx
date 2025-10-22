@@ -141,7 +141,8 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
 
   return (
     <form className="flex flex-col gap-4 text-lg" onSubmit={handleSubmit}>
-      <h3>Select your top priorities (Up to {maxPriorities} priorities):</h3>
+      <h3>Below are the health problems you reported. Please select up to 5 problems you wish to improve most by placing a ☑ in front of the relevant questions.
+        </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {availableQuestions.map((q, index) => (
           <div

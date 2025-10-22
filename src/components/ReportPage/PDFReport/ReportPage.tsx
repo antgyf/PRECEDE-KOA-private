@@ -16,7 +16,11 @@ import { RadarDataPoint } from "../../../models/patient/patientReport";
 import RadarChartCustom from "../RadarChart";
 import Alert from "../../UI/Alert";
 
-const ReportPage: React.FC = () => {
+interface ReportPageProps {
+  activeTab: "summary" | "before" | "after";
+}
+
+const ReportPage: React.FC<ReportPageProps> = ({ activeTab }) => {
   const { form, patient } = useForm();
   const [filters, setFilters] = useState<FilterType>({
     categories: ["Age Range", "BMI Range"],
@@ -287,7 +291,7 @@ const ReportPage: React.FC = () => {
             </li>
           </ul>
         </article>
-        <FilterButtonsComponent onFilterApply={handleFilterChange} />
+        <FilterButtonsComponent activeTab={activeTab} onFilterApply={handleFilterChange} />
       </div>
 
       {!radarImage && !isLoading && (
