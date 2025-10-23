@@ -54,11 +54,6 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
         }
 
         console.log("form from context:", form?.priorities);
-      
-        if (form && !form.priorities) {
-          setSelectedPriorities([]);
-          setIsDisabled(false);
-        }
 
         const existingPriorities = await api.get("/patients/priority", {
           params: { patientid: patient.patientid, term }
@@ -81,6 +76,11 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
           return;
         }
 
+        if (form && !form.priorities) {
+          setSelectedPriorities([]);
+          setIsDisabled(false);
+        }
+
       } catch (err) {
         console.error("Error fetching responses:", err);
       } finally {
@@ -89,7 +89,7 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
     };
 
     fetchData();
-  }, [patient?.patientid, term]);
+  }, [patient?.patientid, term, form?.priorities]);
 
   const handleTogglePriority = (questionId: number) => {
     if (isDisabled) return; // do nothing if priorities already exist

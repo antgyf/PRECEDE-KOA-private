@@ -83,7 +83,7 @@ const FormContent: React.FC<FormContentProps> = ({ term }) => {
   };
 
   fetchPatientForm();
-}, [patient?.patientid, termToUse, form, setCurrentForm]);
+}, [patient?.patientid, termToUse, form]);
 
   /** Handle radio input */
   const handleRadioInput = (code: string, value: string) => {
