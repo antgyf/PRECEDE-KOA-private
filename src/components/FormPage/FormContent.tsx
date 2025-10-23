@@ -39,6 +39,9 @@ const FormContent: React.FC<FormContentProps> = ({ term }) => {
         params: { patientid: patient.patientid, term: termToUse },
       });
 
+      console.log("Fetched form response:", response.data);
+      console.log("Current form in context:", form);
+
       if (response.data.length === 0) {
         setAnswers(Questions.reduce((acc : Record<string, string>, q) => ({ ...acc, [q.code]: "" }), {}));
         setIsDisabled(false);
