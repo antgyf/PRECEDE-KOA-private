@@ -239,7 +239,7 @@ const PDFReport: React.FC<PDFReportProps> = ({
                 <BarChart data={data} />
               ) : (
                 <View style={styles.noDataContainer}>
-                  <Text style={styles.noDataText}>No similar patients found for this question</Text>
+                  <Text style={styles.noDataText}>No similar patients were found</Text>
                 </View>
               )}
             </View>

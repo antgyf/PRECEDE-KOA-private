@@ -18,7 +18,7 @@ export const getRankDescription = () => {
 
   return (
     <>
-      The 5 areas{" "}
+      The {priorityQuestions?.length || 0} areas{" "}
       <strong style={{ color: "#1976D2" }}>
         {" "}
         {patient?.sex ? "Ms." : "Mr."} {patient?.fullname}
