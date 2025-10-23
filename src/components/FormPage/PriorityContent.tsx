@@ -53,7 +53,7 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
           showAlert(`Only ${calculatedMinPriorities} problem areas available for prioritization.`, "info");
         }
 
-        //console.log("form from context:", form?.priorities);
+        console.log("form from context:", form?.priorities);
       
         if (form && !form.priorities) {
           setSelectedPriorities([]);
@@ -65,7 +65,7 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
         });
 
         if (existingPriorities.data?.priorities?.length > 0) {
-          //console.log("Existing priorities found from backend:", existingPriorities.data.priorities);
+          console.log("Existing priorities found from backend:", existingPriorities.data.priorities);
           setSelectedPriorities(existingPriorities.data.priorities);
           setPriorities(existingPriorities.data.priorities);
           setIsDisabled(true);
@@ -74,7 +74,7 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
 
         // If priorities already exist for this term, load them and disable further changes
         if (form?.priorities && form.term === term) {
-          //console.log("Existing priorities found:", form.priorities);
+          console.log("Existing priorities found:", form.priorities);
           setSelectedPriorities(form.priorities);
           setPriorities(form.priorities);
           setIsDisabled(true);
