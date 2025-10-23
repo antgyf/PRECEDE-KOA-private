@@ -215,6 +215,7 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab }) => {
             },
           }
         );
+        //console.log("filters used:", filters);
         
         showAlert("Successfully loaded patient", "success");
 

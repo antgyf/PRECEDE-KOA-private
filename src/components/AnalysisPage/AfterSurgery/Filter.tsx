@@ -218,7 +218,7 @@ const FilterButtonsComponent: React.FC<FilterButtonsComponentProps> = ({
                 <option value="">Surgeon Title</option>
                 <option value="Associate Consultant">Associate Consultant</option>
                 <option value="Consultant">Consultant</option>
-                <option value="Associate Professor OR p.surgeontitle = Professor">Senior Consultant</option>
+                <option value="Senior Consultant">Senior Consultant</option>
               </select>
             </div>
 

@@ -123,6 +123,11 @@ INSERT INTO question (code, text) VALUES
 ('KFS', 'How well can you use stairs?'),
 ('KFW', 'How far can you walk?'),
 ('KPAIN', 'How is your overall knee pain?'),
+('EQ5D-MOB', 'Did you have problems in walking about today?'),
+('EQ5D-SC', 'Did you have problems in washing or dressing yourself today?'),
+('EQ5D-UA', 'Did you have problems in doing your usual activities today? (e.g. work, study, housework, family or leisure activities)'),
+('EQ5D-PD', 'Did you have any pain/discomfort today?'),
+('EQ5D-AD', 'Did you feel anxious/depressed today?'),
 ('OKS1', 'How would you describe the pain you usually have from your knee?'),
 ('OKS2', 'Have you had any trouble with washing and drying yourself (all over) because of your knee?'),
 ('OKS3', 'Have you had any trouble getting in and out of a car or using public transport because of your knee? (whichever you tend to use)'),
@@ -136,11 +141,6 @@ INSERT INTO question (code, text) VALUES
 ('OKS11', 'Could you do the household shopping on your own?'),
 ('OKS12', 'Could you walk down one flight of stairs?');
 
---('EQ5D-MOB', 'Did you have problems in walking about today?'),
---('EQ5D-SC', 'Did you have problems in washing or dressing yourself today?'),
---('EQ5D-UA', 'Did you have problems in doing your usual activities today? (e.g. work, study, housework, family or leisure activities)'),
---('EQ5D-PD', 'Did you have any pain/discomfort today?'),
---('EQ5D-AD', 'Did you feel anxious/depressed today?'),
 
 -- ==============================
 -- 5. Staging Raw Table

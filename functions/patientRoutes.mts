@@ -436,25 +436,6 @@ const formatConditions = (
   const params: (string | number)[] = [questionid];
   let surgeont = "";
 
-  if (filters.surgeontitle) {
-    switch (filters.surgeontitle) {
-      case "Associate Consultant":
-        surgeont = "AC";
-        break;
-      case "Consultant":
-        surgeont = "C";
-        break;
-      case "Associate Professor":
-        surgeont = "AP";
-        break;
-      case "Professor":
-        surgeont = "P";
-        break;
-      default:
-        surgeont = "";
-        break;
-    }
-  }
 
   // Handle categorical filters (Ethnicity, Gender)
   if (filters.categories.includes("Ethnicity")) {
@@ -471,28 +452,46 @@ const formatConditions = (
     params.push(Number(filters.surgeonid));
   }
 
-  if (filters.categories.includes(`Surgeon Title`) && filters.surgeontitle) {
-    conditions.push(`p.surgeontitle = $${params.length + number + 1}`);
-    params.push(surgeont);
+  // Handle Age Range Filter
+  // Age filter
+  if (filters.categories.includes("Age Range") && filters.age?.range !== undefined && patient.age) {
+    conditions.push(`p.age BETWEEN $${params.length + number + 1} AND $${params.length + number + 2}`);
+    params.push(Number(patient.age) - Number(filters.age.range));
+    params.push(Number(patient.age) + Number(filters.age.range));
   }
 
-  // Handle Age Range Filter
-// Age filter
-if (filters.categories.includes("Age Range") && filters.age?.range !== undefined && patient.age) {
-  conditions.push(`p.age BETWEEN $${params.length + number + 1} AND $${params.length + number + 2}`);
-  params.push(Number(patient.age) - Number(filters.age.range));
-  params.push(Number(patient.age) + Number(filters.age.range));
-}
+  // BMI filter
+  if (filters.categories.includes("BMI Range") && filters.bmi?.range !== undefined && patient.bmi) {
+    conditions.push(`p.bmi BETWEEN $${params.length + number + 1} AND $${params.length + number + 2}`);
+    params.push(Math.floor(Number(patient.bmi) - Number(filters.bmi.range)));
+    params.push(Math.ceil(Number(patient.bmi) + Number(filters.bmi.range)));
+  }
 
-// BMI filter
-if (filters.categories.includes("BMI Range") && filters.bmi?.range !== undefined && patient.bmi) {
-  conditions.push(`p.bmi BETWEEN $${params.length + number + 1} AND $${params.length + number + 2}`);
-  params.push(Math.floor(Number(patient.bmi) - Number(filters.bmi.range)));
-  params.push(Math.ceil(Number(patient.bmi) + Number(filters.bmi.range)));
-}
+  if (filters.categories.includes("Surgeon Title") && filters.surgeontitle) {
+    // Map display title to one or more possible DB values
+    const surgeonTitleMap: Record<string, string[]> = {
+      "Associate Consultant": ["AC"],
+      "Consultant": ["C"],
+      "Senior Consultant": ["AP", "P"] // 2 possible values
+    };
 
-  //console.log("Formatted conditions:", { conditions, params });
+    const mappedTitles = surgeonTitleMap[filters.surgeontitle] || [];
 
+    if (mappedTitles.length === 1) {
+      // Single title → use "="
+      conditions.push(`p.surgeontitle = $${params.length + number + 1}`);
+      params.push(mappedTitles[0]);
+    } else if (mappedTitles.length > 1) {
+      // Multiple titles → use "IN"
+      const placeholders = mappedTitles
+        .map((_, idx) => `$${params.length + number + idx + 1}`)
+        .join(", ");
+      conditions.push(`p.surgeontitle IN (${placeholders})`);
+      params.push(...mappedTitles);
+    }
+
+    //console.log("Surgeon Title filter applied with values:", mappedTitles);
+  }
 
   // Return formatted conditions and parameters
   return {
@@ -519,8 +518,8 @@ router.post("/before", async (req: Request, res: Response) => {
       queryParams.push(...filterConditions.params);
     }
 
-    console.log("Conditions:", conditions);
-    console.log("Params:", queryParams);
+    //console.log("Conditions:", conditions);
+    //console.log("Params:", queryParams);
 
     // Query to get the total number of rows with filters
     // only count from forms submitted 6 months after surgery
@@ -642,6 +641,7 @@ router.post("/after", async (req: Request, res: Response) => {
       [initial, ...queryParams]
     );
 
+    //console.log("baseline query:", baselineQuery);
     //console.log("query params:", [initial, ...queryParams]);
 
     const baselinePatientIds = baselineRows.map(r => r.referencepatientid);
