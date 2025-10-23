@@ -50,6 +50,7 @@ const FormContent: React.FC<FormContentProps> = ({ term }) => {
 
       // Only update context if the current form in context is undefined or different
       if (!form || form.term !== termToUse) {
+        console.log("Setting current form in context:", formData);
         setCurrentForm(formData, termToUse);
       }
 
