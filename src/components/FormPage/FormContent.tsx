@@ -8,6 +8,7 @@ import api from "../../api/api";
 import { useForm } from "../../hooks/FormContext";
 import GreenButton from "../UI/Button/GreenButton";
 import PatientDetail from "./PatientDetail";
+import { PatientForm } from "../../models/patient/patientReport";
 
 interface FormContentProps {
   term?: number; // optional, fallback to context
@@ -39,9 +40,6 @@ const FormContent: React.FC<FormContentProps> = ({ term }) => {
         params: { patientid: patient.patientid, term: termToUse },
       });
 
-      console.log("Fetched form response:", response.data);
-      console.log("Current form in context:", form);
-
       if (response.data.length === 0) {
         setAnswers(Questions.reduce((acc : Record<string, string>, q) => ({ ...acc, [q.code]: "" }), {}));
         setIsDisabled(false);
@@ -49,11 +47,21 @@ const FormContent: React.FC<FormContentProps> = ({ term }) => {
         return;
       }
 
-      const formData = response.data[0];
+      const formData: PatientForm = {
+        patientid: patient.patientid,
+        term: termToUse,
+        responses: response.data.map((item: any) => ({
+          questionid: item.questionid,
+          code: Questions.find(q => q.id === item.questionid)?.code || "", // Map to code
+          answervalue: item.answervalue
+        })),
+        priorities: [] // or whatever priorities logic you have
+      };
+
+      setCurrentForm(formData, termToUse);
 
       // Only update context if the current form in context is undefined or different
       if (!form || form.term !== termToUse) {
-        console.log("Setting current form in context:", formData);
         setCurrentForm(formData, termToUse);
       }
 
@@ -83,7 +91,7 @@ const FormContent: React.FC<FormContentProps> = ({ term }) => {
   };
 
   fetchPatientForm();
-}, [patient?.patientid, termToUse, form]);
+}, [patient?.patientid, termToUse]);
 
   /** Handle radio input */
   const handleRadioInput = (code: string, value: string) => {

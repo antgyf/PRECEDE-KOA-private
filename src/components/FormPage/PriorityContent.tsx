@@ -53,23 +53,19 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
           showAlert(`Only ${calculatedMinPriorities} problem areas available for prioritization.`, "info");
         }
 
-        console.log("form from context:", form?.priorities);
-
         const existingPriorities = await api.get("/patients/priority", {
           params: { patientid: patient.patientid, term }
         });
 
-        if (existingPriorities.data?.priorities?.length > 0) {
-          console.log("Existing priorities found from backend:", existingPriorities.data.priorities);
-          setSelectedPriorities(existingPriorities.data.priorities);
-          setPriorities(existingPriorities.data.priorities);
+        if (existingPriorities.data?.length > 0) {
+          setSelectedPriorities(existingPriorities.data);
+          setPriorities(existingPriorities.data);
           setIsDisabled(true);
           return;
         }
 
         // If priorities already exist for this term, load them and disable further changes
         if (form?.priorities && form.term === term) {
-          console.log("Existing priorities found:", form.priorities);
           setSelectedPriorities(form.priorities);
           setPriorities(form.priorities);
           setIsDisabled(true);
@@ -89,7 +85,7 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
     };
 
     fetchData();
-  }, [patient?.patientid, term, form?.priorities]);
+  }, [patient?.patientid, term]);
 
   const handleTogglePriority = (questionId: number) => {
     if (isDisabled) return; // do nothing if priorities already exist
