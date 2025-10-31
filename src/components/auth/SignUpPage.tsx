@@ -102,7 +102,7 @@ const SignUpForm: React.FC = () => {
     >
       {alert.message && <Alert />}
       <article className="prose prose-xl text-center py-10 w-full max-w-2xl">
-        <h1 className="my-2">PRECEDE-KOA</h1>
+        <h1 className="my-2">PRECEDE-TKA</h1>
         <h1>{auth.isSurgeon ? "Surgeon" : "Researcher"} Sign Up</h1>
       </article>
 

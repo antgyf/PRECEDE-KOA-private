@@ -1,8 +1,8 @@
-# PRECEDE-KOA
+# PRECEDE-TKA
 
 ## Project Overview
 
-PRECEDE-KOA is a decision support tool designed to facilitate shared decision-making for patients considering total knee replacement surgery for knee osteoarthritis. The tool utilizes patient-reported outcomes to empower patients and enhance clinical communication.
+PRECEDE-TKA is a decision support tool designed to facilitate shared decision-making for patients considering total knee replacement surgery for knee osteoarthritis. The tool utilizes patient-reported outcomes to empower patients and enhance clinical communication.
 
 ## Tech Stack
 
@@ -36,8 +36,8 @@ The project is developed using TypeScript for both the frontend and backend comp
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/precede-koa.git
-   cd precede-koa
+   git clone https://github.com/yourusername/precede-TKA.git
+   cd precede-TKA
    ```
 2. Install dependencies for both frontend and backend
 
