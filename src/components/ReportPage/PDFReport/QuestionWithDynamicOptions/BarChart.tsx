@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
   },
   optionText: {
     fontSize: 10,
-    width: 70,
+    width: 100,
     textAlign: "right",
     marginRight: 5,
   },
@@ -49,6 +49,7 @@ const styles = StyleSheet.create({
   },
   percentageText: {
     fontSize: 10,
+    width:90,
   },
 });
 
@@ -61,8 +62,6 @@ const BarChart: React.FC<BarChartProps> = ({ data }) => {
     <View>
       <Text style={styles.title}>{data.title}</Text>
       {data.options.map((opt, index) => {
-        const match = opt.percentage.match(/^(\d+(\.\d+)?)%/); // Extract numeric part like "50" from "50% (20)"
-        const numericPercentage = match ? parseFloat(match[1]) : 0;
 
         return (
           <View key={index} style={styles.rowContainer}>
@@ -72,7 +71,7 @@ const BarChart: React.FC<BarChartProps> = ({ data }) => {
                 style={[
                   styles.bar,
                   {
-                    width: `${numericPercentage}%`,
+                    width: `${opt.percent}%`,
                     backgroundColor: data.options.length === 5 
                     ? colorScheme[index % colorScheme.length] 
                     : data.options.length === 6
@@ -84,7 +83,7 @@ const BarChart: React.FC<BarChartProps> = ({ data }) => {
                 ]}
               ></View>
             </View>
-            <Text style={styles.percentageText}>{opt.percentage}</Text>
+            <Text style={styles.percentageText}>{opt.percentageText}</Text>
           </View>
         );
       })}

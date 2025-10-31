@@ -287,7 +287,8 @@ export type BarChartData = {
   initial: number;
   options: {
     label: string;
-    percentage: string;
+    percentageText: string;
+    percent: number;
   }[];
 };
 

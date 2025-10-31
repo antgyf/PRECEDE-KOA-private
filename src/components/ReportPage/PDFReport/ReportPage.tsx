@@ -80,7 +80,7 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab }) => {
       if (!data) {
         return {
           title: `No similar patients found for question ${key}`,
-          options: [{ label: "No data available", percentage: "0% (0)" }],
+          options: [{ label: "No data available", percentageText: "0 out of 0 (0%)", percent: 0 }],
           questionid: key,
           variableQuestion: Questions.find((q) => q.id === key)?.description,
           initial: form?.responses.find((r) => r.questionid === key)?.answervalue ?? -1,
@@ -91,7 +91,7 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab }) => {
       if (data.totalRows === 0 || !data.data || data.data.length === 0) {
         return {
           title: `No similar patients found for question ${key}`,
-          options: [{ label: "No data available", percentage: "0% (0)" }],
+          options: [{ label: "No data available", percentageText: "0 out of 0 (0%)", percent: 0 }],
           questionid: data.questionid,
           variableQuestion: Questions.find((q) => q.id === data.questionid)?.description,
           initial: form?.responses.find((r) => r.questionid === key)?.answervalue ?? -1,
@@ -105,48 +105,6 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab }) => {
       // Clone data array for manipulation
       let chartData = data.data.map(item => ({ ...item }));
 
-      /*
-      // ✅ Merge and shift for Question 2
-      if (data.questionid === 2) {
-        const opt2 = chartData.find((v) => Number(v.option) === 2);
-        const opt3 = chartData.find((v) => Number(v.option) === 3);
-
-        if (opt2 && opt3) {
-          opt2.count = `${Number(opt2.count) + Number(opt3.count)}`;
-          chartData = chartData.filter((v) => Number(v.option) !== 3);
-          chartData = chartData.map((v) => {
-            const optNum = Number(v.option);
-            if (optNum > 3) {
-              return { ...v, option: (optNum - 1).toString() as "0" | "1" | "2" | "3" | "4" };
-            }
-            return v;
-          });
-        }
-      }
-
-      // ✅ Merge and shift for Question 3
-      if (data.questionid === 3) {
-        const mergeOptions = (a: number, b: number) => {
-          const optA = chartData.find((v) => Number(v.option) === a);
-          const optB = chartData.find((v) => Number(v.option) === b);
-          if (optA && optB) {
-            optA.count = `${Number(optA.count) + Number(optB.count)}`;
-            chartData = chartData.filter((v) => Number(v.option) !== b);
-          }
-        };
-
-        mergeOptions(2, 3);
-        mergeOptions(4, 5);
-
-        const removed = [3, 5];
-        chartData = chartData.map((v) => {
-          const optNum = Number(v.option);
-          const shift = removed.filter((r) => optNum > r).length;
-          return { ...v, option: (optNum - shift).toString() as "0" | "1" | "2" | "3" | "4" };
-        });
-      }
-      */
-
       // Calculate percentage labels
       const labelsAndPercentages = chartData.map((v) => {
         const total = Number(data.totalRows);
@@ -155,7 +113,8 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab }) => {
         
         return {
           label: `${Questions.find((q) => q.id === data.questionid)?.list?.[Number(v.option)] || v.option}`,
-          percentage: `${percentage}% (${count})`,
+          percentageText: `${count} out of ${total} (${percentage}%)`,
+          percent: Number(percentage),
         };
       });
 
