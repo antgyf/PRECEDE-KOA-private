@@ -136,24 +136,32 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
   if (isLoading) return <p>Loading priorities...</p>;
 
   return (
-    <form className="flex flex-col gap-4 text-lg" onSubmit={handleSubmit}>
-      <h3>Below are the health problems you reported. Please select up to 5 problems you wish to improve most by placing a ☑ in front of the relevant questions.
-        </h3>
+    <form className="flex flex-col gap-4 text-xl" onSubmit={handleSubmit}>
+      <h3>Below are the health problems you reported. Please select up to 5 problems you wish to improve most.</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {availableQuestions.map((q, index) => (
           <div
             key={q.question.id}
-            className="p-4 border rounded-xl shadow-sm bg-white flex flex-col gap-2"
+            className={`p-4 border rounded-xl shadow-sm bg-white flex flex-col gap-2 cursor-pointer transition-all ${
+              selectedPriorities.includes(q.question.id)
+                ? 'ring-2 ring-green-500 bg-green-50 border-green-300'
+                : 'hover:bg-gray-50 hover:shadow-md'
+            }`}
+            onClick={() => !isDisabled && handleTogglePriority(q.question.id)}
           >
-            {/* Checkbox row */}
+            {/* Checkbox row - now just visual indicator */}
             <div className="flex items-start gap-3">
-              <input
-                type="checkbox"
-                checked={selectedPriorities.includes(q.question.id)}
-                disabled={isDisabled}
-                onChange={() => handleTogglePriority(q.question.id)}
-                className="mt-1 h-5 w-5 accent-green-600 cursor-pointer"
-              />
+              <div className={`mt-1 h-5 w-5 border-2 rounded flex items-center justify-center ${
+                selectedPriorities.includes(q.question.id)
+                  ? 'bg-green-600 border-green-600'
+                  : 'border-gray-400'
+              }`}>
+                {selectedPriorities.includes(q.question.id) && (
+                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
+              </div>
               <div className="flex flex-col">
                 <span className="font-medium">{`${index + 1}. ${q.question.question}`}</span>
               </div>
@@ -164,8 +172,8 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
               <RadioChoice
                 name={q.question.code}
                 question=""
-                list={q.question.list}
-                value={String(q.answervalue)}
+                list={{ [q.answervalue]: q.question.list[q.answervalue] }}
+                value={String(q.answervalue)} 
                 disabled={true}
                 onChange={() => {}}
               />
@@ -173,11 +181,13 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
           </div>
         ))}
       </div>
+      <div className={`${isDisabled ? 'mb-6' : ''}`}>
       {!isDisabled && (
         <div className="mt-4">
           <GreenButton buttonText="Submit Priorities" />
         </div>
       )}
+      </div>
     </form>
   );
 };

@@ -50,6 +50,7 @@ const styles = StyleSheet.create({
   percentageText: {
     fontSize: 10,
     width:90,
+    marginLeft: 3,
   },
 });
 
