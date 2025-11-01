@@ -8,7 +8,7 @@ const router = Router();
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://precedekoa.netlify.app",
+  "https://precedetka.netlify.app",
 ];
 
 router.use(
