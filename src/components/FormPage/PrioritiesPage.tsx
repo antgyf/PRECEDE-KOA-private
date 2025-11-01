@@ -28,7 +28,7 @@ const PrioritiesPage: React.FC = () => {
         {alert.message && <Alert />}
         <BackButton target="Form Page" to="/form" />
         <div className="flex flex-row gap-4">
-          {form?.priorities && (
+          { form?.priorities && form?.priorities.length > 0 && (
             <ForwardButton target="Analysis Page" to="/analysis" />
           )}
           <LogoutButton />
