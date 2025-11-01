@@ -80,7 +80,7 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab }) => {
       if (!data) {
         return {
           title: `No similar patients found for question ${key}`,
-          options: [{ label: "No data available", percentageText: "0 out of 0 (0%)", percent: 0 }],
+          options: [{ label: "No data available", percentageText: "0 of 0 (0%)", percent: 0 }],
           questionid: key,
           variableQuestion: Questions.find((q) => q.id === key)?.description,
           initial: form?.responses.find((r) => r.questionid === key)?.answervalue ?? -1,
@@ -91,7 +91,7 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab }) => {
       if (data.totalRows === 0 || !data.data || data.data.length === 0) {
         return {
           title: `No similar patients found for question ${key}`,
-          options: [{ label: "No data available", percentageText: "0 out of 0 (0%)", percent: 0 }],
+          options: [{ label: "No data available", percentageText: "0 of 0 (0%)", percent: 0 }],
           questionid: data.questionid,
           variableQuestion: Questions.find((q) => q.id === data.questionid)?.description,
           initial: form?.responses.find((r) => r.questionid === key)?.answervalue ?? -1,
@@ -113,7 +113,7 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab }) => {
         
         return {
           label: `${Questions.find((q) => q.id === data.questionid)?.list?.[Number(v.option)] || v.option}`,
-          percentageText: `${count} out of ${total} (${percentage}%)`,
+          percentageText: `${count} of ${total} (${percentage}%)`,
           percent: Number(percentage),
         };
       });

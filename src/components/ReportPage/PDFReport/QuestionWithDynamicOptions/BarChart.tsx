@@ -29,16 +29,17 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   optionText: {
-    fontSize: 10,
-    width: 100,
+    fontSize: 9,
+    width: 110,
     textAlign: "right",
     marginRight: 5,
+    marginLeft: 5,
   },
   barContainer: {
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
-    height: 20,
+    height: 15,
     overflow: "hidden",
     position: "relative",
   },
@@ -48,8 +49,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   percentageText: {
-    fontSize: 10,
-    width:90,
+    fontSize: 9,
+    width: 90,
     marginLeft: 3,
   },
 });

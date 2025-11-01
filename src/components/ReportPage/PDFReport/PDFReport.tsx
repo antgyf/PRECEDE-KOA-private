@@ -110,18 +110,6 @@ const PDFReport: React.FC<PDFReportProps> = ({
     </Text>
   );
 
-  const remapInitial = (question: number, initial: number) => {
-    if (question === 2) {
-      if (initial >= 3) return initial - 1;
-    }
-    else if (question === 3) { 
-      if (initial === 3) return 2;
-      if (initial === 4 || initial === 5) return 3;
-      if (initial === 6) return 4;
-    }
-    return initial;
-  }
-
   const getFilterDescription = (filters: FilterType) => {
     if (!patient) return;
 
@@ -220,7 +208,7 @@ const PDFReport: React.FC<PDFReportProps> = ({
               <View
                 style={[
                   styles.nameBoxContainer,
-                  { marginTop: remapInitial(data.questionid, Number(data.initial)) * 22 + 8 },
+                  { marginTop: Number(data.initial) * 16 + 4 },
                 ]}
               >
                 <Text style={styles.nameBox}>
