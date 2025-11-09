@@ -23,7 +23,15 @@ import { Font } from "@react-pdf/renderer";
 
 Font.register({
   family: "NotoSansSC",
-  src: "../../../../public/fonts/NotoSansSC-Regular.ttf",
+  fonts: [
+    {
+      src: "../../../../public/fonts/NotoSansSC-Regular.ttf",
+    },
+    {
+      src: "../../../../public/fonts/NotoSansSC-Bold.ttf",
+      fontWeight: "bold",
+    },
+  ],
 });
 
 const getFontFamily = (lan: string) => {
@@ -103,7 +111,6 @@ const createStyles = (lang: string) =>
     noDataText: {
       fontSize: 14,
       color: "#666",
-      fontStyle: "italic",
       fontFamily: getFontFamily(lang),
     },
   });
