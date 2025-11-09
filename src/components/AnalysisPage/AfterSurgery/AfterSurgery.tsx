@@ -326,7 +326,7 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) =
                     <strong style={{ color: "#1976D2" }}>{termToMonths(selectedTerm)}</strong>{" "}
                     months after surgery. Those patients are similar to{" "}
                     {getName()}
-                    {getFilterDescription(filters, patient)}, and they
+                    {getFilterDescription(filters, patient, currentLang)}, and they
                     experienced the same level of problem as {getName()} before
                     surgery.
                   </p>

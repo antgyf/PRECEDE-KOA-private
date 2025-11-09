@@ -292,7 +292,7 @@ const renderHumanIcons = () => {
                 <p>
                   Below are what past patients reported before surgery. Those
                   patients are similar to {getName()}
-                  {getFilterDescription(filters, patient)}.
+                  {getFilterDescription(filters, patient, currentLang)}.
                 </p>
                 <h3>{question.question}</h3>
                 <h4>
