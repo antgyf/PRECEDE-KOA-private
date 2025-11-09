@@ -37,9 +37,10 @@ interface Description {
 
 interface AfterSurgeryProps {
   activeTab: "summary" | "before" | "after";
+  currentLang: string;
 }
 
-const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab }) => {
+const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) => {
   const { form, patient } = useForm();
   const { alert, showAlert } = useAlert();
 
@@ -245,7 +246,7 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab }) => {
         <article className="prose mb-5 max-w-none">
           <h3>Self-reported Functions of Similar Patients after Surgery</h3>
           <ul>
-            <li>{getRankDescription()}</li>
+            <li>{getRankDescription(currentLang)}</li>
             <li>
               Select an area you wish to know how similar patients functioned
               after surgery

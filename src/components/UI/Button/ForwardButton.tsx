@@ -23,7 +23,7 @@ const ForwardButton: React.FC<ForwardButtonProps> = ({ target, to, onClick }) =>
       onClick={handleForward}
       className="btn btn-primary flex items-center gap-2 text-lg m-2 text-white"
     >
-      Forward to {target}
+      {target}
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"

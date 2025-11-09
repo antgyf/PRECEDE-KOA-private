@@ -9,10 +9,11 @@ import RadioChoice from "../UI/Form/RadioChoice";
 
 interface PriorityContentProps {
   term: number;
+  language: string;
   onSubmit?: () => void;
 }
 
-const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) => {
+const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, language, onSubmit }) => {
   const { showAlert } = useAlert();
   const navigate = useNavigate();
   const { patient, form, setPriorities } = useForm();
@@ -30,7 +31,7 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
       
       try {
       setIsLoading(true);
-      showAlert("Loading priorities...", "info");
+      showAlert(language === "en" ? "Loading priorities..." : language === "zh" ? "加载优先事项..." : "", "info");
         if (!patient?.patientid) throw new Error("No patient ID found");
 
         const response = await api.get("/patients/responses", {
@@ -50,7 +51,8 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
         setMaxPriorities(calculatedMinPriorities);
 
         if (filteredResponses.length < 5) {
-          showAlert(`Only ${calculatedMinPriorities} problem areas available for prioritization.`, "info");
+          showAlert(language === "en" ? `Only ${calculatedMinPriorities} problem areas available for prioritization.` : 
+            language === "zh" ? `只有${calculatedMinPriorities}个问题领域可供优先排序。` : "", "info");
         }
 
         const existingPriorities = await api.get("/patients/priority", {
@@ -105,7 +107,9 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
     if (!patient?.patientid || term === undefined) return;
 
     if (selectedPriorities.length > maxPriorities) {
-      showAlert(`Please select ${maxPriorities} or less priorities.`, "error");
+      
+      showAlert(language === "en" ? `Please select ${maxPriorities} or less priorities.` : 
+        language === "zh" ? `请选择不超过${maxPriorities}个优先事项。` : "", "error");
       return;
     }
 
@@ -117,13 +121,15 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
     };
 
     try {
-      showAlert("Submitting priorities...", "info");
+      showAlert(language === "en" ? "Submitting priorities..." : 
+        language === "zh" ? "提交优先事项..." : "", "info");
       const response = await api.post("/patients/priorities", prioritiesData, {
         headers: { "Content-Type": "application/json" },
       });
 
       setPriorities(selectedPriorities);
-      showAlert(response.data.message || "Priorities submitted successfully!", "success");
+      showAlert(response.data.message || (language === "en" ? "Priorities submitted successfully!" : 
+        language === "zh" ? "优先事项提交成功！" : ""), "success");
 
       onSubmit?.();
       navigate(`/analysis?term=${term}`);
@@ -132,12 +138,14 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
       showAlert("An error occurred while submitting priorities.", "error");
     }
   };
-
-  if (isLoading) return <p>Loading priorities...</p>;
+  
+  if (isLoading) return <p>{language === "en" ? "Loading priorities..." : language === "zh" ? "加载优先事项..." : ""}</p>;
 
   return (
     <form className="flex flex-col gap-4 text-xl" onSubmit={handleSubmit}>
-      <h3>Below are the health problems you reported. Please select up to 5 problems you wish to improve most.</h3>
+      <h3>
+        {language === "en" ? "Below are the health problems you reported. Please select up to 5 problems you wish to improve most." : 
+      language === "zh" ? "以下是您报告的健康问题。请选择最多5个您最希望改善的问题。" : ""}</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {availableQuestions.map((q, index) => (
           <div
@@ -163,7 +171,7 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
                 )}
               </div>
               <div className="flex flex-col">
-                <span className="font-medium">{`${index + 1}. ${q.question.question}`}</span>
+                <span className="font-medium">{`${index + 1}. ${language === "en" ? q.question.question : language === "zh" ? q.question.chineseDescription : ""}`}</span>
               </div>
             </div>
 
@@ -172,7 +180,7 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
               <RadioChoice
                 name={q.question.code}
                 question=""
-                list={{ [q.answervalue]: q.question.list[q.answervalue] }}
+                list={{ [q.answervalue]: language === "en" ? q.question.list[q.answervalue] : language === "zh" ? q.question.chList[q.answervalue] : "" }}
                 value={String(q.answervalue)} 
                 disabled={true}
                 onChange={() => {}}
@@ -184,7 +192,7 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, onSubmit }) =
       <div className={`${isDisabled ? 'mb-6' : ''}`}>
       {!isDisabled && (
         <div className="mt-4">
-          <GreenButton buttonText="Submit Priorities" />
+          <GreenButton buttonText={language === "en" ? "Submit Priorities" : language === "zh" ? "提交优先事项" : ""} />
         </div>
       )}
       </div>

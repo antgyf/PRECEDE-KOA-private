@@ -2,6 +2,7 @@ import { useAlert } from "../../hooks/AlertContext";
 import ReportPage from "../ReportPage/PDFReport/ReportPage";
 import Alert from "../UI/Alert";
 import BackButton from "../UI/Button/BackButton";
+import LanguageDropdown from "../UI/Button/LanguageDropdown";
 import LogoutButton from "../UI/Button/LogoutButton";
 import AfterSurgery from "./AfterSurgery/AfterSurgery";
 import BeforeSurgery from "./BeforeSurgery/BeforeSurgery";
@@ -12,6 +13,7 @@ const AnalysisPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"summary" | "before" | "after">(
     "summary"
   );
+  const [currentLang, setCurrentLang] = useState<string>("en");
 
   return (
     <div className="w-screen h-full flex flex-col">
@@ -19,8 +21,17 @@ const AnalysisPage: React.FC = () => {
       {/* Fixed Tab Navigation */}
       <div className="fixed top-0 left-0 w-full bg-white z-50 shadow-md p-5">
         <div className="flex justify-between">
-          <BackButton target="Priority Page" to="/priorities" />
-          <LogoutButton />
+          <div className="flex items-center">
+            <BackButton target={currentLang === "en" ? "Priority Page" : currentLang === "zh" ? "优先事项页" : ""} to="/priorities" />
+          </div>
+
+          <div className="flex-1 flex justify-center">
+            <LanguageDropdown currentLang={currentLang} onChange={setCurrentLang} />
+          </div>
+
+          <div className="flex items-center">
+            <LogoutButton language={currentLang} />
+          </div>
         </div>
         <div className="flex justify-center">
           <button
@@ -31,7 +42,8 @@ const AnalysisPage: React.FC = () => {
                 : "bg-gray-200 text-gray-600 hover:bg-gray-300"
             }`}
           >
-            Summary Report
+            {currentLang === "en" ? "Summary Report" : currentLang === "zh" ? "总结报告" : ""}
+            
           </button>
           <button
             onClick={() => setActiveTab("before")}
@@ -41,7 +53,9 @@ const AnalysisPage: React.FC = () => {
                 : "bg-gray-200 text-gray-600 hover:bg-gray-300"
             }`}
           >
-            Before Surgery
+
+            {currentLang === "en" ? "Before Surgery" : currentLang === "zh" ? "手术前" : ""}
+            
           </button>
           <button
             onClick={() => setActiveTab("after")}
@@ -51,7 +65,9 @@ const AnalysisPage: React.FC = () => {
                 : "bg-gray-200 text-gray-600 hover:bg-gray-300"
             }`}
           >
-            More Analysis
+
+            {currentLang === "en" ? "More Analysis" : currentLang === "zh" ? "更多分析" : ""}
+
           </button>
         </div>
       </div>
@@ -59,13 +75,13 @@ const AnalysisPage: React.FC = () => {
       {/* Tab Content */}
       <div className="flex-1 mt-40 bg-neutral p-6">
         <div style={{ display: activeTab === "summary" ? "block" : "none" }}>
-          <ReportPage activeTab={activeTab} />
+          <ReportPage activeTab={activeTab} currentLang={currentLang} />
         </div>
         <div style={{ display: activeTab === "before" ? "block" : "none" }}>
-          <BeforeSurgery activeTab={activeTab} />
+          <BeforeSurgery activeTab={activeTab} currentLang={currentLang} />
         </div>
         <div style={{ display: activeTab === "after" ? "block" : "none" }}>
-          <AfterSurgery activeTab={activeTab} />
+          <AfterSurgery activeTab={activeTab} currentLang={currentLang} />
         </div>
       </div>
     </div>

@@ -56,6 +56,15 @@ export const FunctionWalking = {
   5: "Unable",
 };
 
+export const FunctionWalkingCh = {
+  0: "无任何限制",
+  1: "约1千米以上",
+  2: "500-1000米",
+  3: "不到500米",
+  4: "仅能在室内活动",
+  5: "不能步行",
+};
+
 export const FunctionStairs = {
   0: "Normal up and down",
   1: "Normal up and down with rail",
@@ -63,6 +72,14 @@ export const FunctionStairs = {
   3: "Up with rail, down unable ",
   4: "Unable",
 };
+
+export const FunctionStairsCh = {
+  0: "正常上下楼梯",
+  1: "正常上楼，下楼梯需扶栏杆",
+  2: "下楼梯均需扶栏杆",
+  3: "借助扶手能上楼，但不能下楼",
+  4: "完全不能上下楼梯",
+}
 
 export const Pain = {
   0: "None ",
@@ -74,6 +91,16 @@ export const Pain = {
   6: "Severe",
 };
 
+export const PainCh = {
+  0: "不疼",
+  1: "轻度/偶尔",
+  2: "轻度(上下楼梯时轻微疼痛)",
+  3: "轻度(平地行走时也轻微疼痛)",
+  4: "中度-偶尔",
+  5: "中度-经常",
+  6: "严重",
+};
+
 export const Mobility = {
   0: "I have no problems in walking about",
   1: "I have slight problems in walking about",
@@ -81,7 +108,15 @@ export const Mobility = {
   3: "I have severe problems in walking about",
   4: "I am unable to walk",
 };
-  
+
+export const MobilityCh = {
+  0: "无疼痛",
+  1: "极轻微疼痛",
+  2: "轻微疼痛",
+  3: "中等疼痛",
+  4: "严重疼痛",
+};
+
 export const SelfCare = {
   0: "I have no problems in washing or dressing myself",
   1: "I have slight problems in washing or dressing myself",
@@ -122,12 +157,28 @@ export const OKSKneePain = {
   4: "Severe",
 };
 
+export const OKSKneePainCh = {
+  0: "无疼痛",
+  1: "极轻微疼痛",
+  2: "轻微疼痛",
+  3: "中等疼痛",
+  4: "严重疼痛",
+}
+
 export const OKSKneeTrouble = {
   0: "No trouble at all",
   1: "Very little trouble",
   2: "Moderate trouble",
   3: "Extreme difficulty",
   4: "Impossible to do",
+};
+
+export const OKSKneeTroubleCh = {
+  0: "完全无困难",
+  1: "轻度困难",
+  2: "中度困难",
+  3: "非常困难",
+  4: "无法完成",
 };
 
 export const OKSWalking = {
@@ -138,12 +189,28 @@ export const OKSWalking = {
   4: "Not at all/Pain severe when walking",
 };
 
+export const OKSWalkingCh = {
+  0: "超过30分钟无疼痛",
+  1: "16到30分钟",
+  2: "5到15分钟",
+  3: "只能在家周围活动",
+  4: "行走及疼痛",
+};
+
 export const OKSStanding = {
   0: "Not at all painful",
   1: "Slightly painful",
   2: "Moderately painful",
   3: "Very painful",
   4: "Unbearable",
+};
+
+export const OKSStandingCh = {
+  0: "完全无疼痛",
+  1: "轻度疼痛",
+  2: "中度疼痛",
+  3: "严重疼痛",
+  4: "难以忍受的疼痛",
 };
 
 export const OKSFrequency = {
@@ -154,12 +221,28 @@ export const OKSFrequency = {
   4: "All of the time",
 };
 
+export const OKSFrequencyCh = {
+  0: "从不或极少",
+  1: "有时会有或刚开始行走时",
+  2: "经常有",
+  3: "大多数情况下",
+  4: "一直有",
+};
+
 export const OKSEase = {
   0: "Yes, easily",
   1: "With little difficulty",
   2: "With moderate difficulty",
   3: "With extreme difficulty",
   4: "No, impossible",
+};
+
+export const OKSEaseCh = {
+  0: "容易完成",
+  1: "轻度困难",
+  2: "中度困难",
+  3: "重度困难",
+  4: "无法完成",
 };
 
 export const OKSNightPain = {
@@ -170,12 +253,36 @@ export const OKSNightPain = {
   4: "Every night",
 };
 
+export const OKSNightPainCh = {
+  0: "没有",
+  1: "偶尔发生",
+  2: "有时发生",
+  3: "经常发生",
+  4: "每天晚上都有",
+};
+
 export const OKSWorkInterference = {
   0: "Not at all",
   1: "A little bit",
   2: "Moderately",
   3: "Greatly",
   4: "Totally",
+};
+
+export const OKSWorkInterferenceCh = {
+  0: "完全不影响",
+  1: "轻度影响",
+  2: "中度影响",
+  3: "严重影响",
+  4: "完全无法工作或做家务",
+};
+
+export const GiveWayCh = {
+  0: "从不/极少",
+  1: "有时",
+  2: "经常",
+  3: "大多数时候",
+  4: "完全无法控制膝关节",
 };
 
 export const OtherOptions = {
@@ -252,13 +359,15 @@ export type QuestionType = {
   question: string;        // display text
   list: Record<number, string>; // Likert or option scale
   description: string;  // optional description
+  chineseDescription: string;
+  chList: Record<number, string>; // Likert or option scale in Chinese
 };
 
 // Actual questions list aligned with DB
 export const Questions: QuestionType[] = [
-  { id: 1, code: "KFS", question: "How well can you use stairs?", list: FunctionStairs, description: "Ability to use stairs" },
-  { id: 2, code: "KFW", question: "How far can you walk?", list: FunctionWalking, description: "Ability to walk" },
-  { id: 3, code: "KPAIN", question: "How is your overall knee pain?", list: Pain, description: "Overall knee pain" },
+  { id: 1, code: "KFS", question: "How well can you use stairs?", list: FunctionStairs, description: "Ability to use stairs" , chineseDescription: "上下楼梯", chList: FunctionStairsCh},
+  { id: 2, code: "KFW", question: "How far can you walk?", list: FunctionWalking, description: "Ability to walk" , chineseDescription: "行走能力", chList: FunctionWalkingCh},
+  { id: 3, code: "KPAIN", question: "How is your overall knee pain?", list: Pain, description: "Overall knee pain", chineseDescription: "疼痛", chList: PainCh },
   /*
   { id: 4, code: "EQ5D-MOB", question: "Did you have problems in walking about today?", list: Mobility, description: "Problems in walking" },
   { id: 5, code: "EQ5D-SC", question: "Did you have problems in washing or dressing yourself today?", list: SelfCare, description: "Problems washing or dressing yourself" },
@@ -266,18 +375,18 @@ export const Questions: QuestionType[] = [
   { id: 7, code: "EQ5D-PD", question: "Did you have any pain/discomfort today?", list: PainDiscomfort, description: "Pain/discomfort level" },
   { id: 8, code: "EQ5D-AD", question: "Do you feel anxious/depressed today?", list: AnxietyDepression, description: "Anxiety/depression level" },
   */  
-  { id: 9, code: "OKS1", question: "How would you describe the pain you usually have from your knee?", list: OKSKneePain, description: "Knee pain severity" },
-  { id: 10, code: "OKS2", question: "Have you had any trouble with washing and drying yourself (all over) because of your knee?", list: OKSKneeTrouble, description: "Difficulty with washing and drying yourself because of your knee" },
-  { id: 11, code: "OKS3", question: "Have you had any trouble getting in and out of a car or using public transport because of your knee? (whichever you tend to use)", list: OKSKneeTrouble, description: " Difficulty getting in and out of a car or bus because of your knee" },
-  { id: 12, code: "OKS4", question: "For how long have you been able to walk before pain from your knee becomes severe? (with or without a stick)", list: OKSWalking, description: "Walking duration before knee pain becomes severe" },
-  { id: 13, code: "OKS5", question: "After a meal (sat at a table), how painful has it been for you to stand up from a chair because of your knee?", list: OKSStanding, description: "Difficulty with standing up from a chair" },
-  { id: 14, code: "OKS6", question: "Have you been limping when walking, because of your knee?", list: OKSFrequency, description: "Limping because of your knee" },
-  { id: 15, code: "OKS7", question: "Could you kneel down and get up again afterwards?", list: OKSEase, description: "Difficulty with kneeling down and getting up again" },
-  { id: 16, code: "OKS8", question: "Have you been troubled by pain from your knee in bed at night?", list: OKSNightPain, description: "Knee pain at night" },
-  { id: 17, code: "OKS9", question: "How much has pain from your knee interfered with your usual work (including housework)?", list: OKSWorkInterference, description: "Work interference by knee pain" },
-  { id: 18, code: "OKS10", question: "Have you felt that your knee might suddenly 'give way' or let you down?", list: OKSFrequency, description: "Feeling knee suddenly 'giving way' or letting you down" },
-  { id: 19, code: "OKS11", question: "Could you do the household shopping on your own?", list: OKSEase, description: "Ability to do household shopping" },
-  { id: 20, code: "OKS12", question: "Could you walk down one flight of stairs?", list: OKSEase, description: "Ability to walk down stairs" },
+  { id: 9, code: "OKS1", question: "How would you describe the pain you usually have from your knee?", list: OKSKneePain, description: "Knee pain severity", chineseDescription: "平时膝关节疼痛程度", chList: OKSKneePainCh },
+  { id: 10, code: "OKS2", question: "Have you had any trouble with washing and drying yourself (all over) because of your knee?", list: OKSKneeTrouble, description: "Difficulty with washing and drying yourself because of your knee" , chineseDescription: "洗漱及擦身有无困难", chList: OKSKneeTroubleCh },
+  { id: 11, code: "OKS3", question: "Have you had any trouble getting in and out of a car or using public transport because of your knee? (whichever you tend to use)", list: OKSKneeTrouble, description: " Difficulty getting in and out of a car or bus because of your knee", chineseDescription: "上下小轿车及公共汽车是否有困难", chList: OKSKneeTroubleCh },
+  { id: 12, code: "OKS4", question: "For how long have you been able to walk before pain from your knee becomes severe? (with or without a stick)", list: OKSWalking, description: "Walking duration before knee pain becomes severe", chineseDescription: "行走多长时间会感觉到膝关节疼痛严重？", chList: OKSWalkingCh },
+  { id: 13, code: "OKS5", question: "After a meal (sat at a table), how painful has it been for you to stand up from a chair because of your knee?", list: OKSStanding, description: "Difficulty with standing up from a chair", chineseDescription: "吃饭或坐位时站起膝关节疼痛严重程度", chList: OKSStandingCh },
+  { id: 14, code: "OKS6", question: "Have you been limping when walking, because of your knee?", list: OKSFrequency, description: "Limping because of your knee", chineseDescription: "行走时是否有跛行", chList: OKSFrequencyCh },
+  { id: 15, code: "OKS7", question: "Could you kneel down and get up again afterwards?", list: OKSEase, description: "Difficulty with kneeling down and getting up again", chineseDescription: "能否跪下然后起立？", chList: OKSEaseCh },
+  { id: 16, code: "OKS8", question: "Have you been troubled by pain from your knee in bed at night?", list: OKSNightPain, description: "Knee pain at night", chineseDescription: "晚上睡觉时是否有膝关节疼痛", chList: OKSNightPainCh },
+  { id: 17, code: "OKS9", question: "How much has pain from your knee interfered with your usual work (including housework)?", list: OKSWorkInterference, description: "Work interference by knee pain", chineseDescription: "膝关节疼痛影响日常工作和家务的程度", chList: OKSWorkInterferenceCh },
+  { id: 18, code: "OKS10", question: "Have you felt that your knee might suddenly 'give way' or let you down?", list: OKSFrequency, description: "Feeling knee suddenly 'giving way' or letting you down", chineseDescription: "是否感觉膝关节可能突然失去控制或者摔倒？", chList: GiveWayCh },
+  { id: 19, code: "OKS11", question: "Could you do the household shopping on your own?", list: OKSEase, description: "Ability to do household shopping", chineseDescription: "独自购物的困难程度", chList: OKSEaseCh },
+  { id: 20, code: "OKS12", question: "Could you walk down one flight of stairs?", list: OKSEase, description: "Ability to walk down stairs", chineseDescription: "下楼梯的困难程度", chList: OKSEaseCh },
 ];
 
 export type BarChartData = {

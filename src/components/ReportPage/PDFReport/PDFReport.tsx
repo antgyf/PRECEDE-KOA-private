@@ -18,80 +18,102 @@ import {
 } from "../../../models/patient/patientDetails";
 import { useForm } from "../../../hooks/FormContext";
 import BarChart from "./QuestionWithDynamicOptions/BarChart";
+import { getChSurgeonTitle } from "../../../utils/helper";
+import { Font } from "@react-pdf/renderer";
 
-const styles = StyleSheet.create({
-  page: {
-    padding: 10,
-    fontSize: 10,
-    flexDirection: "column",
-  },
-  instruction: {
-    fontSize: 11,
-    marginBottom: 1,
-  },
-  title: {
-    fontSize: 12,
-    fontWeight: "bold",
-    fontFamily: "Inter",
-    marginBottom: 1,
-  },
-  bold: {
-    fontSize: 10,
-    fontWeight: "bold",
-    marginBottom: 2,
-    fontFamily: "Inter",
-  },
-  colContainer: {
-    flexDirection: "column",
-    marginBottom: 5,
-  },
-  row: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "center",
-  },
-  nameBoxContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "flex-end",
-  },
-  nameBox: {
-    borderWidth: 2,
-    borderColor: "black",
-    padding: 5,
-    fontSize: 10,
-  },
-  pointer: {
-    fontSize: 14,
-    marginLeft: 5,
-  },
-  chartContainer: {
-    width: "80%",
-  },
-  boldText: {
-    color: "#1976D2",
-    fontFamily: "Inter",
-    fontSize: 10,
-    fontWeight: "bold",
-  },
-    noDataContainer: {
-    flexDirection: "row",
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 50, // Adjust based on your chart height
-  },
-  noDataText: {
-    fontSize: 14,
-    color: '#666',
-    fontStyle: 'italic',
-  },
+Font.register({
+  family: "NotoSansSC",
+  src: "../../../../public/fonts/NotoSansSC-Regular.ttf",
 });
+
+const getFontFamily = (lan: string) => {
+  switch (lan) {
+    case "zh":
+      return "NotoSansSC";
+    default:
+      return "Inter";
+  }
+};
+
+const createStyles = (lang: string) =>
+  StyleSheet.create({
+    page: {
+      padding: 10,
+      fontSize: 10,
+      fontFamily: getFontFamily(lang),
+      flexDirection: "column",
+    },
+    instruction: {
+      fontSize: 11,
+      marginBottom: 1,
+      fontFamily: getFontFamily(lang),
+    },
+    title: {
+      fontSize: 12,
+      fontWeight: "bold",
+      fontFamily: getFontFamily(lang),
+      marginBottom: 1,
+    },
+    bold: {
+      fontSize: 10,
+      fontWeight: "bold",
+      marginBottom: 2,
+      fontFamily: getFontFamily(lang),
+    },
+    boldText: {
+      color: "#1976D2",
+      fontFamily: getFontFamily(lang),
+      fontSize: 10,
+      fontWeight: "bold",
+    },
+    colContainer: {
+      flexDirection: "column",
+      marginBottom: 5,
+    },
+    row: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      justifyContent: "center",
+    },
+    nameBoxContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "flex-end",
+    },
+    nameBox: {
+      borderWidth: 2,
+      borderColor: "black",
+      padding: 5,
+      fontSize: 10,
+      fontFamily: getFontFamily(lang),
+    },
+    pointer: {
+      fontSize: 14,
+      marginLeft: 5,
+    },
+    chartContainer: {
+      width: "80%",
+    },
+    noDataContainer: {
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      height: 50,
+    },
+    noDataText: {
+      fontSize: 14,
+      color: "#666",
+      fontStyle: "italic",
+      fontFamily: getFontFamily(lang),
+    },
+  });
 
 interface PDFReportProps {
   filters: FilterType;
   barChartData: BarChartData[];
   radarImage: string;
   renderRadar: boolean;
+  currentLang: string;
 }
 
 const PDFReport: React.FC<PDFReportProps> = ({
@@ -99,14 +121,17 @@ const PDFReport: React.FC<PDFReportProps> = ({
   barChartData,
   radarImage,
   renderRadar,
+  currentLang,
 }) => {
   const { patient } = useForm();
 
+  const styles = createStyles(currentLang);
   const numPriorities = barChartData.length;
 
   const getName = () => (
     <Text style={styles.boldText}>
-      {patient?.sex ? "Ms." : "Mr."} {patient?.fullname}
+      {patient?.sex ? (currentLang === "en" ? "Ms." : currentLang === "zh" ? "女士" : "Ms.") 
+      : (currentLang === "en" ? "Mr." : currentLang === "zh" ? "先生" : "Mr.")} {patient?.fullname}
     </Text>
   );
 
@@ -117,56 +142,104 @@ const PDFReport: React.FC<PDFReportProps> = ({
 
     // Age
     if (filters.categories.includes("Age Range") && filters.age) {
-      descriptionParts.push(
-        <>
-          <Text style={styles.boldText}>Age</Text> (within {filters.age.range} years)
-        </>
-      );
+      if (currentLang === "en") {
+        descriptionParts.push(
+          <>
+            <Text style={styles.boldText}>Age</Text> (within {filters.age.range} years)
+          </>
+        );
+      } else if (currentLang === "zh") {
+        descriptionParts.push(
+          <>
+            <Text style={styles.boldText}>年龄</Text> (在 {filters.age.range} 岁之间)
+          </>
+        );
+      }
     }
 
     // BMI
     if (filters.categories.includes("BMI Range") && filters.bmi) {
-      descriptionParts.push(
-        <>
-          <Text style={styles.boldText}>BMI</Text> (within {filters.bmi.range} kg/m²)
-        </>
-      );
+      if (currentLang === "en") {
+        descriptionParts.push(
+          <>
+            <Text style={styles.boldText}>BMI</Text> (within {filters.bmi.range} kg/m²)
+          </>
+        );
+      } else if (currentLang === "zh") {
+        descriptionParts.push(
+          <>
+            <Text style={styles.boldText}>BMI</Text> (在 {filters.bmi.range} kg/m²之间)
+          </>
+        );
+      }
     }
 
     // Gender
     if (filters.categories.includes("Gender")) {
-      descriptionParts.push(
-        <>
-          <Text style={styles.boldText}>Gender</Text> ({Sex[patient.sex]})
-        </>
-      );
+      if (currentLang === "en") {
+        descriptionParts.push(
+          <>
+            <Text style={styles.boldText}>Gender</Text> ({Sex[patient.sex]})
+          </>
+        );
+      } else if (currentLang === "zh") {
+        descriptionParts.push(
+          <>
+            <Text style={styles.boldText}>性别</Text> ({Sex[patient.sex]})
+          </>
+        );
+      }
     }
 
     // Ethnicity
     if (filters.categories.includes("Ethnicity")) {
-      descriptionParts.push(
-        <>
-          <Text style={styles.boldText}>Ethnicity</Text> ({Ethnicity[patient.ethnicity]})
-        </>
-      );
+      if (currentLang === "en") {
+        descriptionParts.push(
+          <>
+            <Text style={styles.boldText}>Ethnicity</Text> ({Ethnicity[patient.ethnicity]})
+          </>
+        );
+      } else if (currentLang === "zh") {
+        descriptionParts.push(
+          <>
+            <Text style={styles.boldText}>种族</Text> ({Ethnicity[patient.ethnicity]})
+          </>
+        );
+      }
     }
 
     // Surgeon Title — applies to reference patients, not live patient
     if (filters.surgeontitle) {
-      descriptionParts.push(
-        <>
-          and were operated on by a <Text style={styles.boldText}>{filters.surgeontitle}</Text> surgeon
-        </>
-      );
+      if (currentLang === "en") {
+        descriptionParts.push(
+          <>
+            and were operated on by a <Text style={styles.boldText}>{filters.surgeontitle}</Text> surgeon
+          </>
+        );
+      } else if (currentLang === "zh") {
+        descriptionParts.push(
+          <>
+            并由一位 <Text style={styles.boldText}>{getChSurgeonTitle(filters.surgeontitle)}</Text> 外科医生进行手术
+          </>
+        );
+      }
     }
 
     // Surgeon ID — applies to reference patients, not live patient
     if (filters.surgeonid) {
-      descriptionParts.push(
-        <>
-          and were operated on by Surgeon with Surgeon ID <Text style={styles.boldText}>{filters.surgeonid}</Text>
-        </>
-      );
+      if (currentLang === "en") {
+        descriptionParts.push(
+          <>
+            and were operated on by Surgeon with Surgeon ID <Text style={styles.boldText}>{filters.surgeonid}</Text>
+          </>
+        );
+      } else if (currentLang === "zh") {
+        descriptionParts.push(
+          <>
+            并由外科医生ID为 <Text style={styles.boldText}>{filters.surgeonid}</Text> 的外科医生进行手术
+          </>
+        );
+      }
     }
 
     // Assemble text
@@ -189,15 +262,32 @@ const PDFReport: React.FC<PDFReportProps> = ({
     <Document title={pdfFileName}>
       {/* Page 1: Bar Charts */}
       <Page size="A4" style={styles.page}>
-        {patient && <Table data={patient} />}
-        <Text style={styles.instruction}>
-          Below are what past patients reported{" "}
-          <Text style={styles.bold}>6 months after surgery</Text> in the {numPriorities}
-          {numPriorities > 1 ? " areas" : " area"} {getName()} hopes to see improvement most. Those patients are
-          similar to {getName()}
-          {getFilterDescription(filters)}, and they experienced the same level
-          of problems as {getName()} in those areas before surgery.
-        </Text>
+        {currentLang === "en" && patient && (
+        <>
+          <Table data={patient} />
+          <Text style={styles.instruction}>
+            Below are what past patients reported{" "}
+            <Text style={styles.bold}>6 months after surgery</Text> in the {numPriorities}
+            {numPriorities > 1 ? " areas" : " area"} {getName()} hopes to see improvement most.
+            Those patients are similar to {getName()}
+            {getFilterDescription(filters)}, and they experienced the same level
+            of problems as {getName()} in those areas before surgery.
+          </Text>
+        </>
+      )}
+
+      {currentLang === "zh" && patient && (
+        <>
+          <Table data={patient} />
+          <Text style={styles.instruction}>
+            下面是过去的患者在手术后6个月报告的情况，{numPriorities}
+            {numPriorities > 1 ? " 个方面" : " 个方面"} 是 {getName()} 最希望看到改善的地方。
+            这些患者与 {getName()} 类似，{getFilterDescription(filters)}，
+            并且他们在手术前在这些方面经历了与 {getName()} 相同的问题程度。
+          </Text>
+        </>
+      )}
+
 
       {barChartData.map((data) => (
         <View key={data.variableQuestion} wrap={false} style={styles.colContainer}>
@@ -212,8 +302,9 @@ const PDFReport: React.FC<PDFReportProps> = ({
                 ]}
               >
                 <Text style={styles.nameBox}>
-                  {patient?.sex ? "Ms." : "Mr."} {patient?.fullname} {"\n"}is
-                  currently here
+                  {patient?.sex ? (currentLang === "en" ? "Ms." : "女士") : (currentLang === "en" ? "Mr." : "先生")} 
+                  {patient?.fullname} {"\n"} 
+                  {currentLang === "en" ? "is currently here" : "目前在这里"}
                 </Text>
                 <Text style={styles.pointer}>={`>`}</Text>
               </View>
@@ -224,10 +315,10 @@ const PDFReport: React.FC<PDFReportProps> = ({
             
             <View style={styles.chartContainer}>
               {data.options.length > 0 && data.options[0].label !== "No data available" ? (
-                <BarChart data={data} />
+                <BarChart data={data} lang={currentLang} />
               ) : (
                 <View style={styles.noDataContainer}>
-                  <Text style={styles.noDataText}>No similar patients were found</Text>
+                  <Text style={styles.noDataText}> {currentLang === "en" ? "No similar patients were found" : "未找到类似的患者"}</Text>
                 </View>
               )}
             </View>

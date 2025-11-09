@@ -3,7 +3,11 @@ import { useAuth } from "../../../hooks/AuthContext";
 import GreenButton from "./GreenButton";
 import { useForm } from "../../../hooks/FormContext";
 
-const LogoutButton: React.FC = () => {
+interface LogoutButtonProps {
+  language?: string; // optional language prop
+}
+
+const LogoutButton: React.FC<LogoutButtonProps> = ({ language }) => {
   const { logout } = useAuth();
   const {clearFormContext} = useForm();
   const navigate = useNavigate();
@@ -12,7 +16,7 @@ const LogoutButton: React.FC = () => {
     logout();
     navigate("login");
   };
-  return <GreenButton buttonText="Logout" onButtonClick={handleLogout} />;
+  return <GreenButton buttonText={language === "en" ? "Logout" : language === "zh" ? "退出" : "Logout"} onButtonClick={handleLogout} />;
 };
 
 export default LogoutButton;

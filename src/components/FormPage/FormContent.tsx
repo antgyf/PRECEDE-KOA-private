@@ -12,9 +12,10 @@ import { PatientForm } from "../../models/patient/patientReport";
 
 interface FormContentProps {
   term?: number; // optional, fallback to context
+  language: string; // current language
 }
 
-const FormContent: React.FC<FormContentProps> = ({ term }) => {
+const FormContent: React.FC<FormContentProps> = ({ term, language }) => {
   const { showAlert } = useAlert();
   const navigate = useNavigate();
   const { setCurrentPatient } = useForm();
@@ -33,7 +34,9 @@ const FormContent: React.FC<FormContentProps> = ({ term }) => {
 
   const fetchPatientForm = async () => {
     setIsLoading(true);
-    showAlert("Loading...", "info");
+    
+    if (language === "en") showAlert("Loading...", "info");
+    else if (language === "zh") showAlert("加载中...", "info");
 
     try {
       const response = await api.get("/patients/form", {
@@ -43,7 +46,8 @@ const FormContent: React.FC<FormContentProps> = ({ term }) => {
       if (response.data.length === 0) {
         setAnswers(Questions.reduce((acc : Record<string, string>, q) => ({ ...acc, [q.code]: "" }), {}));
         setIsDisabled(false);
-        showAlert("No form exists for this term. You can create one.", "info");
+        if (language === "en") showAlert("No form exists for this term. You can create one.", "info");
+        else if (language === "zh") showAlert("此期间不存在表单。您可以创建一个。", "info");
         return;
       }
 
@@ -84,7 +88,8 @@ const FormContent: React.FC<FormContentProps> = ({ term }) => {
       setIsDisabled(true);
     } catch (error) {
       console.error("Error fetching form data:", error);
-      showAlert("Error loading form data.", "error");
+      if (language === "en") showAlert("Error loading form data.", "error");
+      else if (language === "zh") showAlert("加载表单数据时出错。", "error");
     } finally {
       setIsLoading(false);
     }
@@ -112,7 +117,8 @@ const FormContent: React.FC<FormContentProps> = ({ term }) => {
     );
 
     if (unansweredQuestions.length > 0) {
-      showAlert("Please answer all questions before submitting.", "error");
+      if (language === "en") showAlert("Please answer all questions before submitting.", "error");
+      else if (language === "zh") showAlert("请在提交之前回答所有问题。", "error");
       return;
     }
 
@@ -138,8 +144,12 @@ const FormContent: React.FC<FormContentProps> = ({ term }) => {
       setCurrentForm(formData, termToUse);
       setCurrentPatient({ ...patient, hasform: true }); // update hasform status
 
-      showAlert(
+      if (language === "en") showAlert(
         response.data.message || "Form submitted successfully!",
+        "success"
+      );
+      else if (language === "zh") showAlert(
+        response.data.message || "表单提交成功！",
         "success"
       );
       navigate(`/priorities?term=${termToUse}`); // term already in context
@@ -170,15 +180,15 @@ const FormContent: React.FC<FormContentProps> = ({ term }) => {
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           <PatientDetail />
           <article className="font-bold m-0 text-xl"> {/* Add text-xl only to elements that need it */}
-            <h4 className="my-0">Please answer all questions below.</h4>
+            <h4 className="my-0"> {language === "en" ? "Please answer all questions below." : language === "zh" ? "请回答以下所有问题。" : ""}</h4>
           </article>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 text-base">
             {Questions.map((q, index) => (
               <div key={q.id} className="w-full min-w-0 break-words">
                 <RadioChoice
                   name={q.code}
-                  question={`${index + 1}. ${q.question}`}
-                  list={q.list}
+                  question={`${index + 1}. ${language === "en" ? q.question : q.chineseDescription}`}
+                  list={language === "en" ? q.list : q.chList}
                   onChange={(value) => handleRadioInput(q.code, value)}
                   value={answers[q.code]}
                   disabled={isDisabled}
@@ -187,7 +197,7 @@ const FormContent: React.FC<FormContentProps> = ({ term }) => {
             ))}
           </div>
           <div className="flex justify-end mt-6">
-            {!isDisabled && <GreenButton buttonText="Submit" />}
+            {!isDisabled && <GreenButton buttonText= {language === "en" ? "Submit" : language === "zh" ? "提交" : ""} />}
           </div>
         </form>
       )}

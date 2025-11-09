@@ -37,9 +37,10 @@ interface Description {
 
 interface BeforeSurgeryProps {
   activeTab: "summary" | "before" | "after";
+  currentLang: string;
 }
 
-const BeforeSurgery: React.FC<BeforeSurgeryProps> = ({ activeTab }) => {
+const BeforeSurgery: React.FC<BeforeSurgeryProps> = ({ activeTab, currentLang }) => {
   const { form, patient } = useForm();
   const { alert, showAlert } = useAlert();
 
@@ -244,7 +245,7 @@ const renderHumanIcons = () => {
       <article className="prose mb-5 max-w-none">
         <h3>Comparison with Similar Patients before Surgery</h3>
         <ul>
-          <li>{getRankDescription()}</li>
+          <li>{getRankDescription(currentLang)}</li>
           <li>
             Select an area to compare the levels of problems between{" "}
             <strong style={{ color: "#1976D2" }}>

@@ -18,9 +18,10 @@ import Alert from "../../UI/Alert";
 
 interface ReportPageProps {
   activeTab: "summary" | "before" | "after";
+  currentLang: string;
 }
 
-const ReportPage: React.FC<ReportPageProps> = ({ activeTab }) => {
+const ReportPage: React.FC<ReportPageProps> = ({ activeTab, currentLang }) => {
   const { form, patient } = useForm();
   const [filters, setFilters] = useState<FilterType>({
     categories: ["Age Range", "BMI Range"],
@@ -36,12 +37,14 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab }) => {
 
   if (!form) {
     return (
-      <>Something went wrong with retrieving patient data. Please try again.</>
+      <>{currentLang === "en" ? "Something went wrong with retrieving patient data. Please try again." : 
+        currentLang === "zh" ? "获取患者数据时出错。请再试一次。" : "Something went wrong with retrieving patient data. Please try again."}</>
     );
   }
 
   if (!form.priorities || form.priorities.length === 0) {
-    return <>No priorities selected. Please go back to the previous page.</>;
+    return <>{currentLang === "en" ? "No priorities selected. Please go back to the previous page." : 
+      currentLang === "zh" ? "未选择优先事项。请返回上一页。" : "No priorities selected. Please go back to the previous page."}</>;
   }
 
   const variables: number[] = form.priorities;
@@ -98,7 +101,9 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab }) => {
         };
       }
 
-      const title = `Responses of ${data.totalRows} patient(s) similar to ${
+      const title = currentLang === "en" ? `Responses of ${data.totalRows} patient(s) similar to ${
+        patient?.sex ? "Ms." : "Mr."
+      } ${patient?.fullname}` : currentLang === "zh" ? `与${patient?.sex ? "女士" : "先生"} ${patient?.fullname} 相似的 ${data.totalRows} 名患者的回答` : `Responses of ${data.totalRows} patient(s) similar to ${
         patient?.sex ? "Ms." : "Mr."
       } ${patient?.fullname}`;
 
@@ -112,8 +117,9 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab }) => {
         const percentage = total > 0 ? ((count / total) * 100).toFixed(0) : "0";
         
         return {
-          label: `${Questions.find((q) => q.id === data.questionid)?.list?.[Number(v.option)] || v.option}`,
-          percentageText: `${count} of ${total} (${percentage}%)`,
+          label: currentLang === "en" ? `${Questions.find((q) => q.id === data.questionid)?.list?.[Number(v.option)] || v.option}` 
+          : currentLang === "zh" ? `${Questions.find((q) => q.id === data.questionid)?.chList?.[Number(v.option)] || v.option}` : `${Questions.find((q) => q.id === data.questionid)?.list?.[Number(v.option)] || v.option}`,
+          percentageText: currentLang === "en" ? `${count} of ${total} (${percentage}%)` : currentLang === "zh" ? `${count} / ${total} (${percentage}%)` : `${count} of ${total} (${percentage}%)`,
           percent: Number(percentage),
         };
       });
@@ -122,7 +128,8 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab }) => {
         title,
         options: labelsAndPercentages,
         questionid: data.questionid,
-        variableQuestion: Questions.find((q) => q.id === data.questionid)?.description,
+        variableQuestion: currentLang === "en" ? Questions.find((q) => q.id === data.questionid)?.description 
+        : currentLang === "zh" ? Questions.find((q) => q.id === data.questionid)?.chineseDescription : Questions.find((q) => q.id === data.questionid)?.description,
         initial: form?.responses.find((r) => r.questionid === key)?.answervalue ?? -1,
       };
     });
@@ -148,7 +155,8 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab }) => {
       try {
         const options = Object.keys(item.list).map(Number);
 
-        showAlert("Loading...", "info");
+        
+        showAlert(currentLang === "en" ? "Loading..." : currentLang === "zh" ? "加载中..." : "Loading...", "info");
         
         if (filters.surgeonid && !filters.categories.includes("Surgeon ID")) {
           filters.categories = [...filters.categories, "Surgeon ID"];
@@ -176,7 +184,8 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab }) => {
         );
         //console.log("filters used:", filters);
         
-        showAlert("Successfully loaded patient", "success");
+        showAlert(currentLang === "en" ? "Successfully loaded patient" : 
+          currentLang === "zh" ? "成功加载患者" : "Successfully loaded patient", "success");
 
         if (response.data.message === "No baseline patients found for the given filters.") {
           response.data = {
@@ -222,14 +231,14 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab }) => {
         }));
 
       } catch (error) {
-        console.error(`Failed to fetch data for question ${item.id}:`, error);
-        showAlert("Failed to fetch data. Please try again.", "error");
+        showAlert(currentLang === "en" ? "Failed to fetch data. Please try again." : 
+          currentLang === "zh" ? "获取数据失败。请再试一次。" : "Failed to fetch data. Please try again.", "error");
       }
     };
 
     Promise.all(questionsWithOptions.map(fetchDataForVariable))
       .finally(() => setIsLoading(false));
-  }, [filters]);
+  }, [filters, currentLang]);
   
   const handleFilterChange = (selectedFilters: FilterType) => {
     setFilters(selectedFilters);
@@ -241,13 +250,15 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab }) => {
       <div className="flex flex-col w-full justify-start mb-1">
         <article className="prose mb-1 max-w-none">
           <h3>
-            Self-reported Functions of Similar Patients 6 Months after Surgery
+            {currentLang === "en" ? "Self-reported Functions of Similar Patients 6 Months after Surgery" : 
+            currentLang === "zh" ? "手术后6个月类似患者的自我报告功能" : "Self-reported Functions of Similar Patients 6 Months after Surgery"}
           </h3>
           <ul>
-            <li>{getRankDescription()}</li>
+            <li>{getRankDescription(currentLang)}</li>
             <li>
-              Use the filters below to redefine similar patients based on their
-              characteristics before surgery
+              {currentLang === "en" ? "Use the filters below to redefine similar patients based on their characteristics before surgery" : 
+              currentLang === "zh" ? "使用以下筛选器根据手术前的特征重新定义类似患者" 
+              : "Use the filters below to redefine similar patients based on their characteristics before surgery"}
             </li>
           </ul>
         </article>
@@ -268,6 +279,7 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab }) => {
           radarImage={radarImage}
           barChartData={barChartData}
           renderRadar={false} 
+          currentLang={currentLang}
         />
       )}
     </div>

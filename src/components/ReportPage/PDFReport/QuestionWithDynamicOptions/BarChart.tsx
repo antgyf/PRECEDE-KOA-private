@@ -15,12 +15,27 @@ Font.register({
   ],
 });
 
-const styles = StyleSheet.create({
+Font.register({
+  family: "NotoSansSC",
+  src: "../../../../public/fonts/NotoSansSC-Regular.ttf",
+});
+
+const getFontFamily = (lan: string) => {
+  switch (lan) {
+    case "zh":
+      return "NotoSansSC";
+    default:
+      return "Inter";
+  }
+};
+
+const creatStyles = (lang: string) =>
+  StyleSheet.create({
   title: {
     fontSize: 10,
     fontWeight: "bold",
     marginBottom: 2,
-    fontFamily: "Inter",
+    fontFamily: getFontFamily(lang),
     paddingLeft: 75,
   },
   rowContainer: {
@@ -34,6 +49,7 @@ const styles = StyleSheet.create({
     textAlign: "right",
     marginRight: 5,
     marginLeft: 5,
+    fontFamily: getFontFamily(lang),
   },
   barContainer: {
     flexDirection: "row",
@@ -52,14 +68,18 @@ const styles = StyleSheet.create({
     fontSize: 9,
     width: 90,
     marginLeft: 3,
+    fontFamily: getFontFamily(lang),
   },
 });
 
 interface BarChartProps {
   data: BarChartData;
+  lang: string;
 }
 
-const BarChart: React.FC<BarChartProps> = ({ data }) => {
+const BarChart: React.FC<BarChartProps> = ({ data, lang }) => {
+  const styles = creatStyles(lang);
+
   return (
     <View>
       <Text style={styles.title}>{data.title}</Text>
