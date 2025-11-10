@@ -25,10 +25,10 @@ Font.register({
   family: "NotoSansSC",
   fonts: [
     {
-      src: "../../../../public/fonts/NotoSansSC-Regular.ttf",
+      src: "/fonts/NotoSansSC-Regular.ttf",
     },
     {
-      src: "../../../../public/fonts/NotoSansSC-Bold.ttf",
+      src: "/fonts/NotoSansSC-Bold.ttf",
       fontWeight: "bold",
     },
   ],

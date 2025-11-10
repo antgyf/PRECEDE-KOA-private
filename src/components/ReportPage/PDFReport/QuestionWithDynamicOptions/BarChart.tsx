@@ -17,7 +17,7 @@ Font.register({
 
 Font.register({
   family: "NotoSansSC",
-  src: "../../../../public/fonts/NotoSansSC-Regular.ttf",
+  src: "/fonts/NotoSansSC-Regular.ttf",
 });
 
 const getFontFamily = (lan: string) => {
