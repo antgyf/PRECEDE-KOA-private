@@ -52,7 +52,7 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) =
   const [isLoading, setIsLoading] = useState(false);
   const [selectedTerm, setSelectedTerm] = useState<number>(1);
   const [filters, setFilters] = useState<FilterType>({
-    categories: [],
+    categories: ["Age Range", "BMI Range"],
     age: { range: 5 },
     bmi: { range: 5 },
   });
@@ -72,7 +72,8 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) =
 
     const fetchData = async () => {
       setIsLoading(true);
-      showAlert("Fetching data...", "info");
+      
+      showAlert(currentLang === "en" ? "Fetching data..." : currentLang === "zh" ? "正在获取数据..." : "Fetching data...", "info");
       try {
         const options = Object.entries(question?.list).map(([key]) =>
           parseInt(key, 10)
@@ -101,7 +102,8 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) =
             )?.answervalue,
           }
         );
-        showAlert("Successfuly fetched patient data", "success");
+        
+        showAlert(currentLang === "en" ? "Successfully fetched patient data" : currentLang === "zh" ? "成功获取患者数据" : "Successfully fetched patient data", "success");
 
         const newAfterData = {
           totalRows: +response.data.totalRows,
@@ -115,14 +117,14 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) =
         }, 0);
       } catch (error) {
         console.error("Error fetching data:", error);
-        showAlert("Failed to fetch data. Please try again.", "error");
+        showAlert(currentLang === "en" ? "Failed to fetch data. Please try again." : currentLang === "zh" ? "获取数据失败。请再试一次。" : "Failed to fetch data. Please try again.", "error");
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchData();
-  }, [question, filters, selectedTerm]);
+  }, [question, filters, selectedTerm, currentLang]);
 
   // Process data after `afterData` is updated
   useEffect(() => {
@@ -131,7 +133,7 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) =
     const processGraphData = (): GraphData => {
       if (!afterData || !afterData.data || !question || !question.list) {
         showAlert(
-          "Something went wrong with retrieving the data. Please try again.",
+          currentLang === "en" ? "Something went wrong with retrieving the data. Please try again." : currentLang === "zh" ? "检索数据时出错。请再试一次。" : "Something went wrong with retrieving the data. Please try again.",
           "error"
         );
         return [];
@@ -151,10 +153,10 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) =
           },
         ],
         ...afterData.data.map((item): [string, number, string, string] => [
-          `${question.list[item.option]} `,
+          `${currentLang === "en" ? question.list[item.option] : currentLang === "zh" ? question.chList[item.option] : question.list[item.option]} `,
           +item.count,
           gradientColors[item.option % gradientColors.length],
-          `${String(item.percentage)}%(${item.count})`,
+          `${item.count} (${String(item.percentage)}%)`,
         ]),
       ];
     };
@@ -165,7 +167,7 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) =
       }
 
       return afterData.data.map((item, index) => ({
-        description: `${question.list[item.option]}`,
+        description: `${currentLang === "en" ? question.list[item.option] : currentLang === "zh" ? question.chList[item.option] : question.list[item.option]}`,
         color: gradientColors[index % gradientColors.length],
       }));
     };
@@ -180,7 +182,7 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) =
   };
 
   if (!form || !patient) {
-    return <div>No patient form found.</div>;
+    return <div>{currentLang === "en" ? "No patient form found." : currentLang === "zh" ? "未找到患者表单。" : "No patient form found."}</div>;
   }
   const renderHumanIcons = () => {
     if (!afterData || !afterData.data || !question) return null;
@@ -192,7 +194,7 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) =
           {index == Number(form.responses.find((r) => r.questionid === question.id)?.answervalue) ? (
             <div className="flex items-center">
               <div className="bg-white rounded-md px-3 py-2 shadow-md">
-                {getName()} is currently here
+                {getName()} {currentLang === "en" ? "is currently here" : currentLang === "zh" ? "当前在这里" : "is currently here"}
               </div>
               <div className="text-4xl ml-2">👉</div>
             </div>
@@ -210,10 +212,10 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) =
                 color: gradientColors[index % gradientColors.length],
               }}
             >
-              {question.list[item.option]}
+              {currentLang === "en" ? question.list[item.option] : currentLang === "zh" ? question.chList[item.option] : question.list[item.option]}
             </div>
             <div>
-              {String(item.percentage)}% ({item.count})
+              {item.count} ({String(item.percentage)}%)
             </div>
           </div>
 
@@ -244,12 +246,11 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) =
         {alert.message && <Alert />}
         {/* Information Section */}
         <article className="prose mb-5 max-w-none">
-          <h3>Self-reported Functions of Similar Patients after Surgery</h3>
+          <h3>{currentLang === "en" ? "Self-reported Functions of Similar Patients after Surgery" : currentLang === "zh" ? "术后类似患者的自我报告功能" : "Self-reported Functions of Similar Patients after Surgery"}</h3>
           <ul>
             <li>{getRankDescription(currentLang)}</li>
             <li>
-              Select an area you wish to know how similar patients functioned
-              after surgery
+              {currentLang === "en" ? "Select an area you wish to know how similar patients functioned after surgery" : currentLang === "zh" ? "选择您希望了解术后类似患者功能的区域" : "Select an area you wish to know how similar patients functioned after surgery"}
               <SelectVariable
                 value={question?.code || ""}
                 onChange={(e) => {
@@ -257,12 +258,13 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) =
                   const foundQuestion = Questions.find(q => q.code === selectedCode);
                   if (foundQuestion) setQuestion(foundQuestion);
                 }}
+                currentLang={currentLang}
           />
             </li>
             <li>
               <div className="flex flex-col sm:flex-row sm:items-center">
                 <span className="whitespace-nowrap">
-                  Select the post-surgery time point:
+                  {currentLang === "en" ? "Select the post-surgery time point:" : currentLang === "zh" ? "选择术后时间点：" : "Select the post-surgery time point:"}
                 </span>
 
                 <form className="flex flex-wrap ml-2 gap-3 mt-2 items-center">
@@ -290,14 +292,13 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) =
                   </div>
 
                   {/* Text remains in a single line */}
-                  <span className="whitespace-nowrap">months</span>
+                  <span className="whitespace-nowrap">{currentLang === "en" ? "months" : currentLang === "zh" ? "个月" : "months"}</span>
                 </form>
               </div>
             </li>
 
             <li>
-              Use the filters below to redefine similar patients based on their
-              characteristics before surgery
+              {currentLang === "en" ? "Use the filters below to redefine similar patients based on their characteristics before surgery" : currentLang === "zh" ? "使用以下筛选器根据术前特征重新定义类似患者" : "Use the filters below to redefine similar patients based on their characteristics before surgery"}
             </li>
           </ul>
         </article>
@@ -322,18 +323,16 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) =
               <div className="w-full">
                 <article className="prose max-w-none">
                   <p>
-                    Below are what past patients reported{" "}
+                    {currentLang === "en" ? "Below are what past patients reported" : currentLang === "zh" ? "以下是过去患者报告的情况" : "Below are what past patients reported"}{" "}
                     <strong style={{ color: "#1976D2" }}>{termToMonths(selectedTerm)}</strong>{" "}
-                    months after surgery. Those patients are similar to{" "}
+                    {currentLang === "en" ? "months after surgery. Those patients are similar to" : currentLang === "zh" ? "个月后的手术。这些患者与" : "months after surgery. Those patients are similar to"}{" "}
                     {getName()}
-                    {getFilterDescription(filters, patient, currentLang)}, and they
-                    experienced the same level of problem as {getName()} before
-                    surgery.
+                    {getFilterDescription(filters, patient, currentLang)}, {currentLang === "en" ? "and they experienced the same level of problem as" : currentLang === "zh" ? "并且他们经历了与...相同水平的问题" : "and they experienced the same level of problem as"} {getName()} {currentLang === "en" ? "before surgery." : currentLang === "zh" ? "手术前。" : "before surgery."}
                   </p>
-                  <h3>{question.question}</h3>
+                  <h3>{currentLang === "en" ? question.question : currentLang === "zh" ? question.chineseDescription : question.question}</h3>
                   <h4>
-                    Responses of {afterData?.totalRows} patients similar to{" "}
-                    {getName()} {termToMonths(selectedTerm)} months after surgery
+                    {currentLang === "en" ? "Responses of" : currentLang === "zh" ? "类似患者的回答" : "Responses of"} {afterData?.totalRows} {currentLang === "en" ? "patients similar to" : currentLang === "zh" ? "患者与" : "patients similar to"}{" "}
+                    {getName()} {termToMonths(selectedTerm)} {currentLang === "en" ? "months after surgery" : currentLang === "zh" ? "个月后的手术" : "months after surgery"}
                   </h4>
                 </article>
 

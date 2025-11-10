@@ -68,7 +68,8 @@ const BeforeSurgery: React.FC<BeforeSurgeryProps> = ({ activeTab, currentLang })
 
     const fetchData = async () => {
       setIsLoading(true);
-      showAlert("Fetching data...", "info");
+      currentLang === "en" ? showAlert("Fetching data...", "info") : currentLang === "zh" ?
+      showAlert("正在获取数据...", "info") : showAlert("Fetching data...", "info");
 
       try {
         const options = Object.entries(question.list);
@@ -92,7 +93,8 @@ const BeforeSurgery: React.FC<BeforeSurgeryProps> = ({ activeTab, currentLang })
           }
         );
 
-        showAlert("Successfully fetched patient data", "success");
+        currentLang === "en" ? showAlert("Successfully fetched patient data", "success") : currentLang === "zh" ?
+        showAlert("成功获取患者数据", "success") : showAlert("Successfully fetched patient data", "success");
 
         setBeforeData({
           totalRows: +response.data.totalRows,
@@ -106,14 +108,15 @@ const BeforeSurgery: React.FC<BeforeSurgeryProps> = ({ activeTab, currentLang })
         });
       } catch (error) {
         console.error("Error fetching data:", error);
-        showAlert("Failed to load data. Please try again.", "error");
+        currentLang === "en" ? showAlert("Failed to load data. Please try again.", "error") : currentLang === "zh" ?
+        showAlert("加载数据失败。请再试一次。", "error") : showAlert("Failed to load data. Please try again.", "error");
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchData();
-  }, [question, filters]);
+  }, [question, filters, currentLang]);
 
   // Process data for chart and descriptions
   useEffect(() => {
@@ -139,7 +142,7 @@ const BeforeSurgery: React.FC<BeforeSurgeryProps> = ({ activeTab, currentLang })
           },
         ],
         ...beforeData.data.map((item): [string, number, string, string] => [
-          `${question.list[item.option]} \n (${item.count})`,
+          `${currentLang === "en" ? question.list[item.option] : currentLang === "zh" ? question.chList[item.option] : question.list[item.option]} \n (${item.count})`,
           +item.count,
           gradientColors[item.option % gradientColors.length],
           `${String(item.percentage)}%`,
@@ -153,14 +156,14 @@ const BeforeSurgery: React.FC<BeforeSurgeryProps> = ({ activeTab, currentLang })
       }
 
       return beforeData.data.map((item, index) => ({
-        description: `${question.list[item.option]}`,
+        description: currentLang === "en" ? `${question.list[item.option]}` : currentLang === "zh" ? `${question.chList[item.option]}` : `${question.list[item.option]}`,
         color: gradientColors[index % gradientColors.length],
       }));
     };
 
     setGraphData(processGraphData());
     setDescriptionList(processDescriptionList());
-  }, [beforeData, question]);
+  }, [beforeData, question, currentLang]);
 
   if (!form || !patient) {
     return <div>No patient form found.</div>;
@@ -191,7 +194,7 @@ const renderHumanIcons = () => {
           {isPatientHere ? (
             <div className="flex items-center">
               <div className="bg-white rounded-md px-3 py-2 shadow-md">
-                {getName()} is currently here
+                {getName()} {currentLang === "en" ? "is currently here" : currentLang === "zh" ? "当前在这里" : "is currently here"}
               </div>
               <div className="text-4xl ml-2">👉</div>
             </div>
@@ -209,10 +212,10 @@ const renderHumanIcons = () => {
                 color: gradientColors[index % gradientColors.length],
               }}
             >
-              {question.list[item.option]}
+              {currentLang === "en" ? question.list[item.option] : currentLang === "zh" ? question.chList[item.option] : question.list[item.option]}
             </div>
             <div className="font-semibold">
-              {String(item.percentage)}% ({item.count})
+              {item.count} ({String(item.percentage)}%)
             </div>
           </div>
 
@@ -243,17 +246,17 @@ const renderHumanIcons = () => {
 
       {/* Information Section */}
       <article className="prose mb-5 max-w-none">
-        <h3>Comparison with Similar Patients before Surgery</h3>
+        <h3>{currentLang === "en" ? "Comparison with Similar Patients before Surgery" : currentLang === "zh" ? "与类似患者手术前的比较" : "Comparison with Similar Patients before Surgery"}</h3>
         <ul>
           <li>{getRankDescription(currentLang)}</li>
           <li>
-            Select an area to compare the levels of problems between{" "}
+           {currentLang === "en" ? "Select an area to compare the levels of problems between" : currentLang === "zh" ? "选择一个区域比较" : "Select an area to compare the levels of problems between"}{" "}
             <strong style={{ color: "#1976D2" }}>
               {" "}
               {/* Blue text */}
-              {patient?.sex ? "Ms." : "Mr."} {patient?.fullname}
+              {patient?.sex ? (currentLang === "en" ? "Ms." : currentLang === "zh" ? "女士" : "Ms.") : (currentLang === "en" ? "Mr." : currentLang === "zh" ? "先生" : "Mr.")} {patient?.fullname}
             </strong>{" "}
-            and similar patients before surgery
+            {currentLang === "en" ? "and similar patients before surgery" : currentLang === "zh" ? "和类似患者在手术前" : "and similar patients before surgery"}
           </li>
           {/* Variable Selection */}
           <SelectVariable
@@ -263,10 +266,10 @@ const renderHumanIcons = () => {
               const foundQuestion = Questions.find(q => q.code === selectedCode);
               if (foundQuestion) setQuestion(foundQuestion);
             }}
+            currentLang={currentLang}
           />
           <li>
-            Use the filters below to redefine similar patients based on their
-            characteristics before surgery
+            {currentLang === "en" ? "Use the filters below to redefine similar patients based on their characteristics before surgery" : currentLang === "zh" ? "使用以下筛选器根据手术前的特征重新定义类似患者" : "Use the filters below to redefine similar patients based on their characteristics before surgery"}
           </li>
         </ul>
       </article>
@@ -290,13 +293,12 @@ const renderHumanIcons = () => {
             <div className="w-full">
               <article className="prose max-w-none">
                 <p>
-                  Below are what past patients reported before surgery. Those
-                  patients are similar to {getName()}
+                  {currentLang === "en" ? "Below are what past patients reported before surgery. Those patients are similar to" : currentLang === "zh" ? "下面是过去的患者在手术前报告的情况。这些患者与" : "Below are what past patients reported before surgery. Those patients are similar to"} {getName()}
                   {getFilterDescription(filters, patient, currentLang)}.
                 </p>
-                <h3>{question.question}</h3>
+                <h3>{currentLang === "en" ? question.question : currentLang === "zh" ? question.chineseDescription : question.question}</h3>
                 <h4>
-                  Responses of {beforeData?.totalRows} patients similar to{" "}
+                  {currentLang === "en" ? "Responses of" : currentLang === "zh" ? "类似患者的回答" : "Responses of"} {beforeData?.totalRows} {currentLang === "en" ? "patients similar to" : currentLang === "zh" ? "患者类似于" : "patients similar to"}{" "}
                   {getName()}
                 </h4>
               </article>

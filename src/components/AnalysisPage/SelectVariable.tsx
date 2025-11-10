@@ -4,11 +4,12 @@ import { Questions } from "../../models/patient/patientDetails";
 interface SelectVariableProps {
   value: string | "";
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  currentLang: string;
 }
-const SelectVariable: React.FC<SelectVariableProps> = ({ value, onChange }) => {
+const SelectVariable: React.FC<SelectVariableProps> = ({ value, onChange, currentLang }) => {
   return (
     <article className="prose mb-5 flex flex-row items-center gap-3">
-      <h3 className="font-semibold">Select area:</h3>
+      <h3 className="font-semibold">{currentLang === "en" ? "Select area:" : currentLang === "zh" ? "选择区域：" : "Select area:"}</h3>
 
       <select
         className="select select-bordered w-full max-w-xs"
@@ -16,11 +17,11 @@ const SelectVariable: React.FC<SelectVariableProps> = ({ value, onChange }) => {
         onChange={onChange}
       >
         <option disabled value="">
-          Select area
+          {currentLang === "en" ? "Select area" : currentLang === "zh" ? "选择区域" : "Select area"}
         </option>
         {Questions.map((val) => (
           <option key={val.code} value={val.code}>
-            {val.question}
+            {currentLang === "en" ? val.question : currentLang === "zh" ? val.chineseDescription : val.question}
           </option>
         ))}
       </select>
