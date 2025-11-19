@@ -101,11 +101,16 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab, currentLang }) => {
         };
       }
 
-      const title = currentLang === "en" ? `Responses of ${data.totalRows} patient(s) similar to ${
-        patient?.sex ? "Ms." : "Mr."
-      } ${patient?.fullname}` : currentLang === "zh" ? `与${patient?.sex ? "女士" : "先生"} ${patient?.fullname} 相似的 ${data.totalRows} 名患者的回答` : `Responses of ${data.totalRows} patient(s) similar to ${
-        patient?.sex ? "Ms." : "Mr."
-      } ${patient?.fullname}`;
+      const title =
+        currentLang === "en"
+          ? `Responses of ${data.totalRows} patient(s) similar to ${
+              patient?.sex ? `Ms. ${patient?.fullname}` : `Mr. ${patient?.fullname}`
+            }`
+          : currentLang === "zh"
+          ? `与 ${patient?.fullname}${patient?.sex ? "女士" : "先生"} 相似的 ${data.totalRows} 名患者的回答`
+          : `Responses of ${data.totalRows} patient(s) similar to ${
+              patient?.sex ? `Ms. ${patient?.fullname}` : `Mr. ${patient?.fullname}`
+            }`;
 
       // Clone data array for manipulation
       let chartData = data.data.map(item => ({ ...item }));

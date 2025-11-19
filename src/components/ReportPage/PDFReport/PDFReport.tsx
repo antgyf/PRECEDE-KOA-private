@@ -135,12 +135,24 @@ const PDFReport: React.FC<PDFReportProps> = ({
   const styles = createStyles(currentLang);
   const numPriorities = barChartData.length;
 
-  const getName = () => (
-    <Text style={styles.boldText}>
-      {patient?.sex ? (currentLang === "en" ? "Ms." : currentLang === "zh" ? "女士" : "Ms.") 
-      : (currentLang === "en" ? "Mr." : currentLang === "zh" ? "先生" : "Mr.")} {patient?.fullname}
-    </Text>
-  );
+  const getName = () => {
+    if (currentLang === "en") {
+      return (
+        <strong style={{ color: "#1976D2" }}>
+          {" "}
+          {patient?.sex ? "Ms." : "Mr."} {patient?.fullname}
+        </strong>
+      );
+    } else if (currentLang === "zh") {
+      return (
+        <strong style={{ color: "#1976D2" }}>
+          {" "}
+          {patient?.fullname} {patient?.sex ? "女士" : "先生"}
+        </strong>
+      );
+    }
+  };
+
 
   const getFilterDescription = (filters: FilterType) => {
     if (!patient) return;
@@ -309,8 +321,22 @@ const PDFReport: React.FC<PDFReportProps> = ({
                 ]}
               >
                 <Text style={styles.nameBox}>
-                  {patient?.sex ? (currentLang === "en" ? "Ms." : "女士") : (currentLang === "en" ? "Mr." : "先生")} 
-                  {patient?.fullname} {"\n"} 
+                  {
+                  currentLang === "en" ? (
+                    <>
+                      {patient?.sex ? "Ms." : "Mr."} {patient?.fullname}
+                    </>
+                  ) : currentLang === "zh" ? (
+                    <>
+                      {patient?.fullname}
+                      {patient?.sex ? "女士" : "先生"}
+                    </>
+                  ) : (
+                    <>
+                      {patient?.sex ? "Ms." : "Mr."} {patient?.fullname}
+                    </>
+                  )
+                } {"\n"} 
                   {currentLang === "en" ? "is currently here" : "目前在这里"}
                 </Text>
                 <Text style={styles.pointer}>={`>`}</Text>

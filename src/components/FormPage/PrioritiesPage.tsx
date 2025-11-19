@@ -9,16 +9,21 @@ import PrioritiesContent from "./PriorityContent";
 import { useForm } from "../../hooks/FormContext";
 import LanguageDropdown from "../UI/Button/LanguageDropdown";
 
+
 const PrioritiesPage: React.FC = () => {
   const { alert } = useAlert();
   const { form } = useForm();
-  const [currentLang, setCurrentLang] = useState<string>("en"); // State for current language
 
-  // Get term from query params
+  // Read search params
   const { search } = useLocation();
   const query = new URLSearchParams(search);
-  const term = Number(query.get("term"));
 
+  // Extract values
+  const term = Number(query.get("term"));
+  const urlLang = query.get("lang"); // <-- read language
+
+  // Initialize language based on URL (fallback to "en")
+  const [currentLang, setCurrentLang] = useState<string>(urlLang ?? "en");
 
   if (isNaN(term)) {
     return <div>Error: No term specified</div>;
@@ -31,7 +36,10 @@ const PrioritiesPage: React.FC = () => {
         {alert.message && <Alert />}
 
         <div className="flex items-center">
-          <BackButton target={currentLang === "en" ? "Form Page" : currentLang === "zh" ? "表格页" : ""} to="/form" />
+          <BackButton
+            target={currentLang === "en" ? "Form Page" : currentLang === "zh" ? "表格页" : ""}
+            to={`/form?lang=${currentLang}`} // keep lang across navigation
+          />
         </div>
 
         <div className="flex-1 flex justify-center">
@@ -39,20 +47,19 @@ const PrioritiesPage: React.FC = () => {
         </div>
 
         <div className="flex flex-row gap-4 items-center">
-          { form?.priorities && form?.priorities.length > 0 && (
-            <ForwardButton target={currentLang === "en" ? "Analysis Page" : currentLang === "zh" ? "分析页" : ""} to="/analysis" />
+          {form?.priorities && form?.priorities.length > 0 && (
+            <ForwardButton
+              target={currentLang === "en" ? "Analysis Page" : currentLang === "zh" ? "分析页" : ""}
+              to={`/analysis?lang=${currentLang}`}
+            />
           )}
           <LogoutButton language={currentLang} />
         </div>
       </div>
 
-      {/* Main content shifted down by banner height */}
+      {/* Main content */}
       <div className="flex-1 w-full max-w-7xl px-4 mt-24 overflow-y-auto">
-        <PrioritiesContent
-          key={term}
-          term={term}
-          language={currentLang}
-        />
+        <PrioritiesContent key={term} term={term} language={currentLang} />
       </div>
     </div>
   );

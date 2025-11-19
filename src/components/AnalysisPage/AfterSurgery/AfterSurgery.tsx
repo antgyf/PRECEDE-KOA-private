@@ -194,7 +194,7 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) =
           {index == Number(form.responses.find((r) => r.questionid === question.id)?.answervalue) ? (
             <div className="flex items-center">
               <div className="bg-white rounded-md px-3 py-2 shadow-md">
-                {getName()} {currentLang === "en" ? "is currently here" : currentLang === "zh" ? "当前在这里" : "is currently here"}
+                {getName(currentLang)} {currentLang === "en" ? "is currently here" : currentLang === "zh" ? "当前在这里" : "is currently here"}
               </div>
               <div className="text-4xl ml-2">👉</div>
             </div>
@@ -326,13 +326,13 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) =
                     {currentLang === "en" ? "Below are what past patients reported" : currentLang === "zh" ? "以下是过去患者报告的情况" : "Below are what past patients reported"}{" "}
                     <strong style={{ color: "#1976D2" }}>{termToMonths(selectedTerm)}</strong>{" "}
                     {currentLang === "en" ? "months after surgery. Those patients are similar to" : currentLang === "zh" ? "个月后的手术。这些患者与" : "months after surgery. Those patients are similar to"}{" "}
-                    {getName()}
-                    {getFilterDescription(filters, patient, currentLang)}, {currentLang === "en" ? "and they experienced the same level of problem as" : currentLang === "zh" ? "并且他们经历了与...相同水平的问题" : "and they experienced the same level of problem as"} {getName()} {currentLang === "en" ? "before surgery." : currentLang === "zh" ? "手术前。" : "before surgery."}
+                    {getName(currentLang)}
+                    {getFilterDescription(filters, patient, currentLang)}, {currentLang === "en" ? "and they experienced the same level of problem as" : currentLang === "zh" ? "并且他们经历了与...相同水平的问题" : "and they experienced the same level of problem as"} {getName(currentLang)} {currentLang === "en" ? "before surgery." : currentLang === "zh" ? "手术前。" : "before surgery."}
                   </p>
                   <h3>{currentLang === "en" ? question.question : currentLang === "zh" ? question.chineseDescription : question.question}</h3>
                   <h4>
                     {currentLang === "en" ? "Responses of" : currentLang === "zh" ? "类似患者的回答" : "Responses of"} {afterData?.totalRows} {currentLang === "en" ? "patients similar to" : currentLang === "zh" ? "患者与" : "patients similar to"}{" "}
-                    {getName()} {termToMonths(selectedTerm)} {currentLang === "en" ? "months after surgery" : currentLang === "zh" ? "个月后的手术" : "months after surgery"}
+                    {getName(currentLang)} {termToMonths(selectedTerm)} {currentLang === "en" ? "months after surgery" : currentLang === "zh" ? "个月后的手术" : "months after surgery"}
                   </h4>
                 </article>
 

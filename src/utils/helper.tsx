@@ -62,7 +62,7 @@ export const getRankDescription = (lan: string) => {
         {priorityQuestions?.length || 0} 个{" "}
         <strong style={{ color: "#1976D2" }}>
           {" "}
-          {patient?.sex ? "女士" : "先生"} {patient?.fullname}
+          {patient?.fullname} {patient?.sex ? "女士" : "先生"}
         </strong>{" "}
         希望看到改善的主要领域是：
         <ul className="leading-tight">
@@ -75,14 +75,23 @@ export const getRankDescription = (lan: string) => {
   }
 };
 
-export const getName = () => {
+export const getName = (language: string) => {
   const { patient } = useForm();
-  return (
+  if (language === "en") {
+    return (
     <strong style={{ color: "#1976D2" }}>
       {" "}
       {patient?.sex ? "Ms." : "Mr."} {patient?.fullname}
     </strong>
   );
+} else if (language === "zh") {
+    return (
+      <strong style={{ color: "#1976D2" }}>
+        {" "}
+        {patient?.fullname} {patient?.sex ? "女士" : "先生"}
+      </strong>
+    );
+  }
 };
 
 export const getFilterDescription = (filters: FilterType, patient: Patient, lan: string) => {

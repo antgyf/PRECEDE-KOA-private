@@ -194,7 +194,7 @@ const renderHumanIcons = () => {
           {isPatientHere ? (
             <div className="flex items-center">
               <div className="bg-white rounded-md px-3 py-2 shadow-md">
-                {getName()} {currentLang === "en" ? "is currently here" : currentLang === "zh" ? "当前在这里" : "is currently here"}
+                {getName(currentLang)} {currentLang === "en" ? "is currently here" : currentLang === "zh" ? "当前在这里" : "is currently here"}
               </div>
               <div className="text-4xl ml-2">👉</div>
             </div>
@@ -254,8 +254,23 @@ const renderHumanIcons = () => {
             <strong style={{ color: "#1976D2" }}>
               {" "}
               {/* Blue text */}
-              {patient?.sex ? (currentLang === "en" ? "Ms." : currentLang === "zh" ? "女士" : "Ms.") : (currentLang === "en" ? "Mr." : currentLang === "zh" ? "先生" : "Mr.")} {patient?.fullname}
-            </strong>{" "}
+                {
+                  currentLang === "en" ? (
+                    <>
+                      {patient?.sex ? "Ms." : "Mr."} {patient?.fullname}
+                    </>
+                  ) : currentLang === "zh" ? (
+                    <>
+                      {patient?.fullname}
+                      {patient?.sex ? "女士" : "先生"}
+                    </>
+                  ) : (
+                    <>
+                      {patient?.sex ? "Ms." : "Mr."} {patient?.fullname}
+                    </>
+                  )
+                }            
+                </strong>{" "}
             {currentLang === "en" ? "and similar patients before surgery" : currentLang === "zh" ? "和类似患者在手术前" : "and similar patients before surgery"}
           </li>
           {/* Variable Selection */}
@@ -293,13 +308,13 @@ const renderHumanIcons = () => {
             <div className="w-full">
               <article className="prose max-w-none">
                 <p>
-                  {currentLang === "en" ? "Below are what past patients reported before surgery. Those patients are similar to" : currentLang === "zh" ? "下面是过去的患者在手术前报告的情况。这些患者与" : "Below are what past patients reported before surgery. Those patients are similar to"} {getName()}
+                  {currentLang === "en" ? "Below are what past patients reported before surgery. Those patients are similar to" : currentLang === "zh" ? "下面是过去的患者在手术前报告的情况。这些患者与" : "Below are what past patients reported before surgery. Those patients are similar to"} {getName(currentLang)}
                   {getFilterDescription(filters, patient, currentLang)}.
                 </p>
                 <h3>{currentLang === "en" ? question.question : currentLang === "zh" ? question.chineseDescription : question.question}</h3>
                 <h4>
                   {currentLang === "en" ? "Responses of" : currentLang === "zh" ? "类似患者的回答" : "Responses of"} {beforeData?.totalRows} {currentLang === "en" ? "patients similar to" : currentLang === "zh" ? "患者类似于" : "patients similar to"}{" "}
-                  {getName()}
+                  {getName(currentLang)}
                 </h4>
               </article>
 
