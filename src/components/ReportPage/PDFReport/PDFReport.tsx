@@ -13,8 +13,10 @@ import Table from "./Table/Table";
 import {
   BarChartData,
   Ethnicity,
+  EthnicityCh,
   FilterType,
   Sex,
+  SexCh,
 } from "../../../models/patient/patientDetails";
 import { useForm } from "../../../hooks/FormContext";
 import BarChart from "./QuestionWithDynamicOptions/BarChart";
@@ -136,21 +138,15 @@ const PDFReport: React.FC<PDFReportProps> = ({
   const numPriorities = barChartData.length;
 
   const getName = () => {
-    if (currentLang === "en") {
-      return (
-        <strong style={{ color: "#1976D2" }}>
-          {" "}
-          {patient?.sex ? "Ms." : "Mr."} {patient?.fullname}
-        </strong>
-      );
-    } else if (currentLang === "zh") {
-      return (
-        <strong style={{ color: "#1976D2" }}>
-          {" "}
-          {patient?.fullname} {patient?.sex ? "女士" : "先生"}
-        </strong>
-      );
-    }
+    if (!patient) return null;
+
+    return (
+      <Text style={styles.bold}>
+        {currentLang === "en"
+          ? `${patient.sex ? "Ms." : "Mr."} ${patient.fullname}`
+          : `${patient.fullname}${patient.sex ? "女士" : "先生"}`}
+      </Text>
+    );
   };
 
 
@@ -204,7 +200,7 @@ const PDFReport: React.FC<PDFReportProps> = ({
       } else if (currentLang === "zh") {
         descriptionParts.push(
           <>
-            <Text style={styles.boldText}>性别</Text> ({Sex[patient.sex]})
+            <Text style={styles.boldText}>性别</Text> ({SexCh[patient.sex]})
           </>
         );
       }
@@ -221,7 +217,7 @@ const PDFReport: React.FC<PDFReportProps> = ({
       } else if (currentLang === "zh") {
         descriptionParts.push(
           <>
-            <Text style={styles.boldText}>种族</Text> ({Ethnicity[patient.ethnicity]})
+            <Text style={styles.boldText}>种族</Text> ({EthnicityCh[patient.ethnicity]})
           </>
         );
       }
@@ -283,26 +279,25 @@ const PDFReport: React.FC<PDFReportProps> = ({
       <Page size="A4" style={styles.page}>
         {currentLang === "en" && patient && (
         <>
-          <Table data={patient} />
+          <Table data={patient} currentLang={currentLang} />
           <Text style={styles.instruction}>
-            Below are what past patients reported{" "}
-            <Text style={styles.bold}>6 months after surgery</Text> in the {numPriorities}
-            {numPriorities > 1 ? " areas" : " area"} {getName()} hopes to see improvement most.
-            Those patients are similar to {getName()}
-            {getFilterDescription(filters)}, and they experienced the same level
-            of problems as {getName()} in those areas before surgery.
+            Below are what past patients reported <Text style={styles.bold}>6 months after surgery</Text>
+             in the {numPriorities} areas {getName()} hopes to see improvement most. 
+            Those patients are similar to {getName()} in {getFilterDescription(filters)},
+            and they experienced the same level of problems
+            as in the {numPriorities} areas before surgery.
           </Text>
         </>
       )}
 
       {currentLang === "zh" && patient && (
         <>
-          <Table data={patient} />
+          <Table data={patient} currentLang={currentLang}/>
           <Text style={styles.instruction}>
-            下面是过去的患者在手术后6个月报告的情况，{numPriorities}
-            {numPriorities > 1 ? " 个方面" : " 个方面"} 是 {getName()} 最希望看到改善的地方。
-            这些患者与 {getName()} 类似，{getFilterDescription(filters)}，
-            并且他们在手术前在这些方面经历了与 {getName()} 相同的问题程度。
+            下面是过去的患者在<Text style={styles.bold}>手术后6个月</Text>报告的、在{numPriorities}个不同方面的情况。
+            这{numPriorities}个方面是{getName()}最希望看到改善的方面。
+            这些患者与{getName()}在{getFilterDescription(filters)}方面相似。
+            并且他们手术前在这{numPriorities}方面经历了与{getName()}相同程度的问题。
           </Text>
         </>
       )}
@@ -363,7 +358,7 @@ const PDFReport: React.FC<PDFReportProps> = ({
       {/* Page 2: Radar Chart + Legend */}
         {renderRadar && (
           <Page size="A4" style={styles.page}>
-            {patient && <Table data={patient} />}
+            {patient && <Table data={patient} currentLang={currentLang} />}
             <Text style={styles.title}>Patient Overview</Text>
             <Text style={styles.instruction}>
               The chart below compares what {getName()} is currently experiencing in

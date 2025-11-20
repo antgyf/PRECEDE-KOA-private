@@ -13,6 +13,11 @@ export const Sex: Record<string, string> = {
   1: "Female",
 };
 
+export const SexCh: Record<string, string> = {
+  0: "男",
+  1: "女",
+};
+
 export const Age = {
   0: "Below 65 years",
   1: "65 years and above",
@@ -24,6 +29,14 @@ export const Ethnicity: Record<string, string> = {
   2: "Indian",
   3: "Caucasian",
   4: "Others"
+};
+
+export const EthnicityCh: Record<string, string> = {
+  0: "华人",
+  1: "马来人",
+  2: "印度人",
+  3: "高加索人",
+  4: "其他"
 };
 
 export const BMI = {

@@ -307,6 +307,7 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) =
           key={question ? question.id : "no-question"}
           onFilterApply={handleFilterChange}
           activeTab={activeTab}
+          currentLang={currentLang}
         />
 
         <PatientDetail />

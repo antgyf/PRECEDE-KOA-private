@@ -11,7 +11,7 @@ import { useLocation } from "react-router-dom";
 
 const AnalysisPage: React.FC = () => {
   const { alert } = useAlert();
-
+  
   // Read ?lang= from URL
   const { search } = useLocation();
   const query = new URLSearchParams(search);

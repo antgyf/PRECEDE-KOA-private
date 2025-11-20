@@ -1,19 +1,39 @@
 import { Text, View } from "@react-pdf/renderer";
 import { Patient } from "../../../../models/patient/patientReport";
-import { Ethnicity, Sex } from "../../../../models/patient/patientDetails";
+import { Ethnicity, EthnicityCh } from "../../../../models/patient/patientDetails";
 import { columnStyles, columnConfig } from "./ColumnStyles";
 
 interface TableRowProps {
   data: Patient;
+  currentLang: string; // "en" | "zh"
 }
 
-const TableRow: React.FC<TableRowProps> = ({ data }) => {
+const getSexLabel = (sex: number, lang: string) => {
+  if (lang === "zh") {
+    return sex === 0 ? "男" : "女";
+  }
+  if (lang === "en") {
+    return sex === 0 ? "Male" : "Female";
+  }
+}
+
+const getEthnicityLabel = (ethnicity: number, lang: string) => {
+  if (lang === "zh") {
+    // Add Chinese labels for ethnicities if needed
+    return EthnicityCh[ethnicity];
+  }
+  if (lang === "en") {
+    return Ethnicity[ethnicity];
+  }
+}
+
+const TableRow: React.FC<TableRowProps> = ({ data, currentLang }) => {
   const rowData = [
     data.patientid,
     data.fullname,
     data.age,
-    Sex[data.sex],
-    Ethnicity[data.ethnicity],
+    getSexLabel(data.sex, currentLang),   
+    getEthnicityLabel(data.ethnicity, currentLang),
     data.bmi, 
   ];
 

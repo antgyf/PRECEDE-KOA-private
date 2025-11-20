@@ -1,4 +1,18 @@
 import { StyleSheet } from "@react-pdf/renderer";
+import { Font } from "@react-pdf/renderer";
+
+Font.register({
+  family: "NotoSansSC",
+  fonts: [
+    {
+      src: "/fonts/NotoSansSC-Regular.ttf",
+    },
+    {
+      src: "/fonts/NotoSansSC-Bold.ttf",
+      fontWeight: "bold",
+    },
+  ],
+});
 
 export const columnStyles = StyleSheet.create({
   row: {
@@ -18,25 +32,27 @@ export const columnStyles = StyleSheet.create({
     width: "10%",
     paddingHorizontal: 2,
     textAlign: "center",
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "NotoSansSC",
   },
   longcell: {
     width: "18%",
     paddingHorizontal: 2,
     textAlign: "center",
-    fontFamily: "Helvetica",
+    fontFamily: "NotoSansSC",
   },
   headerCell: {
     width: "18%",
     paddingHorizontal: 2,
     textAlign: "center",
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "NotoSansSC",
+    fontWeight: "bold",
   },
   headerShortCell: {
     width: "10%",
     paddingHorizontal: 2,
     textAlign: "center",
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "NotoSansSC",
+    fontWeight: "bold",
   },
 });
 

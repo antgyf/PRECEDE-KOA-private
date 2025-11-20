@@ -18,13 +18,14 @@ const styles = StyleSheet.create({
 
 interface TableProps {
   data: Patient;
+  currentLang: string; // "en" | "zh"
 }
 
-const Table: React.FC<TableProps> = ({ data }) => {
+const Table: React.FC<TableProps> = ({ data, currentLang }) => {
   return (
     <View style={styles.tableContainer}>
-      <TableHeader />
-      <TableRow data={data} />
+      <TableHeader currentLang={currentLang} />
+      <TableRow data={data} currentLang={currentLang} />
       <View style={styles.line} />
     </View>
   );

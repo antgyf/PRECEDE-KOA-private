@@ -293,6 +293,7 @@ const renderHumanIcons = () => {
         key={question?.id}
         onFilterApply={handleFilterChange}
         activeTab={activeTab}
+        currentLang={currentLang}
       />
 
       <PatientDetail />

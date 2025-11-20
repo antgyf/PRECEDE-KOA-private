@@ -267,7 +267,7 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab, currentLang }) => {
             </li>
           </ul>
         </article>
-        <FilterButtonsComponent activeTab={activeTab} onFilterApply={handleFilterChange} />
+        <FilterButtonsComponent activeTab={activeTab} onFilterApply={handleFilterChange} currentLang={currentLang}/>
       </div>
 
       {!radarImage && !isLoading && (

@@ -2,9 +2,11 @@ import React from "react";
 import { useForm } from "../hooks/FormContext";
 import {
   Ethnicity,
+  EthnicityCh,
   FilterType,
   Questions,
   Sex,
+  SexCh,
 } from "../models/patient/patientDetails";
 import { Patient } from "../models/patient/patientReport";
 
@@ -144,7 +146,7 @@ export const getFilterDescription = (filters: FilterType, patient: Patient, lan:
     } else if (lan === "zh") {
       parts.push(
         <>
-          <strong style={{ color: "#1976D2" }}>性别</strong> ({Sex[patient.sex]}
+          <strong style={{ color: "#1976D2" }}>性别</strong> ({SexCh[patient.sex]}
           )
         </>
       );
@@ -162,7 +164,7 @@ export const getFilterDescription = (filters: FilterType, patient: Patient, lan:
     } else if (lan === "zh") {
       parts.push(
         <>
-          <strong style={{ color: "#1976D2" }}>种族</strong> ({Ethnicity[patient.ethnicity]})
+          <strong style={{ color: "#1976D2" }}>种族</strong> ({EthnicityCh[patient.ethnicity]})
         </>
       );
     }

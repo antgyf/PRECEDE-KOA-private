@@ -3,36 +3,40 @@ import { FilterType } from "../../../models/patient/patientDetails";
 import api from "../../../api/api";
 
 interface FilterButtonProps {
-  category: string;
-  toggleFilterCategory: (category: string) => void;
+  value: string;            // internal param ("Age Range")
+  label: string;            // displayed label ("年龄范围")
+  toggleFilterCategory: (value: string) => void;
   isSelected: boolean;
 }
 
 const FilterButton: React.FC<FilterButtonProps> = ({
-  category,
+  value,
+  label,
   toggleFilterCategory,
   isSelected,
 }) => (
   <button
-    onClick={() => toggleFilterCategory(category)}
+    onClick={() => toggleFilterCategory(value)}
     className={`py-2 px-4 rounded-full border-2 ${
       isSelected
         ? "bg-accent text-white border-accent"
         : "bg-white text-gray-800 border-gray-500"
     } transition-all`}
   >
-    {category}
+    {label}
   </button>
 );
 
 interface FilterButtonsComponentProps {
   onFilterApply: (selectedFilters: FilterType) => void;
   activeTab: "summary" | "before" | "after";
+  currentLang: string; // "en" | "zh"
 }
 
 const FilterButtonsComponent: React.FC<FilterButtonsComponentProps> = ({
   onFilterApply,
   activeTab,
+  currentLang,
 }) => {
   const [selectedFilters, setSelectedFilters] = useState<FilterType>({
     categories: ["Age Range", "BMI Range"],
@@ -135,7 +139,7 @@ const FilterButtonsComponent: React.FC<FilterButtonsComponentProps> = ({
 
   return (
     <div className="p-5 bg-secondary rounded-md shadow-md">
-      <h3 className="text-xl font-bold mb-4">Choose Filters</h3>
+      <h3 className="text-xl font-bold mb-4">{currentLang === "zh" ? "选择过滤器" : "Choose Filters"}</h3>
 
       <div className="flex flex-col gap-6">
         {/* MAIN FILTER ROW - Everything in one horizontal line */}
@@ -143,13 +147,14 @@ const FilterButtonsComponent: React.FC<FilterButtonsComponentProps> = ({
           {/* AGE RANGE */}
           <div className="flex flex-col items-start gap-2">
             <FilterButton
-              category="Age Range"
+              value="Age Range"
+              label={currentLang === "zh" ? "年龄范围" : "Age Range"}
               toggleFilterCategory={toggleFilterCategory}
               isSelected={selectedFilters.categories.includes("Age Range")}
             />
             {selectedFilters.categories.includes("Age Range") && (
               <div className="flex flex-row gap-2 items-center mt-2">
-                Within
+                {currentLang === "zh" ? "范围内" : "Within"}
                 <input
                   type="number"
                   className="input input-bordered w-16 h-8 text-sm"
@@ -158,7 +163,7 @@ const FilterButtonsComponent: React.FC<FilterButtonsComponentProps> = ({
                   value={selectedFilters.age?.range || 5}
                   onChange={(e) => handleRangeChange("age", e.target.value)}
                 />
-                years
+                {currentLang === "zh" ? "岁" : "years"}
               </div>
             )}
           </div>
@@ -166,13 +171,14 @@ const FilterButtonsComponent: React.FC<FilterButtonsComponentProps> = ({
           {/* BMI RANGE */}
           <div className="flex flex-col items-start gap-2">
             <FilterButton
-              category="BMI Range"
+              value="BMI Range"
+              label={currentLang === "zh" ? "BMI范围" : "BMI Range"}
               toggleFilterCategory={toggleFilterCategory}
               isSelected={selectedFilters.categories.includes("BMI Range")}
             />
             {selectedFilters.categories.includes("BMI Range") && (
               <div className="flex flex-row gap-2 items-center mt-2">
-                Within
+                {currentLang === "zh" ? "范围内" : "Within"}
                 <input
                   type="number"
                   className="input input-bordered w-16 h-8 text-sm"
@@ -192,7 +198,8 @@ const FilterButtonsComponent: React.FC<FilterButtonsComponentProps> = ({
               {["Gender", "Ethnicity"].map((category) => (
                 <FilterButton
                   key={category}
-                  category={category}
+                  value={category}
+                  label={currentLang === "zh" ? (category === "Gender" ? "性别" : "种族") : category}
                   toggleFilterCategory={toggleFilterCategory}
                   isSelected={selectedFilters.categories.includes(category)}
                 />
@@ -215,10 +222,10 @@ const FilterButtonsComponent: React.FC<FilterButtonsComponentProps> = ({
                 onChange={(e) => handleDropdownChange("surgeontitle", e.target.value)}
                 disabled={isSurgeonTitleDisabled}
               >
-                <option value="">Surgeon Title</option>
-                <option value="Associate Consultant">Associate Consultant</option>
-                <option value="Consultant">Consultant</option>
-                <option value="Senior Consultant">Senior Consultant</option>
+                <option value="">{currentLang === "zh" ? "外科医生职称" : "Surgeon Title"}</option>
+                <option value="Associate Consultant">{currentLang === "zh" ? "副顾问" : "Associate Consultant"}</option>
+                <option value="Consultant">{currentLang === "zh" ? "顾问" : "Consultant"}</option>
+                <option value="Senior Consultant">{currentLang === "zh" ? "高级顾问" : "Senior Consultant"}</option>
               </select>
             </div>
 
@@ -244,7 +251,7 @@ const FilterButtonsComponent: React.FC<FilterButtonsComponentProps> = ({
                     onChange={(e) => handleDropdownChange("surgeonid", e.target.value)}
                     disabled={isSurgeonIdDisabled}
                   >
-                    <option value="">Surgeon ID</option>
+                    <option value="">{currentLang === "zh" ? "外科医生编号" : "Surgeon ID"}</option>
                     {surgeonIds.map((id) => (
                       <option key={id} value={id}>
                         {id}
@@ -268,13 +275,13 @@ const FilterButtonsComponent: React.FC<FilterButtonsComponentProps> = ({
             className="py-2 px-6 bg-accent text-white rounded-md transition-all hover:bg-accent-dark"
             title="Clear all filters"
           >
-            Clear
+            {currentLang === "zh" ? "清除" : "Clear"}
           </button>
           <button
             className="py-2 px-6 bg-accent text-white rounded-md transition-all hover:bg-accent-dark"
             onClick={handleApplyFilters}
           >
-            Apply Filters
+            {currentLang === "zh" ? "应用筛选" : "Apply Filters"}
           </button>
         </div>
       </div>
