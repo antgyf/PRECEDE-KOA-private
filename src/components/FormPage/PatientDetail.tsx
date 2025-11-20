@@ -1,13 +1,17 @@
 import React, { useState } from "react";
 import { useForm } from "../../hooks/FormContext";
-import { Ethnicity, Sex } from "../../models/patient/patientDetails";
+import { Ethnicity, EthnicityCh, Sex, SexCh } from "../../models/patient/patientDetails";
 import api from "../../api/api";
 import { useAlert } from "../../hooks/AlertContext";
 import { useNavigate } from "react-router-dom";
 import EditPatientBox from "./EditPatientBox";
 import { useAuth } from "../../hooks/AuthContext";
 
-const PatientDetail: React.FC = () => {
+interface PatientDetailProps {
+  currentLang: string;
+}
+
+const PatientDetail: React.FC<PatientDetailProps> = ({ currentLang }) => {
   const auth = useAuth();
   const { showAlert } = useAlert();
   const navigate = useNavigate();
@@ -17,7 +21,7 @@ const PatientDetail: React.FC = () => {
   if (!patient) {
     return (
       <div className="text-center">
-        <p>No patient data available.</p>
+        <p>{currentLang === "en" ? "No patient data available." : "没有患者数据可用。"}</p>
       </div>
     );
   }
@@ -31,11 +35,15 @@ const PatientDetail: React.FC = () => {
         `/patients/delete/${patient.patientid}`
       );
       setCurrentPatient(undefined);
-      showAlert("Patient deleted successfully!", "success");
+      currentLang === "en"
+        ? showAlert("Patient deleted successfully!", "success")
+        : showAlert("患者删除成功！", "success");
       navigate("/home");
     } catch (error) {
       console.error("Error deleting patient:", error);
-      showAlert("Failed to delete patient.", "error");
+      currentLang === "en"
+        ? showAlert("Failed to delete patient.", "error")
+        : showAlert("删除患者失败。", "error");
     }
   };
 
@@ -48,13 +56,13 @@ const PatientDetail: React.FC = () => {
         <table className="table-auto w-full border border-gray-300">
           <thead className="text-base">
             <tr className="leading-tight bg-secondary">
-              <th className="border px-3 py-2">Study ID</th>
-              <th className="border px-3 py-2">Name</th>
-              <th className="border px-3 py-2">Age</th>
-              <th className="border px-3 py-2">Sex</th>
-              <th className="border px-3 py-2">Ethnicity</th>
-              <th className="border px-3 py-2">BMI (kg/m²)</th>
-              {!auth.isSurgeon && <th className="border px-3 py-2">Actions</th>}
+              <th className="border px-3 py-2">{currentLang === "en" ? "Study ID" : "研究编号"}</th>
+              <th className="border px-3 py-2">{currentLang === "en" ? "Name" : "姓名"}</th>
+              <th className="border px-3 py-2">{currentLang === "en" ? "Age" : "年龄"}</th>
+              <th className="border px-3 py-2">{currentLang === "en" ? "Sex" : "性别"}</th>
+              <th className="border px-3 py-2">{currentLang === "en" ? "Ethnicity" : "种族"}</th>
+              <th className="border px-3 py-2">{currentLang === "en" ? "BMI (kg/m²)" : "身体质量指数 (kg/m²)"}</th>
+              {!auth.isSurgeon && <th className="border px-3 py-2">{currentLang === "en" ? "Actions" : "操作"}</th>}
             </tr>
           </thead>
           <tbody className="text-base bg-white">
@@ -62,9 +70,9 @@ const PatientDetail: React.FC = () => {
               <td className="border px-3 py-2">{patient.patientid}</td>
               <td className="border px-3 py-2">{patient.fullname}</td>
               <td className="border px-3 py-2">{patient.age}</td>
-              <td className="border px-3 py-2">{Sex[patient?.sex]}</td>
+              <td className="border px-3 py-2">{currentLang === "en" ? Sex[patient?.sex] : SexCh[patient?.sex]}</td>
               <td className="border px-3 py-2">
-                {Ethnicity[patient.ethnicity]}
+                {currentLang === "en" ? Ethnicity[patient.ethnicity] : EthnicityCh[patient.ethnicity]}
               </td>
               <td className="border px-3 py-2">{patient.bmi}</td>
               {!auth.isSurgeon && (
@@ -73,13 +81,13 @@ const PatientDetail: React.FC = () => {
                     className="bg-blue-500 text-white px-3 py-1 rounded"
                     onClick={() => setIsEditing(true)} // Open Edit Form
                   >
-                    Edit
+                    {currentLang === "en" ? "Edit" : "编辑"}
                   </button>
                   <button
                     className="bg-red-500 text-white px-3 py-1 rounded"
                     onClick={handleDelete}
                   >
-                    Delete
+                    {currentLang === "en" ? "Delete" : "删除"}
                   </button>
                 </td>
               )}

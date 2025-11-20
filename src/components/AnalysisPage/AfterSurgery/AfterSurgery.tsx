@@ -310,7 +310,7 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) =
           currentLang={currentLang}
         />
 
-        <PatientDetail />
+        <PatientDetail currentLang={currentLang} />
       </div>
 
       {/* Loading, Error, or Graph Section */}

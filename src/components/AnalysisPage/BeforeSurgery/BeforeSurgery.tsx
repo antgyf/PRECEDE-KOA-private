@@ -296,7 +296,7 @@ const renderHumanIcons = () => {
         currentLang={currentLang}
       />
 
-      <PatientDetail />
+      <PatientDetail currentLang={currentLang}/>
 
       {/* Loading/Error State */}
       {isLoading && <div>Loading data...</div>}

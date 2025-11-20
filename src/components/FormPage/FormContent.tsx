@@ -178,7 +178,7 @@ const FormContent: React.FC<FormContentProps> = ({ term, language }) => {
         </div>
       ) : (
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-          <PatientDetail />
+          <PatientDetail currentLang={language}/>
           <article className="font-bold m-0 text-xl"> {/* Add text-xl only to elements that need it */}
             <h4 className="my-0"> {language === "en" ? "Please answer all questions below." : language === "zh" ? "请回答以下所有问题。" : ""}</h4>
           </article>
