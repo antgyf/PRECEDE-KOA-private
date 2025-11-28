@@ -281,7 +281,7 @@ const PDFReport: React.FC<PDFReportProps> = ({
         <>
           <Table data={patient} currentLang={currentLang} />
           <Text style={styles.instruction}>
-            Below are what past patients reported <Text style={styles.bold}>6 months after surgery</Text>
+            Below are what past patients reported <Text style={styles.bold}>6 months after surgery </Text>
              in the {numPriorities} areas {getName()} hopes to see improvement most. 
             Those patients are similar to {getName()} in {getFilterDescription(filters)},
             and they experienced the same level of problems

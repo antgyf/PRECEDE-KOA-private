@@ -342,11 +342,18 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) =
               <div className="w-full">
                 <article className="prose max-w-none">
                   <p>
-                    {currentLang === "en" ? "Below are what past patients reported" : currentLang === "zh" ? "以下是过去患者报告的情况" : "Below are what past patients reported"}{" "}
+                    {currentLang === "en" && (
+                      <>Below are what past patients reported {" "}
+                      <strong style={{ color: "#1976D2" }}>{termToMonths(selectedTerm)}</strong>{" "}
+                      months after surgery. Those patients are similar to {getName(currentLang)} in {getFilterDescription(filters, patient, currentLang)}{" "} 
+                      and they experienced the same level of problem as {getName(currentLang)} before surgery</>
+                    )}
+                    {currentLang === "zh" && (
+                      <>下面是过去的患者在{" "}
                     <strong style={{ color: "#1976D2" }}>{termToMonths(selectedTerm)}</strong>{" "}
-                    {currentLang === "en" ? "months after surgery. Those patients are similar to" : currentLang === "zh" ? "个月后的手术。这些患者与" : "months after surgery. Those patients are similar to"}{" "}
-                    {getName(currentLang)}
-                    {getFilterDescription(filters, patient, currentLang)}, {currentLang === "en" ? "and they experienced the same level of problem as" : currentLang === "zh" ? "并且他们经历了与...相同水平的问题" : "and they experienced the same level of problem as"} {getName(currentLang)} {currentLang === "en" ? "before surgery." : currentLang === "zh" ? "手术前。" : "before surgery."}
+                    个月后的手术。这些患者与{getName(currentLang)}在{getFilterDescription(filters, patient, currentLang)}方面相似，{" "}
+                    并且他们经历了与{getName(currentLang)}手术前相同水平的问题。</>
+                    )}
                   </p>
                   <h3>{currentLang === "en" ? question.question : currentLang === "zh" ? question.chineseDescription : question.question}</h3>
                   <h4>

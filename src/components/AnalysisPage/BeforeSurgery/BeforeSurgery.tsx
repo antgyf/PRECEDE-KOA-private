@@ -327,8 +327,12 @@ const renderHumanIcons = () => {
             <div className="w-full">
               <article className="prose max-w-none">
                 <p>
-                  {currentLang === "en" ? "Below are what past patients reported before surgery. Those patients are similar to" : currentLang === "zh" ? "下面是过去的患者在手术前报告的情况。这些患者与" : "Below are what past patients reported before surgery. Those patients are similar to"} {getName(currentLang)}
-                  {getFilterDescription(filters, patient, currentLang)}.
+                  {currentLang === "en" && (
+                    <>Those patients are similar to {getName(currentLang)} in {getFilterDescription(filters, patient, currentLang)}</>
+                  )}
+                  {currentLang === "zh" && (
+                    <>这些患者与{getName(currentLang)}在{getFilterDescription(filters, patient, currentLang)}方面相似</>
+                  )}
                 </p>
                 <h3>{currentLang === "en" ? question.question : currentLang === "zh" ? question.chineseDescription : question.question}</h3>
                 <h4>
