@@ -161,7 +161,7 @@ const FilterButtonsComponent: React.FC<FilterButtonsComponentProps> = ({
                   className="input input-bordered w-16 h-8 text-sm"
                   min={1}
                   max={50}
-                  value={selectedFilters.age?.range || 5}
+                  value={selectedFilters.age?.range || 1}
                   onChange={(e) => handleRangeChange("age", e.target.value)}
                 />
                 {currentLang === "zh" ? "岁" : "years"}
@@ -185,7 +185,7 @@ const FilterButtonsComponent: React.FC<FilterButtonsComponentProps> = ({
                   className="input input-bordered w-16 h-8 text-sm"
                   min={1}
                   max={60}
-                  value={selectedFilters.bmi?.range || 5}
+                  value={selectedFilters.bmi?.range || 1}
                   onChange={(e) => handleRangeChange("bmi", e.target.value)}
                 />
                 kg/m²
