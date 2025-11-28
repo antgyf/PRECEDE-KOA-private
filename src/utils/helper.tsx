@@ -194,7 +194,7 @@ export const getFilterDescription = (filters: FilterType, patient: Patient, lan:
 
   return (
     <>
-      {parts.length > 0 && " in "}
+      {parts.length > 0}
       {parts.map((part, idx) => (
         <React.Fragment key={idx}>
           {idx > 0 && ", "}
