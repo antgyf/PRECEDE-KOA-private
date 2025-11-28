@@ -346,7 +346,7 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) =
                       <>Below are what past patients reported {" "}
                       <strong style={{ color: "#1976D2" }}>{termToMonths(selectedTerm)}</strong>{" "}
                       months after surgery. Those patients are similar to {getName(currentLang)} in {getFilterDescription(filters, patient, currentLang)}{" "} 
-                      and they experienced the same level of problem as {getName(currentLang)} before surgery</>
+                      and they experienced the same level of problem as {getName(currentLang)} before surgery.</>
                     )}
                     {currentLang === "zh" && (
                       <>下面是过去的患者在{" "}

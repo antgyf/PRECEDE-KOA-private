@@ -126,8 +126,8 @@ const FilterButtonsComponent: React.FC<FilterButtonsComponentProps> = ({
     // Reset to only Age Range and BMI Range with default values
     setSelectedFilters({
       categories: ["Age Range", "BMI Range"],
-      age: { range: 5 },
-      bmi: { range: 5 },
+      age: { range: 1 },
+      bmi: { range: 1 },
       surgeontitle: "",
       surgeonid: "",
     });
@@ -140,7 +140,7 @@ const FilterButtonsComponent: React.FC<FilterButtonsComponentProps> = ({
   return (
     <div className="p-5 bg-secondary rounded-md shadow-md">
       <h3 className="text-xl font-bold mb-4">{currentLang === "zh" ? "使用以下选项根据手术前的特征定义相似的患者" : 
-      "Use the filters below to redefine similar patients based on their characteristics before surgery"}</h3>
+      "Use the filters below to define similar patients based on their characteristics before surgery"}</h3>
 
       <div className="flex flex-col gap-6">
         {/* MAIN FILTER ROW - Everything in one horizontal line */}
