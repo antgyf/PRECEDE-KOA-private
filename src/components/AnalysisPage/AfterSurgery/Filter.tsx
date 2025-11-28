@@ -40,8 +40,8 @@ const FilterButtonsComponent: React.FC<FilterButtonsComponentProps> = ({
 }) => {
   const [selectedFilters, setSelectedFilters] = useState<FilterType>({
     categories: ["Age Range", "BMI Range"],
-    age: { range: 5 },
-    bmi: { range: 5 },
+    age: { range: 1 },
+    bmi: { range: 1 },
     surgeontitle: "",
     surgeonid: "",
   });
