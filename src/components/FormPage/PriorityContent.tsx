@@ -5,7 +5,6 @@ import { Questions, QuestionType } from "../../models/patient/patientDetails";
 import api from "../../api/api";
 import { useForm,  } from "../../hooks/FormContext";
 import GreenButton from "../UI/Button/GreenButton";
-import RadioChoice from "../UI/Form/RadioChoice";
 
 interface PriorityContentProps {
   term: number;

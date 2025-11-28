@@ -28,7 +28,7 @@ export const getChSurgeonTitle = (title: string) => {
 };
 
 export const getRankDescription = (lan: string) => {
-  const { form, patient } = useForm();
+  const { form } = useForm();
   let priorityQuestions: string[] | undefined;
   if (lan === "zh") {
     priorityQuestions = form?.priorities?.map((id) => {
