@@ -35,7 +35,7 @@ const FormPage: React.FC = () => {
         {/* Left side: Back */}
         <div className="flex items-center">
           <BackButton
-            target={currentLang === "en" ? "Patient Page" : currentLang === "zh" ? "病人主页" : ""}
+            target={currentLang === "en" ? "Patient Page" : currentLang === "zh" ? "患者主页" : ""}
             to={`/home?lang=${currentLang}`}   // keep language
           />
         </div>

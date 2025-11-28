@@ -254,16 +254,30 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab, currentLang }) => {
       {alert.message && <Alert />}
       <div className="flex flex-col w-full justify-start mb-1">
         <article className="prose mb-1 max-w-none">
+          {currentLang === "en" && (
           <h3>
-            {currentLang === "en" ? "Self-reported Functions of Similar Patients 6 Months after Surgery" : 
-            currentLang === "zh" ? "手术后6个月类似患者的自我报告功能" : "Self-reported Functions of Similar Patients 6 Months after Surgery"}
+            The {form.priorities?.length || 0} areas{" "}
+            <strong style={{ color: "#1976D2" }}>
+              {patient?.sex ? "Ms." : "Mr."} {patient?.fullname}
+            </strong>{" "}
+            hopes to see improvement in are:
           </h3>
+          )}
+          {currentLang === "zh" && (
+          <h3>
+            {form.priorities?.length || 0} 个{" "}
+            <strong style={{ color: "#1976D2" }}>
+              {patient?.fullname} {patient?.sex ? "女士" : "先生"}
+            </strong>{" "}
+            希望看到改善的主要方面是：
+              </h3>
+          )}
           <ul>
-            <li>{getRankDescription(currentLang)}</li>
+            {getRankDescription(currentLang)}
             <li>
-              {currentLang === "en" ? "Use the filters below to redefine similar patients based on their characteristics before surgery" : 
-              currentLang === "zh" ? "使用以下筛选器根据手术前的特征重新定义类似患者" 
-              : "Use the filters below to redefine similar patients based on their characteristics before surgery"}
+              {currentLang === "en" ? "Self-reported Functions of Similar Patients 6 Months after Surgery" : 
+              currentLang === "zh" ? "手术后6个月相似患者的自我报告功能" 
+              : "Self-reported Functions of Similar Patients 6 Months after Surgery"}
             </li>
           </ul>
         </article>

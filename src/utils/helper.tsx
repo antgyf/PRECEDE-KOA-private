@@ -45,15 +45,10 @@ export const getRankDescription = (lan: string) => {
   if (lan === "en") {
     return (
       <>
-        The {priorityQuestions?.length || 0} areas{" "}
-        <strong style={{ color: "#1976D2" }}>
-          {" "}
-          {patient?.sex ? "Ms." : "Mr."} {patient?.fullname}
-        </strong>{" "}
-        hopes to see improvement most are:
+
         <ul className="leading-tight">
           {(priorityQuestions ?? []).map((q) => (
-            <li key={q}>{q}</li>
+            <li key={q}>{"  "}{q}</li>
           ))}
         </ul>
       </>
@@ -61,15 +56,9 @@ export const getRankDescription = (lan: string) => {
   } else if (lan === "zh") {
     return (
       <>
-        {priorityQuestions?.length || 0} 个{" "}
-        <strong style={{ color: "#1976D2" }}>
-          {" "}
-          {patient?.fullname} {patient?.sex ? "女士" : "先生"}
-        </strong>{" "}
-        希望看到改善的主要领域是：
         <ul className="leading-tight">
           {(priorityQuestions ?? []).map((q) => (
-            <li key={q}>{q}</li>
+            <li key={q}>{"  "}{q}</li>
           ))}
         </ul>
       </>
@@ -165,7 +154,7 @@ export const getFilterDescription = (filters: FilterType, patient: Patient, lan:
       parts.push(
         <>
           <strong style={{ color: "#1976D2" }}>种族</strong> ({EthnicityCh[patient.ethnicity]})
-        </>
+        </> 
       );
     }
   }

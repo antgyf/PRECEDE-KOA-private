@@ -166,7 +166,7 @@ const PDFReport: React.FC<PDFReportProps> = ({
       } else if (currentLang === "zh") {
         descriptionParts.push(
           <>
-            <Text style={styles.boldText}>年龄</Text> (在 {filters.age.range} 岁之间)
+            <Text style={styles.boldText}>年龄</Text> (相差{filters.age.range}岁之内)
           </>
         );
       }
@@ -183,7 +183,7 @@ const PDFReport: React.FC<PDFReportProps> = ({
       } else if (currentLang === "zh") {
         descriptionParts.push(
           <>
-            <Text style={styles.boldText}>BMI</Text> (在 {filters.bmi.range} kg/m²之间)
+            <Text style={styles.boldText}>体重指数(BMI)</Text> (相差{filters.bmi.range}kg/m²之内)
           </>
         );
       }
@@ -260,7 +260,7 @@ const PDFReport: React.FC<PDFReportProps> = ({
     // Assemble text
     return (
       <Text>
-        {descriptionParts.length > 0 && " in "}
+        {descriptionParts.length > 0}
         {descriptionParts.map((part, idx) => (
           <React.Fragment key={idx}>
             {idx > 0 && ", "}
@@ -346,7 +346,7 @@ const PDFReport: React.FC<PDFReportProps> = ({
                 <BarChart data={data} lang={currentLang} />
               ) : (
                 <View style={styles.noDataContainer}>
-                  <Text style={styles.noDataText}> {currentLang === "en" ? "No similar patients were found" : "未找到类似的患者"}</Text>
+                  <Text style={styles.noDataText}> {currentLang === "en" ? "No similar patients were found" : "未找到相似的患者"}</Text>
                 </View>
               )}
             </View>

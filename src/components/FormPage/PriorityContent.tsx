@@ -52,7 +52,7 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, language, onS
 
         if (filteredResponses.length < 5) {
           showAlert(language === "en" ? `Only ${calculatedMinPriorities} problem areas available for prioritization.` : 
-            language === "zh" ? `只有${calculatedMinPriorities}个问题领域可供优先排序。` : "", "info");
+            language === "zh" ? `只有${calculatedMinPriorities}个问题方面可供优先排序。` : "", "info");
         }
 
         const existingPriorities = await api.get("/patients/priority", {
@@ -176,15 +176,15 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, language, onS
             </div>
 
             {/* Previous response (disabled radio buttons) */}
-            <div className="ml-8">
-              <RadioChoice
-                name={q.question.code}
-                question=""
-                list={{ [q.answervalue]: language === "en" ? q.question.list[q.answervalue] : language === "zh" ? q.question.chList[q.answervalue] : "" }}
-                value={String(q.answervalue)} 
-                disabled={true}
-                onChange={() => {}}
-              />
+            <div className="ml-8 p-2 rounded text-gray-700">
+              {language === "en" ? "Previously selected option: " : language === "zh" ? "先前选择的选项：" : ""}
+              <strong>
+                {language === "en"
+                  ? q.question.list[q.answervalue]
+                  : language === "zh"
+                  ? q.question.chList[q.answervalue]
+                  : ""}
+              </strong>
             </div>
           </div>
         ))}

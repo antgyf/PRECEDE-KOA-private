@@ -9,8 +9,6 @@ interface SelectVariableProps {
 const SelectVariable: React.FC<SelectVariableProps> = ({ value, onChange, currentLang }) => {
   return (
     <article className="prose mb-5 flex flex-row items-center gap-3">
-      <h3 className="font-semibold">{currentLang === "en" ? "Select area:" : currentLang === "zh" ? "选择区域：" : "Select area:"}</h3>
-
       <select
         className="select select-bordered w-full max-w-xs"
         value={value}

@@ -246,9 +246,25 @@ const renderHumanIcons = () => {
 
       {/* Information Section */}
       <article className="prose mb-5 max-w-none">
-        <h3>{currentLang === "en" ? "Comparison with Similar Patients before Surgery" : currentLang === "zh" ? "与类似患者手术前的比较" : "Comparison with Similar Patients before Surgery"}</h3>
-        <ul>
-          <li>{getRankDescription(currentLang)}</li>
+        {currentLang === "en" && (
+          <h3>
+            The {form.priorities?.length || 0} areas{" "}
+            <strong style={{ color: "#1976D2" }}>
+              {patient?.sex ? "Ms." : "Mr."} {patient?.fullname}
+            </strong>{" "}
+            hopes to see improvement in are:
+          </h3>
+          )}
+          {currentLang === "zh" && (
+          <h3>
+            {form.priorities?.length || 0} 个{" "}
+            <strong style={{ color: "#1976D2" }}>
+              {patient?.fullname} {patient?.sex ? "女士" : "先生"}
+            </strong>{" "}
+            希望看到改善的主要方面是：
+              </h3>
+          )}<ul>
+          {getRankDescription(currentLang)}
           <li>
            {currentLang === "en" ? "Select an area to compare the levels of problems between" : currentLang === "zh" ? "选择一个区域比较" : "Select an area to compare the levels of problems between"}{" "}
             <strong style={{ color: "#1976D2" }}>
@@ -271,7 +287,7 @@ const renderHumanIcons = () => {
                   )
                 }            
                 </strong>{" "}
-            {currentLang === "en" ? "and similar patients before surgery" : currentLang === "zh" ? "和类似患者在手术前" : "and similar patients before surgery"}
+            {currentLang === "en" ? "and similar patients before surgery" : currentLang === "zh" ? "和相似患者在手术前" : "and similar patients before surgery"}
           </li>
           {/* Variable Selection */}
           <SelectVariable
@@ -284,8 +300,10 @@ const renderHumanIcons = () => {
             currentLang={currentLang}
           />
           <li>
-            {currentLang === "en" ? "Use the filters below to redefine similar patients based on their characteristics before surgery" : currentLang === "zh" ? "使用以下筛选器根据手术前的特征重新定义类似患者" : "Use the filters below to redefine similar patients based on their characteristics before surgery"}
-          </li>
+            {currentLang === "en" ? "Self-reported Functions of Similar Patients 6 Months after Surgery" : 
+              currentLang === "zh" ? "手术后6个月相似患者的自我报告功能" 
+              : "Self-reported Functions of Similar Patients 6 Months after Surgery"}
+            </li>
         </ul>
       </article>
 
@@ -314,7 +332,7 @@ const renderHumanIcons = () => {
                 </p>
                 <h3>{currentLang === "en" ? question.question : currentLang === "zh" ? question.chineseDescription : question.question}</h3>
                 <h4>
-                  {currentLang === "en" ? "Responses of" : currentLang === "zh" ? "类似患者的回答" : "Responses of"} {beforeData?.totalRows} {currentLang === "en" ? "patients similar to" : currentLang === "zh" ? "患者类似于" : "patients similar to"}{" "}
+                  {currentLang === "en" ? "Responses of" : currentLang === "zh" ? "相似患者的回答" : "Responses of"} {beforeData?.totalRows} {currentLang === "en" ? "patients similar to" : currentLang === "zh" ? "患者相似于" : "patients similar to"}{" "}
                   {getName(currentLang)}
                 </h4>
               </article>

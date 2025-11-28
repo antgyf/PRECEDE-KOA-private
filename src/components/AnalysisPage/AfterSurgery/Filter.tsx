@@ -139,7 +139,8 @@ const FilterButtonsComponent: React.FC<FilterButtonsComponentProps> = ({
 
   return (
     <div className="p-5 bg-secondary rounded-md shadow-md">
-      <h3 className="text-xl font-bold mb-4">{currentLang === "zh" ? "选择过滤器" : "Choose Filters"}</h3>
+      <h3 className="text-xl font-bold mb-4">{currentLang === "zh" ? "使用以下选项根据手术前的特征定义相似的患者" : 
+      "Use the filters below to redefine similar patients based on their characteristics before surgery"}</h3>
 
       <div className="flex flex-col gap-6">
         {/* MAIN FILTER ROW - Everything in one horizontal line */}
@@ -148,13 +149,13 @@ const FilterButtonsComponent: React.FC<FilterButtonsComponentProps> = ({
           <div className="flex flex-col items-start gap-2">
             <FilterButton
               value="Age Range"
-              label={currentLang === "zh" ? "年龄范围" : "Age Range"}
+              label={currentLang === "zh" ? "年龄" : "Age"}
               toggleFilterCategory={toggleFilterCategory}
               isSelected={selectedFilters.categories.includes("Age Range")}
             />
             {selectedFilters.categories.includes("Age Range") && (
               <div className="flex flex-row gap-2 items-center mt-2">
-                {currentLang === "zh" ? "范围内" : "Within"}
+                {currentLang === "zh" ? "相差范围" : "Within"}
                 <input
                   type="number"
                   className="input input-bordered w-16 h-8 text-sm"
@@ -172,13 +173,13 @@ const FilterButtonsComponent: React.FC<FilterButtonsComponentProps> = ({
           <div className="flex flex-col items-start gap-2">
             <FilterButton
               value="BMI Range"
-              label={currentLang === "zh" ? "BMI范围" : "BMI Range"}
+              label={currentLang === "zh" ? "体重指数(BMI)" : "BMI"}
               toggleFilterCategory={toggleFilterCategory}
               isSelected={selectedFilters.categories.includes("BMI Range")}
             />
             {selectedFilters.categories.includes("BMI Range") && (
               <div className="flex flex-row gap-2 items-center mt-2">
-                {currentLang === "zh" ? "范围内" : "Within"}
+                {currentLang === "zh" ? "相差范围" : "Within"}
                 <input
                   type="number"
                   className="input input-bordered w-16 h-8 text-sm"
@@ -281,7 +282,7 @@ const FilterButtonsComponent: React.FC<FilterButtonsComponentProps> = ({
             className="py-2 px-6 bg-accent text-white rounded-md transition-all hover:bg-accent-dark"
             onClick={handleApplyFilters}
           >
-            {currentLang === "zh" ? "应用筛选" : "Apply Filters"}
+            {currentLang === "zh" ? "应用" : "Apply Filters"}
           </button>
         </div>
       </div>
