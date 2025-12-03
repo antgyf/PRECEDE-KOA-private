@@ -265,30 +265,7 @@ const renderHumanIcons = () => {
               </h3>
           )}<ul>
           {getRankDescription(currentLang)}
-          <li>
-           {currentLang === "en" ? "Select an area to compare the levels of problems between" : currentLang === "zh" ? "选择一个区域比较" : "Select an area to compare the levels of problems between"}{" "}
-            <strong style={{ color: "#1976D2" }}>
-              {" "}
-              {/* Blue text */}
-                {
-                  currentLang === "en" ? (
-                    <>
-                      {patient?.sex ? "Ms." : "Mr."} {patient?.fullname}
-                    </>
-                  ) : currentLang === "zh" ? (
-                    <>
-                      {patient?.fullname}
-                      {patient?.sex ? "女士" : "先生"}
-                    </>
-                  ) : (
-                    <>
-                      {patient?.sex ? "Ms." : "Mr."} {patient?.fullname}
-                    </>
-                  )
-                }            
-                </strong>{" "}
-            {currentLang === "en" ? "and similar patients before surgery" : currentLang === "zh" ? "和相似患者在手术前" : "and similar patients before surgery"}
-          </li>
+
           {/* Variable Selection */}
           <SelectVariable
             value={question?.code || ""}
@@ -299,12 +276,13 @@ const renderHumanIcons = () => {
             }}
             currentLang={currentLang}
           />
-          <li>
-            {currentLang === "en" ? "Self-reported Functions of Similar Patients 6 Months after Surgery" : 
-              currentLang === "zh" ? "手术后6个月相似患者的自我报告功能" 
-              : "Self-reported Functions of Similar Patients 6 Months after Surgery"}
-            </li>
         </ul>
+
+          <div className="text-xl">
+            {currentLang === "en" ? "Self-reported Functions of Similar Patients before Surgery" : 
+              currentLang === "zh" ? "手术前相似患者报告的功能" 
+              : "Self-reported Functions of Similar Patients 6 Months after Surgery"}
+          </div>
       </article>
 
       <FilterButtonsComponent
@@ -326,19 +304,18 @@ const renderHumanIcons = () => {
           <div className="flex flex-wrap lg:flex-nowrap gap-4 ">
             <div className="w-full">
               <article className="prose max-w-none">
+                <h3>{currentLang === "en" ? question.question : currentLang === "zh" ? question.chineseDescription : question.question}</h3>
                 <p>
                   {currentLang === "en" && (
-                    <>Those patients are similar to {getName(currentLang)} in {getFilterDescription(filters, patient, currentLang)}.</>
+                    <>Below are responses of {beforeData?.totalRows} patients similar to {getName(currentLang)}.{" "}
+                    Those patients are similar to {getName(currentLang)} in {getFilterDescription(filters, patient, currentLang)}.</>
                   )}
                   {currentLang === "zh" && (
-                    <>这些患者与{getName(currentLang)}在{getFilterDescription(filters, patient, currentLang)}方面相似。</>
+                    <>以下是{beforeData?.totalRows}名与{getName(currentLang)}相似的患者在手术前的回答。
+                    这些患者与{getName(currentLang)}在{getFilterDescription(filters, patient, currentLang)}方面相似。
+                    </>
                   )}
                 </p>
-                <h3>{currentLang === "en" ? question.question : currentLang === "zh" ? question.chineseDescription : question.question}</h3>
-                <h4>
-                  {currentLang === "en" ? "Responses of" : currentLang === "zh" ? "相似患者的回答" : "Responses of"} {beforeData?.totalRows} {currentLang === "en" ? "patients similar to" : currentLang === "zh" ? "患者相似于" : "patients similar to"}{" "}
-                  {getName(currentLang)}
-                </h4>
               </article>
 
               <div className="w-full flex flex-row items-start mt-5">

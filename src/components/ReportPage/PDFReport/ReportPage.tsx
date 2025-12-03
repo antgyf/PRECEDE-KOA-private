@@ -273,13 +273,14 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab, currentLang }) => {
               </h3>
           )}
           <ul>
-            {getRankDescription(currentLang)}
-            <li>
+           {getRankDescription(currentLang)}
+
+          </ul>
+          <div className="text-xl">
               {currentLang === "en" ? "Self-reported Functions of Similar Patients 6 Months after Surgery" : 
               currentLang === "zh" ? "手术后6个月相似患者的自我报告功能" 
               : "Self-reported Functions of Similar Patients 6 Months after Surgery"}
-            </li>
-          </ul>
+          </div>
         </article>
         <FilterButtonsComponent activeTab={activeTab} onFilterApply={handleFilterChange} currentLang={currentLang}/>
       </div>

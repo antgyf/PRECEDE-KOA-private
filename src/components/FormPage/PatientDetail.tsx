@@ -61,7 +61,7 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ currentLang }) => {
               <th className="border px-3 py-2">{currentLang === "en" ? "Age" : "年龄"}</th>
               <th className="border px-3 py-2">{currentLang === "en" ? "Sex" : "性别"}</th>
               <th className="border px-3 py-2">{currentLang === "en" ? "Ethnicity" : "种族"}</th>
-              <th className="border px-3 py-2">{currentLang === "en" ? "BMI (kg/m²)" : "身体质量指数 (kg/m²)"}</th>
+              <th className="border px-3 py-2">{currentLang === "en" ? "BMI (kg/m²)" : "体重指数 (kg/m²)"}</th>
               {!auth.isSurgeon && <th className="border px-3 py-2">{currentLang === "en" ? "Actions" : "操作"}</th>}
             </tr>
           </thead>

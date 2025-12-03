@@ -15,7 +15,7 @@ const SelectVariable: React.FC<SelectVariableProps> = ({ value, onChange, curren
         onChange={onChange}
       >
         <option disabled value="">
-          {currentLang === "en" ? "Select area" : currentLang === "zh" ? "选择区域" : "Select area"}
+          {currentLang === "en" ? "Select a functional area" : currentLang === "zh" ? "选择一项功能" : "Select area"}
         </option>
         {Questions.map((val) => (
           <option key={val.code} value={val.code}>

@@ -265,8 +265,6 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) =
               </h3>
           )}          <ul>
             {getRankDescription(currentLang)}
-            <li>
-              {currentLang === "en" ? "Select an area you wish to know how similar patients functioned after surgery" : currentLang === "zh" ? "选择您希望了解术后相似患者功能的区域" : "Select an area you wish to know how similar patients functioned after surgery"}
               <SelectVariable
                 value={question?.code || ""}
                 onChange={(e) => {
@@ -276,49 +274,27 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) =
                 }}
                 currentLang={currentLang}
           />
-            </li>
-            <li>
-              <div className="flex flex-col sm:flex-row sm:items-center">
-                <span className="whitespace-nowrap">
-                  {currentLang === "en" ? "Select the post-surgery time point:" : currentLang === "zh" ? "选择术后时间点：" : "Select the post-surgery time point:"}
-                </span>
 
-                <form className="flex flex-wrap ml-2 gap-3 mt-2 items-center">
-                  {/* Time Selection Buttons - Hide Others When One is Selected */}
-                  <div className="flex flex-wrap gap-3">
-                    {[
-                      { value: 1, label: "6" },
-                      { value: 2, label: "12" },
-                      { value: 3, label: "24" },
-                    ].map(({ value, label }) => (
-                      <label key={value} className="cursor-pointer">
-                        <input
-                          type="radio"
-                          name="timePeriod"
-                          value={value}
-                          className="hidden peer"
-                          onChange={() => setSelectedTerm(value)}
-                          checked={selectedTerm === value}
-                        />
-                        <span className="btn bg-white peer-checked:bg-primary peer-checked:text-white">
-                          {label}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
+              <select
+                className="select select-bordered w-full max-w-xs"
+                value={selectedTerm}
+                onChange={(e) => setSelectedTerm(Number(e.target.value))}
+              >
+                <option disabled value="">
+                  {currentLang === "en" ? "Select a post-surgery time point" : currentLang === "zh" ? "选择一个术后时间点" : "Select area"}
+                </option>
+                <option value={1}>6 months</option>
+                <option value={2}>12 months</option>
+                <option value={3}>24 months</option>
+              </select>
+            </ul>
 
-                  {/* Text remains in a single line */}
-                  <span className="whitespace-nowrap">{currentLang === "en" ? "months" : currentLang === "zh" ? "个月" : "months"}</span>
-                </form>
-              </div>
-            </li>
 
-            <li>
-              {currentLang === "en" ? "Self-reported Functions of Similar Patients 6 Months after Surgery" : 
-              currentLang === "zh" ? "手术后6个月相似患者的自我报告功能" 
+            <div className="text-xl">
+              {currentLang === "en" ? "Self-reported Functions of Similar Patients after Surgery" : 
+              currentLang === "zh" ? "手术后相似患者报告的功能" 
               : "Self-reported Functions of Similar Patients 6 Months after Surgery"}
-            </li>
-          </ul>
+            </div>
         </article>
         {/* Filter Buttons */}
         <FilterButtonsComponent
@@ -341,25 +317,20 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) =
             <div className="flex flex-wrap lg:flex-nowrap gap-4 ">
               <div className="w-full">
                 <article className="prose max-w-none">
+                  <h3>{currentLang === "en" ? question.question : currentLang === "zh" ? question.chineseDescription : question.question}</h3>
                   <p>
                     {currentLang === "en" && (
-                      <>Below are what past patients reported {" "}
-                      <strong style={{ color: "#1976D2" }}>{termToMonths(selectedTerm)}</strong>{" "}
-                      months after surgery. Those patients are similar to {getName(currentLang)} in {getFilterDescription(filters, patient, currentLang)}{" "} 
-                      and they experienced the same level of problem as {getName(currentLang)} before surgery.</>
+                      <>Below are responses of {afterData?.totalRows} patients at {termToMonths(selectedTerm)} months after surgery.{" "}
+                      Those patients are similar to {getName(currentLang)} in {getFilterDescription(filters, patient, currentLang)} before surgery,{" "}
+                      and they experienced the same level of problems as {getName(currentLang)} in this function before surgery.</>
                     )}
                     {currentLang === "zh" && (
-                      <>下面是过去的患者在{" "}
-                    <strong style={{ color: "#1976D2" }}>{termToMonths(selectedTerm)}</strong>{" "}
-                    个月后的手术。这些患者与{getName(currentLang)}在{getFilterDescription(filters, patient, currentLang)}方面相似，{" "}
-                    并且他们经历了与{getName(currentLang)}手术前相同水平的问题。</>
+                      <>下面是{afterData?.totalRows}名与{getName(currentLang)}相似的患者在手术后{termToMonths(selectedTerm)}个月的回答。
+                      这些患者手术前与{getName(currentLang)}在{getFilterDescription(filters, patient, currentLang)}方面相似， 并且他们手术前在这项功能方面经历了与 {getName(currentLang)} 相同程度的问题。
+                      </>
                     )}
                   </p>
-                  <h3>{currentLang === "en" ? question.question : currentLang === "zh" ? question.chineseDescription : question.question}</h3>
-                  <h4>
-                    {currentLang === "en" ? "Responses of" : currentLang === "zh" ? "相似患者的回答" : "Responses of"} {afterData?.totalRows} {currentLang === "en" ? "patients similar to" : currentLang === "zh" ? "患者相似于" : "patients similar to"}{" "}
-                    {getName(currentLang)} {termToMonths(selectedTerm)} {currentLang === "en" ? "months after surgery" : currentLang === "zh" ? "个月后的手术" : "months after surgery"}
-                  </h4>
+
                 </article>
 
                 <div className="w-full flex flex-row items-start mt-5">
