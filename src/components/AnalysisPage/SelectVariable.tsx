@@ -10,7 +10,7 @@ const SelectVariable: React.FC<SelectVariableProps> = ({ value, onChange, curren
   return (
     <article className="prose mb-5 flex flex-row items-center gap-3">
       <select
-        className="select select-bordered w-full max-w-xs"
+        className="select select-bordered w-full max-w-xs text-xl"
         value={value}
         onChange={onChange}
       >

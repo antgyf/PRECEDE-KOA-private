@@ -278,7 +278,7 @@ const renderHumanIcons = () => {
           />
         </ul>
 
-          <div className="text-xxl mb-3">
+          <div className="text-2xl mb-3">
             {currentLang === "en" ? "Self-reported Functions of Similar Patients before Surgery" : 
               currentLang === "zh" ? "相似患者手术前报告的功能" 
               : "Self-reported Functions of Similar Patients 6 Months after Surgery"}
