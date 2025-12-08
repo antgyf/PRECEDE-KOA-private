@@ -52,7 +52,7 @@ const BeforeSurgery: React.FC<BeforeSurgeryProps> = ({ activeTab, currentLang })
   const [filters, setFilters] = useState<FilterType>({
     categories: ["Age Range", "BMI Range"],
     age: { range: 5 },
-    bmi: { range: 5 },
+    bmi: { range: 2 },
     surgeonid: "",
     surgeontitle: "",
   });
@@ -278,9 +278,9 @@ const renderHumanIcons = () => {
           />
         </ul>
 
-          <div className="text-xxl">
+          <div className="text-xxl mb-3">
             {currentLang === "en" ? "Self-reported Functions of Similar Patients before Surgery" : 
-              currentLang === "zh" ? "手术前相似患者报告的功能" 
+              currentLang === "zh" ? "相似患者手术前报告的功能" 
               : "Self-reported Functions of Similar Patients 6 Months after Surgery"}
           </div>
       </article>

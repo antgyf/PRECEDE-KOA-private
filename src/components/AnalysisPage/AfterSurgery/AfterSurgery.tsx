@@ -54,7 +54,7 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) =
   const [filters, setFilters] = useState<FilterType>({
     categories: ["Age Range", "BMI Range"],
     age: { range: 5 },
-    bmi: { range: 5 },
+    bmi: { range: 2 },
   });
 
   const termToMonths = (term: number) => {
@@ -283,14 +283,14 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) =
                 <option disabled value="">
                   {currentLang === "en" ? "Select a post-surgery time point" : currentLang === "zh" ? "选择一个术后时间点" : "Select area"}
                 </option>
-                <option value={1}>6 months</option>
-                <option value={2}>12 months</option>
-                <option value={3}>24 months</option>
+                <option value={1}>6 {currentLang === "en" ? "months" : currentLang === "zh" ? "个月" : "months"}</option>
+                <option value={2}>12 {currentLang === "en" ? "months" : currentLang === "zh" ? "个月" : "months"}</option>
+                <option value={3}>24 {currentLang === "en" ? "months" : currentLang === "zh" ? "个月" : "months"}</option>
               </select>
             </ul>
 
 
-            <div className="text-xxl">
+            <div className="text-xxl mb-3">
               {currentLang === "en" ? "Self-reported Functions of Similar Patients after Surgery" : 
               currentLang === "zh" ? "相似患者手术后报告的功能" 
               : "Self-reported Functions of Similar Patients 6 Months after Surgery"}

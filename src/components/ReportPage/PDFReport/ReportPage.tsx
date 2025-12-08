@@ -26,7 +26,7 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab, currentLang }) => {
   const [filters, setFilters] = useState<FilterType>({
     categories: ["Age Range", "BMI Range"],
     age: { range: 5 },
-    bmi: { range: 5 },
+    bmi: { range: 2 },
   });
   const { alert, showAlert } = useAlert();
   const [questionData, setQuestionData] = useState<Record<number, QuestionData>>({});
@@ -276,7 +276,7 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab, currentLang }) => {
            {getRankDescription(currentLang)}
 
           </ul>
-          <div className="text-xxl">
+          <div className="text-xxl mb-3">
               {currentLang === "en" ? "Self-reported Functions of Similar Patients 6 Months after Surgery" : 
               currentLang === "zh" ? "相似患者手术后6个月报告的功能" 
               : "Self-reported Functions of Similar Patients 6 Months after Surgery"}
