@@ -289,13 +289,12 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) =
               </select>
             </ul>
 
-
-            <div className="text-xxl mb-3">
-              {currentLang === "en" ? "Self-reported Functions of Similar Patients after Surgery" : 
-              currentLang === "zh" ? "相似患者手术后报告的功能" 
-              : "Self-reported Functions of Similar Patients 6 Months after Surgery"}
-            </div>
         </article>
+        <div className="text-xxl mb-3">
+          {currentLang === "en" ? "Self-reported Functions of Similar Patients after Surgery" : 
+          currentLang === "zh" ? "相似患者手术后报告的功能" 
+          : "Self-reported Functions of Similar Patients 6 Months after Surgery"}
+        </div>
         {/* Filter Buttons */}
         <FilterButtonsComponent
           key={question ? question.id : "no-question"}
