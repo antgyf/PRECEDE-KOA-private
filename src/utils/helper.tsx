@@ -117,7 +117,7 @@ export const getFilterDescription = (filters: FilterType, patient: Patient, lan:
     } else if (lan === "zh") {
       parts.push(
         <>
-          <strong style={{ color: "#1976D2" }}>身体质量指数</strong> (在{" "}
+          <strong style={{ color: "#1976D2" }}>体重指数</strong> (在{" "}
           {filters.bmi.range} kg/m² 之间)
         </>
       );

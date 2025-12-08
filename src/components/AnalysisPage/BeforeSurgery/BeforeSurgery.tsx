@@ -263,7 +263,7 @@ const renderHumanIcons = () => {
             </strong>{" "}
             希望看到改善的主要方面是：
               </h3>
-          )}<ul>
+          )}<ul className="text-xl mb-3">
           {getRankDescription(currentLang)}
 
           {/* Variable Selection */}
@@ -278,7 +278,7 @@ const renderHumanIcons = () => {
           />
         </ul>
 
-          <div className="text-xl">
+          <div className="text-xxl">
             {currentLang === "en" ? "Self-reported Functions of Similar Patients before Surgery" : 
               currentLang === "zh" ? "手术前相似患者报告的功能" 
               : "Self-reported Functions of Similar Patients 6 Months after Surgery"}

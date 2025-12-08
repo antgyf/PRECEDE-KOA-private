@@ -272,13 +272,13 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab, currentLang }) => {
             希望看到改善的主要方面是：
               </h3>
           )}
-          <ul>
+          <ul className="text-xl mb-3">
            {getRankDescription(currentLang)}
 
           </ul>
-          <div className="text-xl">
+          <div className="text-xxl">
               {currentLang === "en" ? "Self-reported Functions of Similar Patients 6 Months after Surgery" : 
-              currentLang === "zh" ? "手术后6个月相似患者的自我报告功能" 
+              currentLang === "zh" ? "相似患者手术后6个月报告的功能" 
               : "Self-reported Functions of Similar Patients 6 Months after Surgery"}
           </div>
         </article>
