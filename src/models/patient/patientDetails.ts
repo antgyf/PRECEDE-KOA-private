@@ -307,7 +307,7 @@ export const GiveWayCh = {
 };
 
 export const OKSEaseCh = {
-  0: "可以，容易完成",
+  0: "能，很容易",
   1: "一点点困难",
   2: "有些困难",
   3: "非常困难",
