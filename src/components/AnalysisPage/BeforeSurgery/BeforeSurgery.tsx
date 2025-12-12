@@ -281,7 +281,7 @@ const renderHumanIcons = () => {
           <div className="text-2xl mb-3">
             {currentLang === "en" ? "Self-reported Functions of Similar Patients before Surgery" : 
               currentLang === "zh" ? "相似患者手术前报告的功能" 
-              : "Self-reported Functions of Similar Patients 6 Months after Surgery"}
+              : "Self-reported Functions of Similar Patients 6 Months before Surgery"}
           </div>
       </article>
 
@@ -304,7 +304,7 @@ const renderHumanIcons = () => {
           <div className="flex flex-wrap lg:flex-nowrap gap-4 ">
             <div className="w-full">
               <article className="prose max-w-none">
-                <h3>{currentLang === "en" ? question.question : currentLang === "zh" ? question.chineseDescription : question.question}</h3>
+                <h3>{currentLang === "en" ? question.question : currentLang === "zh" ? question.chQuestion : question.question}</h3>
                 <p>
                   {currentLang === "en" && (
                     <>Below are responses of {beforeData?.totalRows} patients similar to {getName(currentLang)}.{" "}

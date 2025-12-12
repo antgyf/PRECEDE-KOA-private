@@ -170,7 +170,7 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, language, onS
                 )}
               </div>
               <div className="flex flex-col">
-                <span className="font-medium">{`${index + 1}. ${language === "en" ? q.question.question : language === "zh" ? q.question.chineseDescription : ""}`}</span>
+                <span className="font-medium">{`${index + 1}. ${language === "en" ? q.question.question : language === "zh" ? q.question.chQuestion : ""}`}</span>
               </div>
             </div>
 

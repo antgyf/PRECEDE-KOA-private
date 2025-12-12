@@ -18,6 +18,8 @@ import HomePage from "./components/HomePage/HomePage";
 import FormPage from "./components/FormPage/FormPage";
 import PrioritiesPage from "./components/FormPage/PrioritiesPage";
 import AnalysisPage from "./components/AnalysisPage/AnalysisPage";
+import PreTkaSurveyPage from "./components/Survey/SurveyInputPage";
+import SurveyQuestionsPage from "./components/Survey/SurveyQuestions";
 
 function App() {
   return (
@@ -32,6 +34,8 @@ function App() {
               <Route path="/form" element={<FormPage />} />
               <Route path="/priorities" element={<PrioritiesPage />} />
               <Route path="/analysis" element={<AnalysisPage />} />
+              <Route path="/survey" element={<PreTkaSurveyPage />} />
+              <Route path="/surveyquestions" element={<SurveyQuestionsPage />} />
               {/* Default route */}
               <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>

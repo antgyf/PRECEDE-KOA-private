@@ -317,7 +317,7 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) =
             <div className="flex flex-wrap lg:flex-nowrap gap-4 ">
               <div className="w-full">
                 <article className="prose max-w-none">
-                  <h3>{currentLang === "en" ? question.question : currentLang === "zh" ? question.chineseDescription : question.question}</h3>
+                  <h3>{currentLang === "en" ? question.question : currentLang === "zh" ? question.chQuestion : question.question}</h3>
                   <p>
                     {currentLang === "en" && (
                       <>Below are responses of {afterData?.totalRows} patients at {termToMonths(selectedTerm)} months after surgery.{" "}

@@ -19,7 +19,7 @@ const SelectVariable: React.FC<SelectVariableProps> = ({ value, onChange, curren
         </option>
         {Questions.map((val) => (
           <option key={val.code} value={val.code}>
-            {currentLang === "en" ? val.question : currentLang === "zh" ? val.chineseDescription : val.question}
+            {currentLang === "en" ? val.question : currentLang === "zh" ? val.chQuestion : val.question}
           </option>
         ))}
       </select>

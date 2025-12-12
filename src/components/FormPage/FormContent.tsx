@@ -187,7 +187,7 @@ const FormContent: React.FC<FormContentProps> = ({ term, language }) => {
               <div key={q.id} className="w-full min-w-0 break-words">
                 <RadioChoice
                   name={q.code}
-                  question={`${index + 1}. ${language === "en" ? q.question : q.chineseDescription}`}
+                  question={`${index + 1}. ${language === "en" ? q.question : q.chQuestion}`}
                   list={language === "en" ? q.list : q.chList}
                   onChange={(value) => handleRadioInput(q.code, value)}
                   value={answers[q.code]}
