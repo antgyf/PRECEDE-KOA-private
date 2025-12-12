@@ -5,9 +5,10 @@ interface ForwardButtonProps {
   target: string; // Name of the next component or page
   to: string; // Path to navigate
   onClick?: () => void; // Optional extra logic to execute on click
+  isDisabled?: boolean; // Optional disable state
 }
 
-const ForwardButton: React.FC<ForwardButtonProps> = ({ target, to, onClick }) => {
+const ForwardButton: React.FC<ForwardButtonProps> = ({ target, to, onClick, isDisabled }) => {
   const navigate = useNavigate();
 
   const handleForward = () => {
@@ -15,6 +16,10 @@ const ForwardButton: React.FC<ForwardButtonProps> = ({ target, to, onClick }) =>
     if (onClick) onClick();
 
     // Navigate after that
+    if (isDisabled) {
+      alert("Please complete all required fields before proceeding.");
+      return;
+    }
     navigate(to);
   };
 
