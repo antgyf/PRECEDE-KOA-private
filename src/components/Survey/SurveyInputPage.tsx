@@ -58,6 +58,7 @@ const PreTkaSurveyPage: React.FC = () => {
     setLocalPatient({ ...localPatient, [e.target.name]: e.target.value });
   };
 
+  /*
   const handleNext = () => {
   // Check required patient fields
   const { fullName, sex, ethnicity, height, weight, age } = localPatient;
@@ -67,6 +68,7 @@ const PreTkaSurveyPage: React.FC = () => {
     }
     return true; // Allow navigation
     };
+*/
 
   return (
     <div className="w-full h-full flex flex-col overflow-y-auto">

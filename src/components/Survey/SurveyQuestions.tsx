@@ -17,7 +17,7 @@ const SurveyFormPage: React.FC = () => {
 
   // Local state
   const [currentLang, setCurrentLang] = useState<string>(langParam);
-  const [localPatient, setLocalPatient] = useState<Patient>(patientParam);
+  const [localPatient] = useState<Patient>(patientParam);
   const [localForm, setLocalForm] = useState<FormData>(formParam);
 
   return (
@@ -79,7 +79,7 @@ const SurveyFormPage: React.FC = () => {
           language={currentLang}
           patient={localPatient}
           form={localForm}
-          onComplete={(updatedForm) => setLocalForm(updatedForm)}
+          onComplete={(updatedForm: FormData) => setLocalForm(updatedForm)}
         />
       </div>
     </div>

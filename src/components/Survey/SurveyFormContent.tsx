@@ -6,13 +6,12 @@ interface SurveyFormContentProps {
   language: string;
   form: any; // local patient details from previous page
   patient: any; // local form details from previous page
-  onComplete: (answers: Record<string, string>) => void; // send answers upwards
+  onComplete: any; // send answers upwards
 }
 
 const SurveyFormContent: React.FC<SurveyFormContentProps> = ({
   language,
   patient,
-  form,
   onComplete,
 }) => {
   // Initialize answers for all questions
@@ -116,7 +115,7 @@ const SurveyFormContent: React.FC<SurveyFormContentProps> = ({
             <RadioChoice
               name={q.code}
               question={`${index + 1}. ${
-                language === "en" ? q.question : q.chineseDescription
+                language === "en" ? q.question : q.chQuestion
               }`}
               list={language === "en" ? q.list : q.chList}
               onChange={(value) => handleRadioInput(q.code, value)}
