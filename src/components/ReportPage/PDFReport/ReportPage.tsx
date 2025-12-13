@@ -81,6 +81,8 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab, currentLang }) => {
       
       // ✅ Handle both cases: no data yet AND empty data
       if (!data) {
+
+        if (currentLang === "en") {
         return {
           title: `No similar patients found for question ${key}`,
           options: [{ label: "No data available", percentageText: "0 of 0 (0%)", percent: 0 }],
@@ -88,17 +90,36 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab, currentLang }) => {
           variableQuestion: Questions.find((q) => q.id === key)?.description,
           initial: form?.responses.find((r) => r.questionid === key)?.answervalue ?? -1,
         };
+      } else if (currentLang === "zh") {
+        return {
+          title: `未找到与问题 ${key} 相似的患者`,
+          options: [{ label: "无可用数据", percentageText: "0 / 0 (0%)", percent: 0 }],
+          questionid: key,
+          variableQuestion: Questions.find((q) => q.id === key)?.chineseDescription,
+          initial: form?.responses.find((r) => r.questionid === key)?.answervalue ?? -1,
+        };
       }
+    }
 
       // ✅ Explicitly check for empty data
       if (data.totalRows === 0 || !data.data || data.data.length === 0) {
+        if (currentLang === "en") {
         return {
           title: `No similar patients found for question ${key}`,
           options: [{ label: "No data available", percentageText: "0 of 0 (0%)", percent: 0 }],
-          questionid: data.questionid,
-          variableQuestion: Questions.find((q) => q.id === data.questionid)?.description,
+          questionid: key,
+          variableQuestion: Questions.find((q) => q.id === key)?.description,
           initial: form?.responses.find((r) => r.questionid === key)?.answervalue ?? -1,
         };
+      } else if (currentLang === "zh") {
+        return {
+          title: `未找到与问题 ${key} 相似的患者`,
+          options: [{ label: "无可用数据", percentageText: "0 / 0 (0%)", percent: 0 }],
+          questionid: key,
+          variableQuestion: Questions.find((q) => q.id === key)?.chineseDescription,
+          initial: form?.responses.find((r) => r.questionid === key)?.answervalue ?? -1,
+        };
+      }
       }
 
       const title =
