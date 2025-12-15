@@ -18,7 +18,6 @@ const SurveyPrioritiesContent: React.FC<SurveyPrioritiesContentProps> = ({
   form,
   priorities,
   minPriorities,
-  patient,
   onPrioritiesChange,
 }) => {
   const { showAlert } = useAlert();
@@ -26,7 +25,7 @@ const SurveyPrioritiesContent: React.FC<SurveyPrioritiesContentProps> = ({
   const safePriorities = Array.isArray(priorities) ? priorities : [];
 
   // Initialize answers state
-  const [answers, setAnswers] = useState<Record<string, string>>(() => {
+  const [answers] = useState<Record<string, string>>(() => {
     if (form && Object.keys(form).length > 0) return { ...form };
 
     return Questions.reduce((acc, q) => {
@@ -106,8 +105,8 @@ const SurveyPrioritiesContent: React.FC<SurveyPrioritiesContentProps> = ({
                     const prevAnswer = answers[q.code];
                     if (!prevAnswer) return "-";
                     return language === "en"
-                      ? q.list?.[prevAnswer] ?? "-"
-                      : q.chList?.[prevAnswer] ?? "-";
+                      ? q.list?.[Number(prevAnswer)] ?? "-"
+                      : q.chList?.[Number(prevAnswer)] ?? "-";
                   })()}
                 </strong>
               </div>
