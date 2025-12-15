@@ -16,6 +16,10 @@ import {
 import BarChart from "../ReportPage/PDFReport/QuestionWithDynamicOptions/BarChart";
 import { Font } from "@react-pdf/renderer";
 import { Patient } from "./SurveyInputPage";
+import { useAlert } from "../../hooks/AlertContext";
+import { pdf } from "@react-pdf/renderer";
+import api from "../../api/api";
+
 
 Font.register({
   family: "NotoSansSC",
@@ -125,6 +129,8 @@ const SurveyPDFReport: React.FC<SurveyPDFReportProps> = ({
   currentLang,
 }) => {
 
+  const { showAlert } = useAlert();
+
   const styles = createStyles(currentLang);
   const numPriorities = barChartData.length;
 
@@ -209,7 +215,7 @@ const SurveyPDFReport: React.FC<SurveyPDFReportProps> = ({
 
   const pdfFileName = `${patient?.fullName} Summary Report.pdf`;
 
-  const renderPDFDocument = () => (
+  const renderPDFDocument = (): React.ReactElement => (
     <Document title={pdfFileName}>
       {/* Page 1: Bar Charts */}
       <Page size="A4" style={styles.page}>
@@ -292,24 +298,75 @@ const SurveyPDFReport: React.FC<SurveyPDFReportProps> = ({
       </Page>
       </Document>
         )
+
+      
+  const handleSendReport = async () => {
+    try {
+      // 1. Generate PDF Blob
+      const blob = await pdf(renderPDFDocument()).toBlob();
+
+      // 2. Prepare form data
+      const formData = new FormData();
+      formData.append("email", patient.email);
+      formData.append("mabelEmail", "e0959863@u.nus.edu")
+      formData.append("file", blob, pdfFileName);
+
+      // 3. Send to backend
+      const response = await api.post("/patients/send-report", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      if (response.status !== 200) {
+        throw new Error("Failed to send report");
+      }
+
+      showAlert(
+        currentLang === "zh"
+          ? "报告已成功发送至您的电子邮箱"
+          : "Your report has been emailed successfully",
+        "success"
+      );
+    } catch (err) {
+      console.error(err);
+      showAlert(
+        currentLang === "zh"
+          ? "发送报告时出错，请稍后再试"
+          : "Failed to send report. Please try again.",
+        "error"
+      );
+    }
+  };
   
   return (
     <div className="w-full flex flex-col justify-center items-center">
+  {/* Action buttons row */}
+    <div className="flex flex-row gap-4 mb-4">
       <PDFDownloadLink
         document={renderPDFDocument()}
         fileName={pdfFileName}
-        className="btn btn-primary text-xl max-w-7xl mb-2"
+        className="btn btn-primary text-xl"
       >
         Download PDF
       </PDFDownloadLink>
-      <PDFViewer
-        width="100%"
-        height="850px"
-        style={{ border: "2px solid black", backgroundColor: "white" }}
+
+      <button
+        onClick={handleSendReport}
+        className="px-6 py-3 rounded-xl bg-green-600 text-white text-lg font-semibold hover:bg-green-700 transition"
       >
-        {renderPDFDocument()}
-      </PDFViewer>
+        {currentLang === "zh" ? "通过电子邮件发送报告" : "Email My Report"}
+      </button>
     </div>
+
+    <PDFViewer
+      width="100%"
+      height="850px"
+      style={{ border: "2px solid black", backgroundColor: "white" }}
+    >
+      {renderPDFDocument()}
+    </PDFViewer>
+  </div>
+
   );
 };
 

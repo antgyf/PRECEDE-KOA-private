@@ -76,7 +76,7 @@ const SurveyPrioritiesContent: React.FC<SurveyPrioritiesContentProps> = ({
       </h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {availableQuestions.map((q, index) => {
+        {availableQuestions.map((q) => {
           const isSelected = safePriorities.includes(q.code);
 
           return (
@@ -94,7 +94,7 @@ const SurveyPrioritiesContent: React.FC<SurveyPrioritiesContentProps> = ({
                   }`}
                 />
                 <span>
-                  {index + 1}. {language === "en" ? q.question : q.chQuestion}
+                  {q.id <= 3 ? `${q.id}.` : `${q.id - 5}.`} {language === "en" ? q.question : q.chQuestion}
                 </span>
               </div>
 

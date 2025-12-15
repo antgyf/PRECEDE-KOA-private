@@ -146,7 +146,7 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, language, onS
         {language === "en" ? "Below are the health problems you reported. Please select up to 5 problems you wish to improve most." : 
       language === "zh" ? "以下是您报告的健康问题。请选择最多5个您最希望改善的问题。" : ""}</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {availableQuestions.map((q, index) => (
+        {availableQuestions.map((q) => (
           <div
             key={q.question.id}
             className={`p-4 border rounded-xl shadow-sm bg-white flex flex-col gap-2 cursor-pointer transition-all ${
@@ -170,7 +170,7 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, language, onS
                 )}
               </div>
               <div className="flex flex-col">
-                <span className="font-medium">{`${index + 1}. ${language === "en" ? q.question.question : language === "zh" ? q.question.chQuestion : ""}`}</span>
+                <span className="font-medium">{`${q.question.id <= 3 ? q.question.id : q.question.id - 5}. ${language === "en" ? q.question.question : language === "zh" ? q.question.chQuestion : ""}`}</span>
               </div>
             </div>
 

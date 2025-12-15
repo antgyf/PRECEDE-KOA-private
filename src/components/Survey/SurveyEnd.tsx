@@ -57,6 +57,7 @@ const SurveyEndPage: React.FC = () => {
                         : "You can click the Back button to review or edit your previous answers."}
                 </p>
             </div>
+            
         </div>
     );
 };

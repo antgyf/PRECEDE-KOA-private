@@ -1,5 +1,7 @@
 import { Router, Request, Response } from "express";
 import pool from "./database.mts";
+import multer from "multer";
+import nodemailer from "nodemailer";
 
 const router = Router();
 
@@ -781,6 +783,55 @@ router.delete(
     }
   }
 );
+
+const upload = multer({
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+});
+
+router.post("/send-report", upload.single("file"), async (req, res) => {
+  try {
+    const { email } = req.body;
+    const pdfBuffer = req.file?.buffer;
+
+    if (!email || !pdfBuffer) {
+      return res.status(400).json({ message: "Missing email or PDF" });
+    }
+
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false, // TLS
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    await transporter.sendMail({
+      from: `"Precede TKA" <${process.env.EMAIL_USER}>`,
+      to: email,
+      //cc: req.body.mabelEmail,
+      bcc: "anthonygohyf@gmail.com",
+      subject: "Precede TKA Survey Report",
+      text:
+        "Thank you for taking part in the Precede TKA Survey!\n\n" +
+        "Please find your survey report attached.\n\n" +
+        "Best regards,\nPrecede TKA Team",
+      attachments: [
+        {
+          filename: "survey-report.pdf",
+          content: pdfBuffer,
+        },
+      ],
+    });
+
+    return res.json({ success: true });
+  } catch (error) {
+    console.error("Email send failed:", error);
+    return res.status(500).json({ message: "Failed to send email" });
+  }
+});
+
 
 
 export { router };
