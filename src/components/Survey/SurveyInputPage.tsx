@@ -134,6 +134,18 @@ const PreTkaSurveyPage: React.FC = () => {
           />
         </label>
 
+        {/* Email */}
+        <label className="flex flex-col gap-1">
+          <span className="font-medium">电子邮件</span>
+          <input
+            type="email"
+            name="email"
+            value={localPatient.email}
+            onChange={handleChange}
+            className="border p-2 rounded"
+          />
+        </label>
+
         {/* Sex */}
         <label className="flex flex-col gap-1">
           <span className="font-medium">性别</span>
