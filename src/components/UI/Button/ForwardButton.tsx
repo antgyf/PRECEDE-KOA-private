@@ -2,31 +2,40 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 
 interface ForwardButtonProps {
-  target: string; // Name of the next component or page
-  to: string; // Path to navigate
-  onClick?: () => void; // Optional extra logic to execute on click
-  isDisabled?: boolean; // Optional disable state
+  target: string;
+  to: string;
+  onClick?: () => void;
+  isDisabled?: boolean;
 }
 
-const ForwardButton: React.FC<ForwardButtonProps> = ({ target, to, onClick, isDisabled }) => {
+const ForwardButton: React.FC<ForwardButtonProps> = ({
+  target,
+  to,
+  onClick,
+  isDisabled = false,
+}) => {
   const navigate = useNavigate();
 
   const handleForward = () => {
-    // Call any extra logic from parent
-    if (onClick) onClick();
-
-    // Navigate after that
     if (isDisabled) {
       alert("Please complete all required fields before proceeding.");
       return;
     }
+
+    if (onClick) onClick();
     navigate(to);
   };
 
   return (
     <button
+      disabled={isDisabled}
       onClick={handleForward}
-      className="btn btn-primary flex items-center gap-2 text-lg m-2 text-white"
+      className={`btn flex items-center gap-2 text-lg m-2 text-white
+        ${
+          isDisabled
+            ? "bg-gray-400 cursor-not-allowed opacity-60"
+            : "btn-primary hover:brightness-110"
+        }`}
     >
       {target}
       <svg

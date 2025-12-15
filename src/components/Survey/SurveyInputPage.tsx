@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import ForwardButton from "../UI/Button/ForwardButton";
 import LanguageDropdown from "../UI/Button/LanguageDropdown";
+import BackButton from "../UI/Button/BackButton";
+import Alert from "../UI/Alert";
+import { useAlert } from "../../hooks/AlertContext";
 
 // You can define proper types if needed
 export interface Patient {
@@ -12,13 +15,17 @@ export interface Patient {
   height: string;
   weight: string;
   bmi: string;
+  email: string;
 }
 
 export interface FormData {
-  [key: string]: any;
+  [key: string]: string;
 }
 
+export type PrioritiesData = string[];
+
 const PreTkaSurveyPage: React.FC = () => {
+  const { alert } = useAlert();
   const { search } = useLocation();
   const params = new URLSearchParams(search);
 
@@ -26,6 +33,7 @@ const PreTkaSurveyPage: React.FC = () => {
   const langParam = params.get("lang") || "en";
   const patientParam = params.get("patient") ? JSON.parse(params.get("patient")!) : {};
   const formParam = params.get("form") ? JSON.parse(params.get("form")!) : {};
+  const prioritiesParam = params.get("priorities") ? JSON.parse(params.get("priorities")!) : {};
 
   // Local states
   const [localLang, setLocalLang] = useState<string>(langParam);
@@ -37,8 +45,10 @@ const PreTkaSurveyPage: React.FC = () => {
     height: patientParam?.height || "",
     weight: patientParam?.weight || "",
     bmi: patientParam?.bmi || "",
+    email: patientParam?.email || "",
   });
   const [localForm] = useState<FormData>(formParam);
+  const [localPriorities] = useState<PrioritiesData>(prioritiesParam);
 
   // Auto-calculate BMI
   useEffect(() => {
@@ -71,21 +81,47 @@ const PreTkaSurveyPage: React.FC = () => {
 */
 
   return (
-    <div className="w-full h-full flex flex-col overflow-y-auto">
-      {/* Header */}
-      <div className="flex justify-center items-center h-full w-full">
-        <article className="prose">
-          <h1>Precede TKA Survey</h1>
-        </article>
+    <div className="w-screen h-full flex flex-col">
+      {alert.message && <Alert />}
+
+      {/* Fixed Tab Navigation */}
+      <div className="top-0 left-0 w-full bg-white z-50 shadow-md p-5">
+        <div className="flex justify-between">
+        <div className="flex items-center">
+            <BackButton
+              target={
+                localLang === "en"
+                  ? "Back"
+                  : localLang === "zh"
+                  ? "返回"
+                  : ""
+              }
+              to={`/surveyintro?lang=${localLang}&patient=${encodeURIComponent(
+                JSON.stringify(localPatient)
+            )}&form=${encodeURIComponent(JSON.stringify(localForm))}
+            &priorities=${encodeURIComponent(JSON.stringify(localPriorities))}`} // preserve language
+            />
+          </div>
 
         <div className="flex-1 flex justify-center">
           <LanguageDropdown currentLang={localLang} onChange={setLocalLang} />
+        </div>
+
+        {/* Forward Button */}
+        <ForwardButton
+          target={localLang === "zh" ? "下一页" : "Next"}
+          to={`/surveyquestions?lang=${localLang}&form=${encodeURIComponent(
+            JSON.stringify(localForm)
+          )}&patient=${encodeURIComponent(JSON.stringify(localPatient))}
+          &priorities=${encodeURIComponent(JSON.stringify(localPriorities))}`}
+          isDisabled={(!localPatient.fullName || !localPatient.email || !localPatient.sex || !localPatient.ethnicity || !localPatient.height || !localPatient.weight || !localPatient.age)}
+        />
         </div>
       </div>
 
       {/* Form */}
       {localLang === "zh" && (
-      <div className="mt-6 max-w-xl w-full flex flex-col gap-4 bg-white p-6 rounded-2xl shadow">
+      <div className="mt-2 max-w-xl w-full flex flex-col gap-4 bg-white p-6 rounded-2xl shadow">
         {/* Full Name */}
         <label className="flex flex-col gap-1">
           <span className="font-medium">姓名</span>
@@ -195,6 +231,18 @@ const PreTkaSurveyPage: React.FC = () => {
           />
         </label>
 
+        {/* Email */}
+        <label className="flex flex-col gap-1">
+          <span className="font-medium">Email</span>
+          <input
+            type="email"
+            name="email"
+            value={localPatient.email}
+            onChange={handleChange}
+            className="border p-2 rounded"
+          />
+        </label>
+
         {/* Sex */}
         <label className="flex flex-col gap-1">
           <span className="font-medium">Sex</span>
@@ -277,15 +325,6 @@ const PreTkaSurveyPage: React.FC = () => {
         </label>
       </div>
       )}
-
-      {/* Forward Button */}
-      <ForwardButton
-        target={localLang === "zh" ? "下一页" : "Next"}
-        to={`/surveyquestions?lang=${localLang}&form=${encodeURIComponent(
-          JSON.stringify(localForm)
-        )}&patient=${encodeURIComponent(JSON.stringify(localPatient))}`}
-        isDisabled={(!localPatient.fullName || !localPatient.sex || !localPatient.ethnicity || !localPatient.height || !localPatient.weight || !localPatient.age)}
-      />
 
     </div>
   );

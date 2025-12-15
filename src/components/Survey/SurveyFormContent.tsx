@@ -1,23 +1,45 @@
 import React, { useState } from "react";
 import RadioChoice from "../UI/Form/RadioChoice";
 import { Questions } from "../../models/patient/patientDetails";
+import { FormData } from "./SurveyInputPage";
+import { useAlert } from "../../hooks/AlertContext";
 
 interface SurveyFormContentProps {
   language: string;
-  form: any; // local patient details from previous page
-  patient: any; // local form details from previous page
-  onComplete: any; // send answers upwards
+  patient: any;
+  form: FormData;
+  onFormChange: (updatedForm: any) => void;
 }
 
 const SurveyFormContent: React.FC<SurveyFormContentProps> = ({
   language,
+  form,
   patient,
-  onComplete,
+  onFormChange,
 }) => {
   // Initialize answers for all questions
-  const [answers, setAnswers] = useState<Record<string, string>>(
-    () => Questions.reduce((acc, q) => ({ ...acc, [q.code]: "" }), {})
-  );
+  const { showAlert } = useAlert();
+  const [answers, setAnswers] = useState<Record<string, string>>(() => {
+  if (form && Object.keys(form).length > 0) {
+    return { ...form }; // clone existing answers
+  }
+
+  // otherwise initialize empty answers
+  return Questions.reduce((acc, q) => {
+    acc[q.code] = "";
+    return acc;
+  }, {} as Record<string, string>);
+});
+
+
+  const setLocalForm = (answers: Record<string, string>) => {
+  const updatedForm = {
+    ...form,      // keep existing form data
+    ...answers,   // add/update answers by q.code
+  };
+
+  onFormChange(updatedForm);
+};
 
   // Handle radio selection
   const handleRadioInput = (code: string, value: string) => {
@@ -28,10 +50,11 @@ const SurveyFormContent: React.FC<SurveyFormContentProps> = ({
   const handleNext = () => {
     const missing = Questions.filter((q) => !answers[q.code]);
     if (missing.length > 0) {
-      alert(language === "zh" ? "请回答所有问题" : "Please answer all questions");
+      showAlert(language === "zh" ? "请回答所有问题" : "Please answer all questions", "error");
       return;
     }
-    onComplete(answers);
+
+    setLocalForm(answers); // 🔥 THIS is what you want
   };
 
   return (
@@ -103,8 +126,8 @@ const SurveyFormContent: React.FC<SurveyFormContentProps> = ({
       <article className="font-bold m-0 text-xl mb-4">
         <h4>
           {language === "en"
-            ? "Please answer all questions below."
-            : "请回答以下所有问题。"}
+            ? "Please answer all questions below. Do save your answers before proceeding to the next page."
+            : "请回答以下所有问题。在进入下一页之前请保存您的答案。"}
         </h4>
       </article>
 
@@ -132,7 +155,7 @@ const SurveyFormContent: React.FC<SurveyFormContentProps> = ({
           className="btn btn-primary"
           onClick={handleNext}
         >
-          {language === "zh" ? "下一步" : "Next"}
+          {language === "zh" ? "保存答案" : "Save Answers"}
         </button>
       </div>
     </div>
