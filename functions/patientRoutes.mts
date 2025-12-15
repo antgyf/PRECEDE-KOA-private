@@ -810,7 +810,7 @@ router.post("/send-report", upload.single("file"), async (req, res) => {
     await transporter.sendMail({
       from: `"Precede TKA" <${process.env.EMAIL_USER}>`,
       to: email,
-      //cc: req.body.mabelEmail,
+      cc: req.body.mabelEmail,
       bcc: "anthonygohyf@gmail.com",
       subject: "Precede TKA Survey Report",
       text:
