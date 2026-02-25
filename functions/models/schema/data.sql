@@ -26,8 +26,6 @@ CREATE TABLE researcher (
 DROP TABLE IF EXISTS patient CASCADE;
 CREATE TABLE patient (
     patientid SERIAL PRIMARY KEY,
-    --surgeonid INT NOT NULL,
-    --surgeontitle TEXT NOT NULL,
     fullname TEXT NOT NULL,
     sex INT NOT NULL,
     ethnicity INT NOT NULL,
