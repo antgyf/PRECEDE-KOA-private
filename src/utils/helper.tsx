@@ -92,15 +92,15 @@ export const getFilterDescription = (filters: FilterType, patient: Patient, lan:
     if (lan === "en") {
       parts.push(
         <>
-          <strong style={{ color: "#1976D2" }}>Age</strong> (within{" "}
-          {filters.age.range} years)
+          <strong style={{ color: "#1976D2" }}>Age</strong> (between{" "}
+          {patient.age - filters.age.range} and {patient.age + filters.age.range} years)
         </>
       );
     } else if (lan === "zh") {
       parts.push(
         <>
           <strong style={{ color: "#1976D2" }}>年龄</strong> (在{" "}
-          {filters.age.range} 岁之间)
+          {patient.age - filters.age.range} 岁和 {patient.age + filters.age.range} 岁之间)
         </>
       );
     }
@@ -110,15 +110,15 @@ export const getFilterDescription = (filters: FilterType, patient: Patient, lan:
     if (lan === "en") {
       parts.push(
         <>
-          <strong style={{ color: "#1976D2" }}>BMI</strong> (within{" "}
-          {filters.bmi.range} kg/m²)
+          <strong style={{ color: "#1976D2" }}>BMI</strong> (between{" "}
+          {patient.bmi - filters.bmi.range} and {patient.bmi + filters.bmi.range})
         </>
       );
     } else if (lan === "zh") {
       parts.push(
         <>
           <strong style={{ color: "#1976D2" }}>体重指数</strong> (在{" "}
-          {filters.bmi.range} kg/m² 之间)
+          {patient.bmi - filters.bmi.range} 和 {patient.bmi + filters.bmi.range}之间)
         </>
       );
     }
