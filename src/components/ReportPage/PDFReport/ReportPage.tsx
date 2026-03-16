@@ -300,6 +300,7 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab, currentLang }) => {
           barChartData={barChartData}
           renderRadar={false} 
           currentLang={currentLang}
+
         />
       )}
     </div>

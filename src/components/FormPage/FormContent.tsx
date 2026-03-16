@@ -179,10 +179,10 @@ const FormContent: React.FC<FormContentProps> = ({ term, language }) => {
       ) : (
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           <PatientDetail currentLang={language}/>
-          <article className="font-bold m-0 text-xl"> {/* Add text-xl only to elements that need it */}
+          <article className="font-bold m-0 text-3xl"> {/* Add text-xl only to elements that need it */}
             <h4 className="my-0"> {language === "en" ? "Please answer all questions below." : language === "zh" ? "请回答以下所有问题。" : ""}</h4>
           </article>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 text-base">
+          <div className="grid grid-cols-1 gap-8 text-base">
             {Questions.map((q, index) => (
               <div key={q.id} className="w-full min-w-0 break-words">
                 <RadioChoice

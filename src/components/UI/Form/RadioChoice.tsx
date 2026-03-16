@@ -24,7 +24,7 @@ const RadioChoice: React.FC<RadioChoiceProps> = ({
 
   return (
     <div className="form-control">
-      <article className="font-bold mb-1">
+      <article className="font-bold mb-1 text-2xl">
         <h4>{question}</h4>
       </article>
 

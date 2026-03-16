@@ -157,16 +157,22 @@ const PDFReport: React.FC<PDFReportProps> = ({
 
     // Age
     if (filters.categories.includes("Age Range") && filters.age) {
+      const age = patient.age;
+      const ageRange = filters.age.range;
+
+      const lowerAge = age - ageRange;
+      const upperAge = age + ageRange;
+
       if (currentLang === "en") {
         descriptionParts.push(
           <>
-            <Text style={styles.boldText}>Age</Text> (within {filters.age.range} years)
+            <Text style={styles.boldText}>Age</Text> (between {lowerAge} and {upperAge})
           </>
         );
       } else if (currentLang === "zh") {
         descriptionParts.push(
           <>
-            <Text style={styles.boldText}>年龄</Text> (相差{filters.age.range}岁之内)
+            <Text style={styles.boldText}>年龄</Text> (在{lowerAge}到{upperAge}之间)
           </>
         );
       }
@@ -174,16 +180,21 @@ const PDFReport: React.FC<PDFReportProps> = ({
 
     // BMI
     if (filters.categories.includes("BMI Range") && filters.bmi) {
+      const bmiNum = Number(patient.bmi);
+      const rangeNum = Number(filters.bmi.range);
+
+      const lower = (bmiNum - rangeNum).toFixed(2);
+      const upper = (bmiNum + rangeNum).toFixed(2);
       if (currentLang === "en") {
         descriptionParts.push(
           <>
-            <Text style={styles.boldText}>BMI</Text> (within {filters.bmi.range} kg/m²)
+            <Text style={styles.boldText}>BMI</Text> (between {lower} and {upper})
           </>
         );
       } else if (currentLang === "zh") {
         descriptionParts.push(
           <>
-            <Text style={styles.boldText}>体重指数(BMI)</Text> (相差{filters.bmi.range}kg/m²之内)
+            <Text style={styles.boldText}>体重指数(BMI)</Text> (在{lower}到{upper}之间)
           </>
         );
       }

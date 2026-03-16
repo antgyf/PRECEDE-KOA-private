@@ -139,44 +139,78 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, language, onS
   };
   
   if (isLoading) return <p>{language === "en" ? "Loading priorities..." : language === "zh" ? "加载优先事项..." : ""}</p>;
-
-  return (
-    <form className="flex flex-col gap-4 text-xl" onSubmit={handleSubmit}>
+return (
+  <form
+    className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8 text-2xl"
+    onSubmit={handleSubmit}
+  >
+    {/* LEFT SIDE — QUESTION SELECTION */}
+    <div className="flex flex-col gap-6">
       <h3>
-        {language === "en" ? "Below are the health problems you reported. Please select up to 5 problems you wish to improve most." : 
-      language === "zh" ? "以下是您报告的健康问题。请选择最多5个您最希望改善的问题。" : ""}</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {language === "en"
+          ? "Below are the health problems you reported. Please select up to 5 problems you wish to improve most."
+          : language === "zh"
+          ? "以下是您报告的健康问题。请选择最多5个您最希望改善的问题。"
+          : ""}
+      </h3>
+
+      <div className="grid grid-cols-1 gap-6">
         {availableQuestions.map((q) => (
           <div
             key={q.question.id}
             className={`p-4 border rounded-xl shadow-sm bg-white flex flex-col gap-2 cursor-pointer transition-all ${
               selectedPriorities.includes(q.question.id)
-                ? 'ring-2 ring-green-500 bg-green-50 border-green-300'
-                : 'hover:bg-gray-50 hover:shadow-md'
+                ? "ring-2 ring-green-500 bg-green-50 border-green-300"
+                : "hover:bg-gray-50 hover:shadow-md"
             }`}
-            onClick={() => !isDisabled && handleTogglePriority(q.question.id)}
+            onClick={() =>
+              !isDisabled && handleTogglePriority(q.question.id)
+            }
           >
-            {/* Checkbox row - now just visual indicator */}
             <div className="flex items-start gap-3">
-              <div className={`mt-1 h-5 w-5 border-2 rounded flex items-center justify-center ${
-                selectedPriorities.includes(q.question.id)
-                  ? 'bg-green-600 border-green-600'
-                  : 'border-gray-400'
-              }`}>
+              <div
+                className={`mt-1 h-5 w-5 border-2 rounded flex items-center justify-center ${
+                  selectedPriorities.includes(q.question.id)
+                    ? "bg-green-600 border-green-600"
+                    : "border-gray-400"
+                }`}
+              >
                 {selectedPriorities.includes(q.question.id) && (
-                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  <svg
+                    className="w-3 h-3 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={3}
+                      d="M5 13l4 4L19 7"
+                    />
                   </svg>
                 )}
               </div>
-              <div className="flex flex-col">
-                <span className="font-medium">{`${q.question.id <= 3 ? q.question.id : q.question.id - 5}. ${language === "en" ? q.question.question : language === "zh" ? q.question.chQuestion : ""}`}</span>
+
+              <div className="flex flex-col text-2xl">
+                <span className="font-medium">
+                  {`${q.question.id <= 3 ? q.question.id : q.question.id - 5}. ${
+                    language === "en"
+                      ? q.question.question
+                      : language === "zh"
+                      ? q.question.chQuestion
+                      : ""
+                  }`}
+                </span>
               </div>
             </div>
 
-            {/* Previous response (disabled radio buttons) */}
             <div className="ml-8 p-2 rounded text-gray-700">
-              {language === "en" ? "Previously selected option: " : language === "zh" ? "先前选择的选项：" : ""}
+              {language === "en"
+                ? "Previously selected option: "
+                : language === "zh"
+                ? "先前选择的选项："
+                : ""}
               <strong>
                 {language === "en"
                   ? q.question.list[q.answervalue]
@@ -188,15 +222,70 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, language, onS
           </div>
         ))}
       </div>
-      <div className={`${isDisabled ? 'mb-6' : ''}`}>
+
       {!isDisabled && (
         <div className="mt-4">
-          <GreenButton buttonText={language === "en" ? "Submit Priorities" : language === "zh" ? "提交优先事项" : ""} />
+          <GreenButton
+            buttonText={
+              language === "en"
+                ? "Submit Priorities"
+                : language === "zh"
+                ? "提交优先事项"
+                : ""
+            }
+          />
         </div>
       )}
-      </div>
-    </form>
-  );
+    </div>
+
+    {/* RIGHT SIDE — STICKY CHOSEN AREAS PANEL */}
+    <div className="sticky top-6 h-fit bg-white border rounded-xl shadow p-4">
+      <h4 className="font-bold mb-3">
+        {language === "en"
+          ? `Chosen Areas (${selectedPriorities.length}/5)`
+          : `已选择的问题 (${selectedPriorities.length}/5)`}
+      </h4>
+
+      {selectedPriorities.length === 0 && (
+        <p className="text-gray-500 text-lg">
+          {language === "en" ? "No areas selected yet." : "尚未选择问题。"}
+        </p>
+      )}
+
+      <ul className="flex flex-col gap-2">
+        {selectedPriorities.map((id, index) => {
+          const q = availableQuestions.find(
+            (q) => q.question.id === id
+          );
+
+          return (
+            <li
+              key={id}
+              className="p-2 rounded bg-green-50 border border-green-200 flex justify-between items-center"
+            >
+              <span className="text-lg">
+                {index + 1}.{" "}
+                {language === "en"
+                  ? q?.question.question
+                  : q?.question.chQuestion}
+              </span>
+
+              {!isDisabled && (
+                <button
+                  type="button"
+                  onClick={() => handleTogglePriority(id)}
+                  className="text-red-500 text-sm"
+                >
+                  ✕
+                </button>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  </form>
+);
 };
 
 export default PrioritiesContent;
