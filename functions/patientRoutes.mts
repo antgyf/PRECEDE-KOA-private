@@ -298,6 +298,55 @@ router.post("/forms", async (req: Request, res: Response) => {
   }
 });
 
+router.put("/forms", async (req: Request, res: Response) => {
+  const client = await pool.connect();
+
+  try {
+    const { patientid, term = 0, responses } = req.body;
+
+    await client.query("BEGIN");
+
+    // 1. Get the existing form
+    const formResult = await client.query(
+      `SELECT formid 
+       FROM patientform 
+       WHERE patientid = $1 AND term = $2`,
+      [patientid, term]
+    );
+
+    if (formResult.rowCount === 0) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({ message: "Form not found." });
+    }
+
+    const formid = formResult.rows[0].formid;
+
+    // 2. Update each response
+    for (const r of responses) {
+      await client.query(
+        `UPDATE patientformresponse
+         SET answervalue = $1
+         WHERE formid = $2 AND questionid = $3`,
+        [r.answervalue, formid, r.questionid]
+      );
+    }
+
+    await client.query("COMMIT");
+
+    res.status(200).json({
+      message: "Responses updated successfully",
+      formid,
+    });
+
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error(error);
+    res.status(500).json({ message: "Failed to update responses" });
+  } finally {
+    client.release();
+  }
+});
+
 
 // GET /responses?patientid=123&term=0
 router.get("/responses", async (req: Request, res: Response) => {
@@ -409,6 +458,76 @@ router.post("/priorities", async (req: Request, res: Response) => {
   }
 });
 
+router.put("/priorities", async (req: Request, res: Response) => {
+  const client = await pool.connect();
+
+  try {
+    const { patientid, term, priorities, maxPriorities } = req.body;
+
+    if (
+      !patientid ||
+      term === undefined ||
+      !Array.isArray(priorities) ||
+      priorities.length > (Number(maxPriorities) || 5)
+    ) {
+      return res.status(400).json({
+        message: `You must provide at most ${maxPriorities || 5} priorities.`,
+      });
+    }
+
+    const unique = new Set(priorities);
+    if (unique.size !== priorities.length) {
+      return res.status(400).json({
+        message: "Duplicate priorities are not allowed.",
+      });
+    }
+
+    await client.query("BEGIN");
+
+    // 1️⃣ Ensure form exists (optional but good)
+    const formCheck = await client.query(
+      `SELECT 1 FROM patientform WHERE patientid = $1 AND term = $2`,
+      [patientid, term]
+    );
+
+    if (formCheck.rowCount === 0) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({ message: "Form not found for this term." });
+    }
+
+    // 2️⃣ Delete old priorities
+    await client.query(
+      `DELETE FROM patientpriority
+       WHERE patientid = $1 AND term = $2`,
+      [patientid, term]
+    );
+
+    // 3️⃣ Insert new priorities
+    for (const qid of priorities) {
+      await client.query(
+        `INSERT INTO patientpriority (patientid, questionid, term)
+         VALUES ($1, $2, $3)`,
+        [patientid, qid, term]
+      );
+    }
+
+    await client.query("COMMIT");
+
+    res.status(200).json({
+      message: "Priorities updated successfully",
+      patientid,
+      term,
+      priorities,
+    });
+
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error("Error updating priorities:", error);
+    res.status(500).json({ message: "Failed to update priorities" });
+  } finally {
+    client.release();
+  }
+});
 
 interface Patient {
   referencepatientid: number;
@@ -676,7 +795,6 @@ router.post("/after", async (req: Request, res: Response) => {
         [questionid, term, option, baselinePatientIds]
       );
 
-      //console.log("Option query params:", [questionid, term, option, baselinePatientIds]);
 
       const count = optionRows[0]?.count || 0;
 
@@ -723,8 +841,6 @@ router.post("/after", async (req: Request, res: Response) => {
 
       responsePayload.median = medianValue;
     }
-
-    //console.log("Response Payload:", responsePayload);
 
     res.status(200).json(responsePayload);
   } catch (error) {

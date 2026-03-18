@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAlert } from "../../hooks/AlertContext";
 import RadioChoice from "../UI/Form/RadioChoice";
 import { Questions } from "../../models/patient/patientDetails";
@@ -9,6 +8,7 @@ import { useForm } from "../../hooks/FormContext";
 import GreenButton from "../UI/Button/GreenButton";
 import PatientDetail from "./PatientDetail";
 import { PatientForm } from "../../models/patient/patientReport";
+import { useNavigate } from "react-router-dom";
 
 interface FormContentProps {
   term?: number; // optional, fallback to context
@@ -17,16 +17,22 @@ interface FormContentProps {
 
 const FormContent: React.FC<FormContentProps> = ({ term, language }) => {
   const { showAlert } = useAlert();
-  const navigate = useNavigate();
   const { setCurrentPatient } = useForm();
-  const { patient, form, term: contextTerm, setCurrentForm } = useForm();
+  const { patient, term: contextTerm, setCurrentForm } = useForm();
   const termToUse = term ?? contextTerm;
+  const navigate = useNavigate();
 
   const [answers, setAnswers] = useState<Record<string, string>>(
     () => Questions.reduce((acc, q) => ({ ...acc, [q.code]: "" }), {})
   );
+
+  const [originalAnswers, setOriginalAnswers] = useState<Record<string, string>>(
+    () => Questions.reduce((acc, q) => ({ ...acc, [q.code]: "" }), {})
+  );
+
   const [isLoading, setIsLoading] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   /** Fetch form for selected term */
   useEffect(() => {
@@ -44,7 +50,13 @@ const FormContent: React.FC<FormContentProps> = ({ term, language }) => {
       });
 
       if (response.data.length === 0) {
-        setAnswers(Questions.reduce((acc : Record<string, string>, q) => ({ ...acc, [q.code]: "" }), {}));
+        const emptyAnswers = Questions.reduce(
+          (acc: Record<string, string>, q) => ({ ...acc, [q.code]: "" }),
+          {}
+        );
+
+        setAnswers(emptyAnswers);
+        setOriginalAnswers(emptyAnswers); // ⭐ important
         setIsDisabled(false);
         if (language === "en") showAlert("No form exists for this term. You can create one.", "info");
         else if (language === "zh") showAlert("此期间不存在表单。您可以创建一个。", "info");
@@ -64,11 +76,6 @@ const FormContent: React.FC<FormContentProps> = ({ term, language }) => {
 
       setCurrentForm(formData, termToUse);
 
-      // Only update context if the current form in context is undefined or different
-      if (!form || form.term !== termToUse) {
-        setCurrentForm(formData, termToUse);
-      }
-
       // Map questionid -> code
       const questionIdToCode = Questions.reduce((acc, q) => {
         acc[q.id] = q.code;
@@ -85,7 +92,9 @@ const FormContent: React.FC<FormContentProps> = ({ term, language }) => {
       }, {} as Record<string, string>);
 
       setAnswers(populatedAnswers);
+      setOriginalAnswers(populatedAnswers);
       setIsDisabled(true);
+      setIsEditing(false);
     } catch (error) {
       console.error("Error fetching form data:", error);
       if (language === "en") showAlert("Error loading form data.", "error");
@@ -135,8 +144,15 @@ const FormContent: React.FC<FormContentProps> = ({ term, language }) => {
     };
 
     try {
-      showAlert("Submitting form...", "info");
-      const response = await api.post(`/patients/forms`, formData, {
+      if (language === "en") showAlert("Submitting form...", "info");
+      else if (language === "zh") showAlert("提交中...", "info");
+      const endpoint = isEditing
+        ? "/patients/forms"
+        : "/patients/forms";
+
+      const method = isEditing ? api.put : api.post;
+
+      const response = await method(endpoint, formData, {
         headers: { "Content-Type": "application/json" },
       });
 
@@ -144,15 +160,31 @@ const FormContent: React.FC<FormContentProps> = ({ term, language }) => {
       setCurrentForm(formData, termToUse);
       setCurrentPatient({ ...patient, hasform: true }); // update hasform status
 
-      if (language === "en") showAlert(
-        response.data.message || "Form submitted successfully!",
-        "success"
-      );
-      else if (language === "zh") showAlert(
-        response.data.message || "表单提交成功！",
-        "success"
-      );
-      navigate(`/priorities?term=${termToUse}`); // term already in context
+            // ✅ update original answers to latest saved state
+      setOriginalAnswers(answers);
+
+      // ✅ switch back to view mode
+      setIsDisabled(true);
+      setIsEditing(false);
+
+      if (language === "en") {
+        showAlert(
+          response.data.message ||
+            (isEditing
+              ? "Form updated successfully!"
+              : "Form submitted successfully!"),
+          "success"
+        );
+      } else if (language === "zh") {
+        showAlert(
+          response.data.message ||
+            (isEditing ? "表单更新成功！" : "表单提交成功！"),
+          "success"
+        );
+      }
+      if (!isEditing) {
+        navigate(`/priorities?term=${termToUse}`);
+      }
     } catch (error) {
       console.error("Error submitting form:", error);
       if (error instanceof AxiosError) {
@@ -196,8 +228,39 @@ const FormContent: React.FC<FormContentProps> = ({ term, language }) => {
               </div>
             ))}
           </div>
-          <div className="flex justify-end mt-6">
-            {!isDisabled && <GreenButton buttonText= {language === "en" ? "Submit" : language === "zh" ? "提交" : ""} />}
+          <div className="flex justify-end gap-4 mt-6">
+
+            {isDisabled && !isEditing && (
+              <GreenButton
+                buttonText={language === "en" ? "Edit" : "编辑"}
+                onButtonClick={() => {
+                  setIsEditing(true);
+                  setIsDisabled(false);
+                }}
+              />
+            )}
+
+            {isEditing && (
+              <GreenButton
+                buttonText={language === "en" ? "Cancel" : "取消"}
+                onButtonClick={() => {
+                  setAnswers(originalAnswers);
+                  setIsEditing(false);
+                  setIsDisabled(true);
+                }}
+              />
+            )}
+
+            {!isDisabled && (
+              <GreenButton
+                buttonText={
+                  isEditing
+                    ? language === "en" ? "Update" : "更新"
+                    : language === "en" ? "Submit" : "提交"
+                }
+              />
+            )}
+
           </div>
         </form>
       )}

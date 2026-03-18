@@ -22,6 +22,9 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, language, onS
   const [maxPriorities, setMaxPriorities] = useState(5);
   const [isDisabled, setIsDisabled] = useState(false);
 
+  const [isEditing, setIsEditing] = useState(false);
+  const [originalPriorities, setOriginalPriorities] = useState<number[]>([]);
+
   /** Fetch responses to determine available questions & previous priorities */
   useEffect(() => {
     if (!patient?.patientid || term === undefined) return;
@@ -58,25 +61,34 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, language, onS
           params: { patientid: patient.patientid, term }
         });
 
-        if (existingPriorities.data?.length > 0) {
+        if (existingPriorities.data && existingPriorities.data.length > 0) {
           setSelectedPriorities(existingPriorities.data);
+          setOriginalPriorities(existingPriorities.data);
           setPriorities(existingPriorities.data);
           setIsDisabled(true);
+          setIsEditing(false);
           return;
         }
 
-        // If priorities already exist for this term, load them and disable further changes
+        // fallback to context
         if (form?.priorities && form.term === term) {
           setSelectedPriorities(form.priorities);
+          setOriginalPriorities(form.priorities);
           setPriorities(form.priorities);
-          setIsDisabled(true);
+
+          if (form.priorities.length > 0) {
+            setIsDisabled(true);
+            setIsEditing(false);
+          } else {
+            setIsDisabled(false); // ✅ allow selection
+          }
+
           return;
         }
 
-        if (form && !form.priorities) {
-          setSelectedPriorities([]);
-          setIsDisabled(false);
-        }
+        
+        setSelectedPriorities([]);
+        setIsDisabled(false);
 
       } catch (err) {
         console.error("Error fetching responses:", err);
@@ -122,16 +134,34 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, language, onS
     try {
       showAlert(language === "en" ? "Submitting priorities..." : 
         language === "zh" ? "提交优先事项..." : "", "info");
-      const response = await api.post("/patients/priorities", prioritiesData, {
+      const wasEditing = isEditing;
+
+      const method = isEditing ? api.put : api.post;
+
+      const response = await method("/patients/priorities", prioritiesData, {
         headers: { "Content-Type": "application/json" },
       });
 
-      setPriorities(selectedPriorities);
-      showAlert(response.data.message || (language === "en" ? "Priorities submitted successfully!" : 
-        language === "zh" ? "优先事项提交成功！" : ""), "success");
+      showAlert(
+        response.data.message ||
+          (language === "en"
+            ? wasEditing
+              ? "Priorities updated successfully!"
+              : "Priorities submitted successfully!"
+            : wasEditing
+            ? "优先事项更新成功！"
+            : "优先事项提交成功！"),
+        "success"
+      );
 
+      setPriorities(selectedPriorities);
+      setOriginalPriorities(selectedPriorities); // ⭐ update snapshot
+      setIsDisabled(true);
+      setIsEditing(false);
       onSubmit?.();
-      navigate(`/analysis?term=${term}`);
+      if (!wasEditing) {
+        navigate(`/analysis?term=${term}`);
+      }
     } catch (err) {
       console.error("Error submitting priorities:", err);
       showAlert("An error occurred while submitting priorities.", "error");
@@ -139,7 +169,8 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, language, onS
   };
   
   if (isLoading) return <p>{language === "en" ? "Loading priorities..." : language === "zh" ? "加载优先事项..." : ""}</p>;
-return (
+
+  return (
   <form
     className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8 text-2xl"
     onSubmit={handleSubmit}
@@ -223,19 +254,43 @@ return (
         ))}
       </div>
 
-      {!isDisabled && (
-        <div className="mt-4">
+      <div className="mt-4 flex gap-4">
+
+      {/* EDIT BUTTON */}
+        {isDisabled && !isEditing && (
+          <GreenButton
+            buttonText={language === "en" ? "Edit" : "编辑"}
+            onButtonClick={() => {
+              setIsEditing(true);
+              setIsDisabled(false);
+            }}
+          />
+        )}
+
+        {/* CANCEL BUTTON */}
+        {isEditing && (
+          <GreenButton
+            buttonText={language === "en" ? "Cancel" : "取消"}
+            onButtonClick={() => {
+              setSelectedPriorities(originalPriorities); // ⭐ restore
+              setIsEditing(false);
+              setIsDisabled(true);
+            }}
+          />
+        )}
+
+        {/* SUBMIT / UPDATE BUTTON */}
+        {!isDisabled && (
           <GreenButton
             buttonText={
-              language === "en"
-                ? "Submit Priorities"
-                : language === "zh"
-                ? "提交优先事项"
-                : ""
+              isEditing
+                ? language === "en" ? "Update Priorities" : "更新优先事项"
+                : language === "en" ? "Submit Priorities" : "提交优先事项"
             }
           />
-        </div>
-      )}
+        )}
+
+      </div>
     </div>
 
     {/* RIGHT SIDE — STICKY CHOSEN AREAS PANEL */}
