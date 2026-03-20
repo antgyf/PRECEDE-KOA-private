@@ -30,7 +30,7 @@ const FormContent: React.FC<FormContentProps> = ({ term, language }) => {
   const [isEditing, setIsEditing] = useState(false);
 
   // --- Check if form has any changes
-  const isUnchanged = JSON.stringify(answers) === JSON.stringify(originalAnswers);
+  //const isUnchanged = JSON.stringify(answers) === JSON.stringify(originalAnswers);
 
   // --- Fetch existing form data
   useEffect(() => {
