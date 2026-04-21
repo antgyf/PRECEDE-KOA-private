@@ -24,7 +24,7 @@ const FormPage: React.FC = () => {
   const [currentLang, setCurrentLang] = useState<string>(urlLang ?? "en");
 
   // Term dropdown
-  const [selectedTerm, setSelectedTerm] = useState<number>(term ?? 0);
+  const [selectedTerm] = useState<number>(term ?? 0);
 
   return (
     <div className="w-screen h-screen flex flex-col items-center bg-neutral">
