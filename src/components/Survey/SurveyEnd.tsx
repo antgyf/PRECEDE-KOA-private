@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import BackButton from "../UI/Button/BackButton";
-import LanguageDropdown from "../UI/Button/LanguageDropdown";
+import LanguageToggle from "../UI/Button/LanguageToggle";
 import { Patient, FormData, PrioritiesData } from "./SurveyInputPage";
 import { useAlert } from "../../hooks/AlertContext";
 import Alert from "../UI/Alert";
@@ -36,7 +36,7 @@ const SurveyEndPage: React.FC = () => {
                     />
                 </div>
                 <div className="flex-1 flex justify-center">
-                    <LanguageDropdown currentLang={currentLang} onChange={setCurrentLang} />
+                    <LanguageToggle currentLang={currentLang} onChange={setCurrentLang} />
                 </div>
 
             </div>

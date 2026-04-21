@@ -183,8 +183,8 @@ const PDFReport: React.FC<PDFReportProps> = ({
       const bmiNum = Number(patient.bmi);
       const rangeNum = Number(filters.bmi.range);
 
-      const lower = (bmiNum - rangeNum).toFixed(2);
-      const upper = (bmiNum + rangeNum).toFixed(2);
+      const lower = (Math.floor((bmiNum - rangeNum) * 100) / 100).toFixed(1);
+      const upper = (Math.ceil((bmiNum + rangeNum) * 100) / 100).toFixed(1);
       if (currentLang === "en") {
         descriptionParts.push(
           <>
@@ -296,7 +296,7 @@ const PDFReport: React.FC<PDFReportProps> = ({
              in the {numPriorities} areas {getName()} hopes to see improvement most. 
             Those patients are similar to {getName()} in {getFilterDescription(filters)},
             and they experienced the same level of problems
-            as in the {numPriorities} areas before surgery.
+            as {getName()} in the {numPriorities} areas before surgery.
           </Text>
         </>
       )}
@@ -316,7 +316,9 @@ const PDFReport: React.FC<PDFReportProps> = ({
 
       {barChartData.map((data) => (
         <View key={data.variableQuestion} wrap={false} style={styles.colContainer}>
-          <Text style={styles.title}>{data.variableQuestion}</Text>
+          <Text style={[styles.title, { textAlign: "center" }]}>
+            {data.variableQuestion}
+          </Text>
           <View style={styles.row}>
             {/* Only show patient position if there's data */}
             {data.options.length > 0 && data.options[0].label !== "No data available" ? (
@@ -327,25 +329,38 @@ const PDFReport: React.FC<PDFReportProps> = ({
                 ]}
               >
                 <Text style={styles.nameBox}>
-                  {
-                  currentLang === "en" ? (
+                  {currentLang === "en" ? (
                     <>
-                      {patient?.sex ? "Ms." : "Mr."} {patient?.fullname}
+                      <Text style={{ fontWeight: "bold" }}>
+                        {patient?.sex ? "Ms. " : "Mr. "}
+                        {patient?.fullname}
+                      </Text>
+                      's{" "}
                     </>
                   ) : currentLang === "zh" ? (
                     <>
-                      {patient?.fullname}
+                      <Text style={{ fontWeight: "bold" }}>
+                        {patient?.fullname}
                       {patient?.sex ? "女士" : "先生"}
+                      </Text>
                     </>
                   ) : (
                     <>
-                      {patient?.sex ? "Ms." : "Mr."} {patient?.fullname}
+                      <Text style={{ fontWeight: "bold" }}>
+                        {patient?.sex ? "Ms. " : "Mr. "}
+                        {patient?.fullname}
+                      </Text>
+                      's{" "}
                     </>
-                  )
-                } {"\n"} 
-                  {currentLang === "en" ? "is currently here" : "目前在这里"}
+                  )}
+
+                  {currentLang === "en" ? "current level is " : "目前在这里"}{" "}
+                  {"\n"}
+                    <Text style={{ fontWeight: "bold" }}>
+                      {data.options[Number(data.initial)]?.label || ""}
+                    </Text>
                 </Text>
-                <Text style={styles.pointer}>={`>`}</Text>
+                <Text style={styles.pointer}>--{`>`}</Text>
               </View>
             ) : (
               // Empty spacer to maintain layout when no data

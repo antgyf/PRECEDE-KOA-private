@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import BackButton from "../UI/Button/BackButton";
 import ForwardButton from "../UI/Button/ForwardButton";
-import LanguageDropdown from "../UI/Button/LanguageDropdown";
+import LanguageToggle from "../UI/Button/LanguageToggle";
 import SurveyFormContent from "./SurveyFormContent";
 import { Patient, FormData, PrioritiesData } from "./SurveyInputPage";
 import Alert from "../UI/Alert";
@@ -45,7 +45,7 @@ const SurveyFormPage: React.FC = () => {
 
         {/* Language Selector */}
         <div className="flex-1 flex justify-center">
-          <LanguageDropdown currentLang={currentLang} onChange={setCurrentLang} />
+          <LanguageToggle currentLang={currentLang} onChange={setCurrentLang} />
         </div>
 
         {/* Forward Button */}
@@ -77,7 +77,7 @@ const SurveyFormPage: React.FC = () => {
 
         {/* Language Selector */}
         <div className="flex-1 flex justify-center">
-          <LanguageDropdown currentLang={currentLang} onChange={setCurrentLang} />
+          <LanguageToggle currentLang={currentLang} onChange={setCurrentLang} />
         </div>
 
         {/* Forward Button */}

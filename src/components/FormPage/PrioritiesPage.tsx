@@ -7,7 +7,7 @@ import { useAlert } from "../../hooks/AlertContext";
 import Alert from "../UI/Alert";
 import PrioritiesContent from "./PriorityContent";
 import { useForm } from "../../hooks/FormContext";
-import LanguageDropdown from "../UI/Button/LanguageDropdown";
+import LanguageToggle from "../UI/Button/LanguageToggle";
 
 
 const PrioritiesPage: React.FC = () => {
@@ -43,7 +43,7 @@ const PrioritiesPage: React.FC = () => {
         </div>
 
         <div className="flex-1 flex justify-center">
-          <LanguageDropdown currentLang={currentLang} onChange={setCurrentLang} />
+          <LanguageToggle currentLang={currentLang} onChange={setCurrentLang} />
         </div>
 
         <div className="flex flex-row gap-4 items-center">

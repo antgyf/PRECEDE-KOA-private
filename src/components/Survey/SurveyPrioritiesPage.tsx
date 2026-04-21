@@ -4,7 +4,7 @@ import BackButton from "../UI/Button/BackButton";
 import ForwardButton from "../UI/Button/ForwardButton";
 import { useAlert } from "../../hooks/AlertContext";
 import Alert from "../UI/Alert";
-import LanguageDropdown from "../UI/Button/LanguageDropdown";
+import LanguageToggle from "../UI/Button/LanguageToggle";
 import { Patient, FormData , PrioritiesData} from "./SurveyInputPage";
 import SurveyPrioritiesContent from "./SurveyPrioritiesContent";
 
@@ -50,7 +50,7 @@ const SurveyPrioritiesPage: React.FC = () => {
         </div>
 
         <div className="flex-1 flex justify-center">
-          <LanguageDropdown currentLang={currentLang} onChange={setCurrentLang} />
+          <LanguageToggle currentLang={currentLang} onChange={setCurrentLang} />
         </div>
 
         <div className="flex flex-row gap-4 items-center">
@@ -83,7 +83,7 @@ const SurveyPrioritiesPage: React.FC = () => {
         </div>
 
         <div className="flex-1 flex justify-center">
-          <LanguageDropdown currentLang={currentLang} onChange={setCurrentLang} />
+          <LanguageToggle currentLang={currentLang} onChange={setCurrentLang} />
         </div>
 
         <div className="flex flex-row gap-4 items-center">

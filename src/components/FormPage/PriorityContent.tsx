@@ -253,52 +253,14 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, language, onS
           </div>
         ))}
       </div>
-
-      <div className="mt-4 flex gap-4">
-
-      {/* EDIT BUTTON */}
-        {isDisabled && !isEditing && (
-          <GreenButton
-            buttonText={language === "en" ? "Edit" : "编辑"}
-            onButtonClick={() => {
-              setIsEditing(true);
-              setIsDisabled(false);
-            }}
-          />
-        )}
-
-        {/* CANCEL BUTTON */}
-        {isEditing && (
-          <GreenButton
-            buttonText={language === "en" ? "Cancel" : "取消"}
-            onButtonClick={() => {
-              setSelectedPriorities(originalPriorities); // ⭐ restore
-              setIsEditing(false);
-              setIsDisabled(true);
-            }}
-          />
-        )}
-
-        {/* SUBMIT / UPDATE BUTTON */}
-        {!isDisabled && (
-          <GreenButton
-            buttonText={
-              isEditing
-                ? language === "en" ? "Update Priorities" : "更新优先事项"
-                : language === "en" ? "Submit Priorities" : "提交优先事项"
-            }
-          />
-        )}
-
-      </div>
     </div>
 
     {/* RIGHT SIDE — STICKY CHOSEN AREAS PANEL */}
     <div className="sticky top-6 h-fit bg-white border rounded-xl shadow p-4">
       <h4 className="font-bold mb-3">
         {language === "en"
-          ? `Chosen Areas (${selectedPriorities.length}/5)`
-          : `已选择的问题 (${selectedPriorities.length}/5)`}
+          ? `Problems bothering you most (${selectedPriorities.length}/5)`
+          : `最困扰你的问题 (${selectedPriorities.length}/5)`}
       </h4>
 
       {selectedPriorities.length === 0 && (
@@ -338,6 +300,45 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, language, onS
           );
         })}
       </ul>
+
+      
+      <div className="mt-4 flex gap-4">
+
+      {/* EDIT BUTTON */}
+        {isDisabled && !isEditing && (
+          <GreenButton
+            buttonText={language === "en" ? "Redo" : "更改选项"}
+            onButtonClick={() => {
+              setIsEditing(true);
+              setIsDisabled(false);
+            }}
+          />
+        )}
+
+        {/* CANCEL BUTTON */}
+        {isEditing && (
+          <GreenButton
+            buttonText={language === "en" ? "Cancel" : "取消"}
+            onButtonClick={() => {
+              setSelectedPriorities(originalPriorities); // ⭐ restore
+              setIsEditing(false);
+              setIsDisabled(true);
+            }}
+          />
+        )}
+
+        {/* SUBMIT / UPDATE BUTTON */}
+        {!isDisabled && (
+          <GreenButton
+            buttonText={
+              isEditing
+                ? language === "en" ? "Update Priorities" : "更新优先事项"
+                : language === "en" ? "Submit Priorities" : "提交优先事项"
+            }
+          />
+        )}
+
+      </div>
     </div>
   </form>
 );

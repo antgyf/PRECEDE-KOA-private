@@ -2,7 +2,7 @@ import { useAlert } from "../../hooks/AlertContext";
 import ReportPage from "../ReportPage/PDFReport/ReportPage";
 import Alert from "../UI/Alert";
 import BackButton from "../UI/Button/BackButton";
-import LanguageDropdown from "../UI/Button/LanguageDropdown";
+import LanguageToggle from "../UI/Button/LanguageToggle";
 import LogoutButton from "../UI/Button/LogoutButton";
 import AfterSurgery from "./AfterSurgery/AfterSurgery";
 import BeforeSurgery from "./BeforeSurgery/BeforeSurgery";
@@ -47,7 +47,7 @@ const AnalysisPage: React.FC = () => {
 
           {/* Language Dropdown */}
           <div className="flex-1 flex justify-center">
-            <LanguageDropdown
+            <LanguageToggle
               currentLang={currentLang}
               onChange={setCurrentLang}
             />

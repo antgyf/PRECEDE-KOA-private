@@ -157,7 +157,7 @@ const MobileForm: React.FC<MobileFormProps> = ({
               setIsDisabled(false);
             }}
           >
-            {language === "en" ? "Edit" : "编辑"}
+            {language === "en" ? "Redo" : "更改选项"}
           </button>
         )}
 

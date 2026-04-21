@@ -66,7 +66,7 @@ const DesktopForm: React.FC<DesktopFormProps> = ({
       <div className="flex justify-end gap-4 mt-6">
         {isDisabled && !isEditing && (
           <GreenButton
-            buttonText={language === "en" ? "Edit" : "编辑"}
+            buttonText={language === "en" ? "Redo" : "更改选项"}
             onButtonClick={() => {
               setIsEditing(true);
               setIsDisabled(false);

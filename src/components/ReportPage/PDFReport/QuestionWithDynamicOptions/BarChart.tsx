@@ -29,11 +29,10 @@ const getFontFamily = (lan: string) => {
   }
 };
 
-const creatStyles = (lang: string) =>
+const createStyles = (lang: string) =>
   StyleSheet.create({
   title: {
     fontSize: 10,
-    fontWeight: "bold",
     marginBottom: 2,
     fontFamily: getFontFamily(lang),
     paddingLeft: 75,
@@ -52,24 +51,28 @@ const creatStyles = (lang: string) =>
     fontFamily: getFontFamily(lang),
   },
   barContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-    height: 15,
-    overflow: "hidden",
-    position: "relative",
-  },
-  bar: {
-    height: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  percentageText: {
-    fontSize: 9,
-    width: 90,
-    marginLeft: 3,
-    fontFamily: getFontFamily(lang),
-  },
+      flex: 1,
+      height: 15,
+      flexDirection: "row", // Keeps bar and text in a line
+      alignItems: "center",
+    },
+    bar: {
+      height: "100%",
+      // Remove justifyContent/alignItems unless you put text INSIDE the bar
+    },
+    percentageText: {
+      fontSize: 9,
+      fontFamily: getFontFamily(lang),
+      marginLeft: 4, // Spacing between the end of the bar and the text
+      width: 35,    // Fixed width helps keep the "X of X" column stable
+    },
+    countText: {
+      fontSize: 9,
+      width: 60,
+      textAlign: "right",
+      fontFamily: getFontFamily(lang),
+      marginLeft: 5, // Gap between percentage and the final column
+    },
 });
 
 interface BarChartProps {
@@ -78,37 +81,49 @@ interface BarChartProps {
 }
 
 const BarChart: React.FC<BarChartProps> = ({ data, lang }) => {
-  const styles = creatStyles(lang);
+  const styles = createStyles(lang);
+
+  const getColor = (index: number, length: number) => {
+    if (length === 5) return colorScheme[index % colorScheme.length];
+    if (length === 6) return colorScheme6[index % 6];
+    if (length === 7) return colorScheme7[index % 7];
+    return colorScheme[index % colorScheme.length];
+  };
 
   return (
     <View>
+      {/* TITLE */}
       <Text style={styles.title}>{data.title}</Text>
-      {data.options.map((opt, index) => {
 
-        return (
-          <View key={index} style={styles.rowContainer}>
-            <Text style={styles.optionText}>{opt.label}</Text>
-            <View style={styles.barContainer}>
-              <View
-                style={[
-                  styles.bar,
-                  {
-                    width: `${opt.percent}%`,
-                    backgroundColor: data.options.length === 5 
-                    ? colorScheme[index % colorScheme.length] 
-                    : data.options.length === 6
-                    ? colorScheme6[index % 6]
-                    : data.options.length === 7
-                    ? colorScheme7[index % 7]
-                    : colorScheme[index % colorScheme.length],
-                  },
-                ]}
-              ></View>
-            </View>
-            <Text style={styles.percentageText}>{opt.percentageText}</Text>
+      {/* ROWS */}
+      {data.options.map((opt, index) => (
+        <View key={index} style={styles.rowContainer}>
+          {/* 1. LEFT LABEL (Fixed Width) */}
+          <Text style={styles.optionText}>{opt.label}</Text>
+
+          {/* 2. FLEXIBLE BAR AREA */}
+          <View style={styles.barContainer}>
+            <View
+              style={[
+                styles.bar,
+                {
+                  width: `${opt.percent}%`,
+                  backgroundColor: getColor(index, data.options.length),
+                },
+              ]}
+            />
+            {/* Percentage text moves with the width of the bar above */}
+            <Text style={styles.percentageText}>
+              {opt.percent}%
+            </Text>
           </View>
-        );
-      })}
+
+          {/* 3. RIGHT "X of X" (Fixed Width/Aligned Right) */}
+          <Text style={styles.countText}>
+            {opt.percentageText ?? ""}
+          </Text>
+        </View>
+      ))}
     </View>
   );
 };

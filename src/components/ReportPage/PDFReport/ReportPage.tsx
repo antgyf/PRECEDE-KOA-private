@@ -83,7 +83,7 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab, currentLang }) => {
       if (!data) {
         return {
           title: `No similar patients found for question ${key}`,
-          options: [{ label: "No data available", percentageText: "0 of 0 (0%)", percent: 0 }],
+          options: [{ label: "No data available", percentageText: "0 of 0", percent: 0 }],
           questionid: key,
           variableQuestion: currentLang === "en" ? Questions.find((q) => q.id === key)?.description : Questions.find((q) => q.id === key)?.chineseDescription,
           initial: form?.responses.find((r) => r.questionid === key)?.answervalue ?? -1,
@@ -94,7 +94,7 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab, currentLang }) => {
       if (data.totalRows === 0 || !data.data || data.data.length === 0) {
         return {
           title: `No similar patients found for question ${key}`,
-          options: [{ label: "No data available", percentageText: "0 of 0 (0%)", percent: 0 }],
+          options: [{ label: "No data available", percentageText: "0 of 0", percent: 0 }],
           questionid: key,
           variableQuestion: currentLang === "en" ? Questions.find((q) => q.id === key)?.description : Questions.find((q) => q.id === key)?.chineseDescription,
           initial: form?.responses.find((r) => r.questionid === key)?.answervalue ?? -1,
@@ -124,7 +124,7 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab, currentLang }) => {
         return {
           label: currentLang === "en" ? `${Questions.find((q) => q.id === data.questionid)?.list?.[Number(v.option)] || v.option}` 
           : currentLang === "zh" ? `${Questions.find((q) => q.id === data.questionid)?.chList?.[Number(v.option)] || v.option}` : `${Questions.find((q) => q.id === data.questionid)?.list?.[Number(v.option)] || v.option}`,
-          percentageText: currentLang === "en" ? `${count} of ${total} (${percentage}%)` : currentLang === "zh" ? `${count} / ${total} (${percentage}%)` : `${count} of ${total} (${percentage}%)`,
+          percentageText: currentLang === "en" ? `${count} of ${total}` : currentLang === "zh" ? `${count} / ${total}` : `${count} of ${total}`,
           percent: Number(percentage),
         };
       });

@@ -16,6 +16,7 @@ console.log("Database Config:", {
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 
+
 const pool = new Pool({
   user: process.env.PGUSER,
   host: process.env.PGHOST,

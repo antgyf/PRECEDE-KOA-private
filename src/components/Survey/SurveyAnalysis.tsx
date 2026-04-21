@@ -1,7 +1,7 @@
 import { useAlert } from "../../hooks/AlertContext";
 import Alert from "../UI/Alert";
 import BackButton from "../UI/Button/BackButton";
-import LanguageDropdown from "../UI/Button/LanguageDropdown";
+import LanguageToggle from "../UI/Button/LanguageToggle";
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Patient, PrioritiesData, FormData } from "./SurveyInputPage";
@@ -58,7 +58,7 @@ const SurveyAnalysisPage: React.FC = () => {
 
           {/* Language Dropdown */}
           <div className="flex-1 flex justify-center">
-            <LanguageDropdown
+            <LanguageToggle
               currentLang={currentLang}
               onChange={setCurrentLang}
             />

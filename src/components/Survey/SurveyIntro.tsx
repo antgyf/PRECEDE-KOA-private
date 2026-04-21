@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import ForwardButton from "../UI/Button/ForwardButton";
-import LanguageDropdown from "../UI/Button/LanguageDropdown";
+import LanguageToggle from "../UI/Button/LanguageToggle";
 import { Patient, FormData, PrioritiesData } from "./SurveyInputPage";
 import { useAlert } from "../../hooks/AlertContext";
 import Alert from "../UI/Alert";
@@ -28,7 +28,7 @@ const SurveyIntroPage: React.FC = () => {
             <div className="fixed top-0 left-0 w-full bg-white z-40 shadow-md p-4 flex justify-between items-center h-20">
                 {alert.message && <Alert />}
                 <div className="flex-1 flex justify-center">
-                    <LanguageDropdown currentLang={currentLang} onChange={setCurrentLang} />
+                    <LanguageToggle currentLang={currentLang} onChange={setCurrentLang} />
                 </div>
                 <div className="flex flex-row gap-4 items-center">
                     <ForwardButton

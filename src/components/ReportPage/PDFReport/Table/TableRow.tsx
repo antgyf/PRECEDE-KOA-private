@@ -27,6 +27,15 @@ const getEthnicityLabel = (ethnicity: number, lang: string) => {
   }
 }
 
+const getRoundedBMI = (bmi?: number | string | null) => {
+  if (bmi === null || bmi === undefined) return "-";
+
+  const num = Number(bmi);
+  if (isNaN(num)) return "-";
+
+  return num.toFixed(1);
+};
+
 const TableRow: React.FC<TableRowProps> = ({ data, currentLang }) => {
   const rowData = [
     data.patientid,
@@ -34,7 +43,7 @@ const TableRow: React.FC<TableRowProps> = ({ data, currentLang }) => {
     data.age,
     getSexLabel(data.sex, currentLang),   
     getEthnicityLabel(data.ethnicity, currentLang),
-    data.bmi, 
+    getRoundedBMI(data.bmi),
   ];
 
   return (

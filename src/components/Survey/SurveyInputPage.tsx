@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import ForwardButton from "../UI/Button/ForwardButton";
-import LanguageDropdown from "../UI/Button/LanguageDropdown";
+import LanguageToggle from "../UI/Button/LanguageToggle";
 import BackButton from "../UI/Button/BackButton";
 import Alert from "../UI/Alert";
 import { useAlert } from "../../hooks/AlertContext";
@@ -104,7 +104,7 @@ const PreTkaSurveyPage: React.FC = () => {
           </div>
 
         <div className="flex-1 flex justify-center">
-          <LanguageDropdown currentLang={localLang} onChange={setLocalLang} />
+          <LanguageToggle currentLang={localLang} onChange={setLocalLang} />
         </div>
 
         {/* Forward Button */}

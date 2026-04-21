@@ -6,7 +6,7 @@ import FormContent from "./FormContent";
 import Alert from "../UI/Alert";
 import { useForm } from "../../hooks/FormContext";
 import { useAlert } from "../../hooks/AlertContext";
-import LanguageDropdown from "../UI/Button/LanguageDropdown";
+import LanguageToggle from "../UI/Button/LanguageToggle";
 import { useLocation } from "react-router-dom";
 
 const FormPage: React.FC = () => {
@@ -42,7 +42,7 @@ const FormPage: React.FC = () => {
 
         {/* Center: Language Dropdown */}
         <div className="flex-1 flex justify-center">
-          <LanguageDropdown currentLang={currentLang} onChange={setCurrentLang} />
+          <LanguageToggle currentLang={currentLang} onChange={setCurrentLang} />
         </div>
 
         {/* Right side: Forward + Logout */}
@@ -59,28 +59,6 @@ const FormPage: React.FC = () => {
 
       {/* Main content */}
       <div className="flex-1 w-full max-w-7xl px-4 mt-24 overflow-y-auto">
-        {/* Term Selector */}
-        <div className="mb-4">
-          <label className="mr-2 font-bold">
-            {currentLang === "en"
-              ? "Select Term:"
-              : currentLang === "zh"
-              ? "选择期间:"
-              : ""}
-          </label>
-
-          <select
-            className="select select-bordered"
-            value={selectedTerm}
-            onChange={(e) => setSelectedTerm(Number(e.target.value))}
-          >
-            {[0].map((t) => (
-              <option key={t} value={t}>
-                {currentLang === "en" ? `Term ${t}` : `期间 ${t}`}
-              </option>
-            ))}
-          </select>
-        </div>
 
         {/* Form Content */}
         <div className="flex-1 w-full max-w-7xl rounded-lg overflow-y-auto">
