@@ -160,7 +160,7 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, language, onS
       setIsEditing(false);
       onSubmit?.();
       if (!wasEditing) {
-        navigate(`/analysis?term=${term}`);
+        navigate(`/analysis?term=${term}&lang=${language}`); // navigate on first submit only
       }
     } catch (err) {
       console.error("Error submitting priorities:", err);
@@ -259,8 +259,8 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, language, onS
     <div className="sticky top-6 h-fit bg-white border rounded-xl shadow p-4">
       <h4 className="font-bold mb-3">
         {language === "en"
-          ? `Problems bothering you most (${selectedPriorities.length}/5)`
-          : `最困扰你的问题 (${selectedPriorities.length}/5)`}
+          ? `Problems you wish to improve most (${selectedPriorities.length}/5)`
+          : `您最希望改善的问题 (${selectedPriorities.length}/5)`}
       </h4>
 
       {selectedPriorities.length === 0 && (
@@ -281,10 +281,10 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, language, onS
               className="p-2 rounded bg-green-50 border border-green-200 flex justify-between items-center"
             >
               <span className="text-lg">
-                {index + 1}.{" "}
+                {q && q?.question.id >= 9 ? q?.question.id - 5 : q?.question.id}.{" "}
                 {language === "en"
-                  ? q?.question.question
-                  : q?.question.chQuestion}
+                  ? q?.question.description
+                  : q?.question.chineseDescription}
               </span>
 
               {!isDisabled && (
@@ -333,7 +333,7 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, language, onS
             buttonText={
               isEditing
                 ? language === "en" ? "Update Priorities" : "更新优先事项"
-                : language === "en" ? "Submit Priorities" : "提交优先事项"
+                : language === "en" ? "Submit" : "提交"
             }
           />
         )}

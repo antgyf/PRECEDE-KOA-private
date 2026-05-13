@@ -103,14 +103,10 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab, currentLang }) => {
 
       const title =
         currentLang === "en"
-          ? `Responses of ${data.totalRows} patient(s) similar to ${
-              patient?.sex ? `Ms. ${patient?.fullname}` : `Mr. ${patient?.fullname}`
-            }`
+          ? `Responses of ${data.totalRows} patient(s)`
           : currentLang === "zh"
-          ? `与 ${patient?.fullname}${patient?.sex ? "女士" : "先生"} 相似的 ${data.totalRows} 名患者的回答`
-          : `Responses of ${data.totalRows} patient(s) similar to ${
-              patient?.sex ? `Ms. ${patient?.fullname}` : `Mr. ${patient?.fullname}`
-            }`;
+          ? `${data.totalRows} 名患者的回答`
+          : `Responses of ${data.totalRows} patient(s)`;
 
       // Clone data array for manipulation
       let chartData = data.data.map(item => ({ ...item }));

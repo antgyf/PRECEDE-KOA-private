@@ -172,7 +172,7 @@ const FormContent: React.FC<FormContentProps> = ({ term, language }) => {
       );
 
       // Navigate only on first submit
-      if (!isEditing) navigate(`/priorities?term=${termToUse}`);
+    if (!isEditing) navigate(`/priorities?term=${termToUse}&lang=${language}`);
     } catch (error) {
       console.error("Error submitting form:", error);
       if (error instanceof AxiosError) {

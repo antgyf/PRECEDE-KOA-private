@@ -360,7 +360,6 @@ const PDFReport: React.FC<PDFReportProps> = ({
                       {data.options[Number(data.initial)]?.label || ""}
                     </Text>
                 </Text>
-                <Text style={styles.pointer}>--{`>`}</Text>
               </View>
             ) : (
               // Empty spacer to maintain layout when no data
