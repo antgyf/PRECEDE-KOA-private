@@ -270,7 +270,7 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, language, onS
       )}
 
       <ul className="flex flex-col gap-2">
-        {selectedPriorities.map((id, index) => {
+        {selectedPriorities.map((id) => {
           const q = availableQuestions.find(
             (q) => q.question.id === id
           );
