@@ -115,6 +115,12 @@ const createStyles = (lang: string) =>
       color: "#666",
       fontFamily: getFontFamily(lang),
     },
+    divider: {
+    borderBottomWidth: 1,
+    borderBottomColor: "#0000007b",
+    marginVertical: 8,
+    width: "100%",
+    },
   });
 
 interface PDFReportProps {
@@ -314,69 +320,84 @@ const PDFReport: React.FC<PDFReportProps> = ({
       )}
 
 
-      {barChartData.map((data) => (
-        <View key={data.variableQuestion} wrap={false} style={styles.colContainer}>
-          <Text style={[styles.title, { textAlign: "center" }]}>
-            {data.variableQuestion}
-          </Text>
-          <View style={styles.row}>
-            {/* Only show patient position if there's data */}
-            {data.options.length > 0 && data.options[0].label !== "No data available" ? (
-              <View
-                style={[
-                  styles.nameBoxContainer,
-                  { marginTop: Number(data.initial) * 16 + 4 },
-                ]}
-              >
-                <Text style={styles.nameBox}>
-                  {currentLang === "en" ? (
-                    <>
-                      <Text style={{ fontWeight: "bold" }}>
-                        {patient?.sex ? "Ms. " : "Mr. "}
-                        {patient?.fullname}
-                      </Text>
-                      's{" "}
-                    </>
-                  ) : currentLang === "zh" ? (
-                    <>
-                      <Text style={{ fontWeight: "bold" }}>
-                        {patient?.fullname}
-                      {patient?.sex ? "女士" : "先生"}
-                      </Text>
-                    </>
-                  ) : (
-                    <>
-                      <Text style={{ fontWeight: "bold" }}>
-                        {patient?.sex ? "Ms. " : "Mr. "}
-                        {patient?.fullname}
-                      </Text>
-                      's{" "}
-                    </>
-                  )}
+      {barChartData.map((data, index) => (
+        <React.Fragment key={data.variableQuestion}>
+          <View wrap={false} style={styles.colContainer}>
+            <Text style={[styles.title, { textAlign: "center" }]}>
+              {data.variableQuestion}
+            </Text>
 
-                  {currentLang === "en" ? "current level is " : "目前在这里"}{" "}
-                  {"\n"}
+            <View style={styles.row}>
+              {/* Only show patient position if there's data */}
+              {data.options.length > 0 &&
+              data.options[0].label !== "No data available" ? (
+                <View
+                  style={[
+                    styles.nameBoxContainer,
+                    { marginTop: Number(data.initial) * 16 + 4 },
+                  ]}
+                >
+                  <Text style={styles.nameBox}>
+                    {currentLang === "en" ? (
+                      <>
+                        <Text style={{ fontWeight: "bold" }}>
+                          {patient?.sex ? "Ms. " : "Mr. "}
+                          {patient?.fullname}
+                        </Text>
+                        's{" "}
+                      </>
+                    ) : currentLang === "zh" ? (
+                      <>
+                        <Text style={{ fontWeight: "bold" }}>
+                          {patient?.fullname}
+                          {patient?.sex ? "女士" : "先生"}
+                        </Text>
+                      </>
+                    ) : (
+                      <>
+                        <Text style={{ fontWeight: "bold" }}>
+                          {patient?.sex ? "Ms. " : "Mr. "}
+                          {patient?.fullname}
+                        </Text>
+                        's{" "}
+                      </>
+                    )}
+
+                    {currentLang === "en"
+                      ? "current level is "
+                      : "目前在这里"}{" "}
+                    {"\n"}
+
                     <Text style={{ fontWeight: "bold" }}>
                       {data.options[Number(data.initial)]?.label || ""}
                     </Text>
-                </Text>
-              </View>
-            ) : (
-              // Empty spacer to maintain layout when no data
-              <View style={styles.nameBoxContainer} />
-            )}
-            
-            <View style={styles.chartContainer}>
-              {data.options.length > 0 && data.options[0].label !== "No data available" ? (
-                <BarChart data={data} lang={currentLang} />
-              ) : (
-                <View style={styles.noDataContainer}>
-                  <Text style={styles.noDataText}> {currentLang === "en" ? "No similar patients were found" : "未找到相似的患者"}</Text>
+                  </Text>
                 </View>
+              ) : (
+                <View style={styles.nameBoxContainer} />
               )}
+
+              <View style={styles.chartContainer}>
+                {data.options.length > 0 &&
+                data.options[0].label !== "No data available" ? (
+                  <BarChart data={data} lang={currentLang} />
+                ) : (
+                  <View style={styles.noDataContainer}>
+                    <Text style={styles.noDataText}>
+                      {currentLang === "en"
+                        ? "No similar patients were found"
+                        : "未找到相似的患者"}
+                    </Text>
+                  </View>
+                )}
+              </View>
             </View>
           </View>
-        </View>
+
+          {index !== barChartData.length - 1 && (
+            <View style={styles.divider} />
+          )}
+        </React.Fragment>
       ))}
       </Page>
       
