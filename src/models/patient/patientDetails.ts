@@ -440,3 +440,103 @@ export type QuestionData = {
     percentage: number;
   }[];
 };
+
+export function getOptionDescription(
+  questionNumber: number,
+  selectedOption: number,
+): string {
+  const question = Questions.find((q) => q.id === questionNumber);
+
+  if (!question) {
+    return `currently has an unknown response.`;
+  }
+
+  const selectedText = question.list[selectedOption];
+
+  if (!selectedText) {
+    return `currently has an invalid response for ${question.description}.`;
+  }
+
+  const issueMap: Record<number, string> = {
+    1: "mobility",
+    2: "self-care",
+    3: "usual activities",
+    4: "pain/discomfort",
+    5: "anxiety/depression",
+    6: "breathing",
+    7: "sleep",
+    8: "tiredness",
+    9: "physical appearance",
+    10: "building or keeping intimate relationships",
+    11: "discrimination/humiliation",
+    12: "social activities",
+    13: "self-confidence",
+    14: "feeling like a burden to others",
+    15: "diet control",
+    16: "food enjoyment",
+    17: "gastrointestinal problems",
+  };
+
+  const issue = issueMap[questionNumber] ?? question.description.toLowerCase();
+
+  const text = selectedText.toLowerCase();
+
+  if (
+    text.includes("no problems") ||
+    text.includes("no pain") ||
+    text.includes("not anxious") ||
+    text.includes("not tired") ||
+    text.includes("confident about myself") ||
+    text.includes("do not burden")
+  ) {
+    return `currently has no problems with ${issue}.`;
+  }
+
+  if (text.includes("slight") || text.includes("slightly")) {
+    return `currently has slight problems with ${issue}.`;
+  }
+
+  if (text.includes("moderate") || text.includes("moderately")) {
+    return `currently has moderate problems with ${issue}.`;
+  }
+
+  if (text.includes("severe") || text.includes("severely") || text.includes("very unconfident")) {
+    return `currently has severe problems with ${issue}.`;
+  }
+
+  if (text.includes("extreme") || text.includes("extremely") || text.includes("unable")) {
+    return `currently has extreme problems with ${issue}.`;
+  }
+
+  return `currently has an unknown level of problems with ${issue}.`;
+}
+
+export function getOptionDescriptionCh(
+  questionNumber: number,
+  selectedOption: number,
+): string {
+  const question = Questions.find((q) => q.id === questionNumber);
+
+  if (!question) {
+    return `目前有未知的回答。`;
+  }
+
+  const selectedText = question.chList[selectedOption];
+
+  if (!selectedText) {
+    return `目前在${question.chineseDescription}方面有无效的回答。`;
+  }
+
+  // Converts first-person questionnaire answer into third-person style sentence
+  // Example: "我进行日常活动有中度的困难" → "目前进行日常活动有中度的困难。"
+  const formattedText = selectedText
+    .replace(/^我的/, "")
+    .replace(/^我自己/, "自己")
+    .replace(/^我/, "");
+
+  return `目前${formattedText}。`;
+}
+
+export const wrapChineseText = (text: string): string => {
+  return text.replace(/([\u4e00-\u9fff])/g, "$1\u200B");
+};

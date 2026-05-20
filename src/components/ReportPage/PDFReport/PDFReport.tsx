@@ -17,6 +17,7 @@ import {
   FilterType,
   Sex,
   SexCh,
+  wrapChineseText,
 } from "../../../models/patient/patientDetails";
 import { useForm } from "../../../hooks/FormContext";
 import BarChart from "./QuestionWithDynamicOptions/BarChart";
@@ -369,7 +370,9 @@ const PDFReport: React.FC<PDFReportProps> = ({
                     {"\n"}
 
                     <Text style={{ fontWeight: "bold" }}>
-                      {data.options[Number(data.initial)]?.label || ""}
+                      {currentLang === "en"
+                        ? data.options[Number(data.initial)]?.label || ""
+                        : wrapChineseText(data.options[Number(data.initial)]?.label || "")}
                     </Text>
                   </Text>
                 </View>
