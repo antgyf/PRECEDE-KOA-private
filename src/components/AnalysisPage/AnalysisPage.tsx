@@ -25,11 +25,11 @@ const AnalysisPage: React.FC = () => {
   );
 
   return (
-    <div className="w-screen h-full flex flex-col">
+    <div className="w-screen min-h-screen flex flex-col max-lg:bg-white max-lg:text-gray-900 max-lg:dark:bg-white max-lg:dark:text-gray-900">
       {alert.message && <Alert />}
 
       {/* Fixed Tab Navigation */}
-      <div className="fixed top-0 left-0 w-full bg-white z-50 shadow-md p-5">
+      <div className="fixed top-0 left-0 w-full bg-white text-gray-900 z-50 shadow-md p-5 max-lg:dark:bg-white max-lg:dark:text-gray-900">
         <div className="flex justify-between">
           {/* Back Button */}
           <div className="flex items-center">
@@ -41,7 +41,7 @@ const AnalysisPage: React.FC = () => {
                   ? "优先事项页"
                   : ""
               }
-              to={`/priorities?lang=${currentLang}`} // preserve language
+              to={`/priorities?lang=${currentLang}`}
             />
           </div>
 
@@ -60,13 +60,13 @@ const AnalysisPage: React.FC = () => {
         </div>
 
         {/* Tab Buttons */}
-        <div className="flex justify-center">
+        <div className="flex justify-center flex-wrap mt-4">
           <button
             onClick={() => setActiveTab("summary")}
             className={`px-6 py-3 font-bold text-lg rounded-sm transition-all ${
               activeTab === "summary"
-                ? "bg-primary text-white"
-                : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                ? "bg-primary !text-white max-lg:dark:!text-white"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300 max-lg:text-gray-900 max-lg:dark:bg-gray-200 max-lg:dark:text-gray-900"
             }`}
           >
             {currentLang === "en"
@@ -80,8 +80,8 @@ const AnalysisPage: React.FC = () => {
             onClick={() => setActiveTab("before")}
             className={`px-6 py-3 font-bold text-lg rounded-sm transition-all ${
               activeTab === "before"
-                ? "bg-primary text-white"
-                : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                ? "bg-primary !text-white max-lg:dark:!text-white"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300 max-lg:text-gray-900 max-lg:dark:bg-gray-200 max-lg:dark:text-gray-900"
             }`}
           >
             {currentLang === "en"
@@ -95,8 +95,8 @@ const AnalysisPage: React.FC = () => {
             onClick={() => setActiveTab("after")}
             className={`px-6 py-3 font-bold text-lg rounded-sm transition-all ${
               activeTab === "after"
-                ? "bg-primary text-white"
-                : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                ? "bg-primary !text-white max-lg:dark:!text-white"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300 max-lg:text-gray-900 max-lg:dark:bg-gray-200 max-lg:dark:text-gray-900"
             }`}
           >
             {currentLang === "en"
@@ -109,7 +109,7 @@ const AnalysisPage: React.FC = () => {
       </div>
 
       {/* Tab Content */}
-      <div className="flex-1 mt-40 bg-neutral p-6">
+      <div className="flex-1 mt-40 bg-neutral text-gray-900 p-6 max-lg:dark:bg-neutral max-lg:dark:text-gray-900">
         <div style={{ display: activeTab === "summary" ? "block" : "none" }}>
           <ReportPage activeTab={activeTab} currentLang={currentLang} />
         </div>
