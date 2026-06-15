@@ -72,22 +72,20 @@ const MobileForm: React.FC<MobileFormProps> = ({
     >
       {/* QUESTION */}
       <div className="flex flex-col gap-6">
-        <h3 className="text-xl font-semibold">
+        <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-900">
           {language === "en"
             ? `Question ${currentIndex + 1} of ${Questions.length}`
             : `问题 ${currentIndex + 1} / ${Questions.length}`}
         </h3>
 
         <div
-          className={`p-2 rounded ${
+          className={`p-2 rounded bg-white text-gray-900 dark:bg-white dark:text-gray-900 ${
             answers[q.code] ? "ring-2 ring-green-500" : ""
           }`}
         >
           <RadioChoice
             name={q.code}
-            question={
-              language === "en" ? q.question : q.chQuestion
-            }
+            question={language === "en" ? q.question : q.chQuestion}
             list={language === "en" ? q.list : q.chList}
             onChange={(value) => handleRadioInput(q.code, value)}
             value={answers[q.code]}
@@ -97,7 +95,7 @@ const MobileForm: React.FC<MobileFormProps> = ({
 
         {/* Error message */}
         {showError && (
-          <p className="text-red-500 text-sm">
+          <p className="text-red-600 dark:text-red-600 text-sm">
             {language === "en"
               ? "Please select an answer before proceeding."
               : "请先选择一个答案。"}
@@ -107,74 +105,80 @@ const MobileForm: React.FC<MobileFormProps> = ({
 
       {/* BOTTOM SECTION */}
       <div className="flex flex-col gap-4 mt-6">
-
         {/* Progress + Navigation */}
-        <div className="flex items-center gap-3">
-
+        <div className="flex items-center gap-3 flex-wrap">
           {/* Progress bar */}
-          <div className="flex-1 h-2 bg-gray-200 rounded">
+          <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-200 rounded min-w-[120px]">
             <div
-              className="h-2 bg-green-500 rounded"
+              className="h-2 bg-green-500 dark:bg-green-500 rounded"
               style={{ width: `${progress * 100}%` }}
             />
           </div>
 
           {/* Back */}
           {currentIndex > 0 && (
-            <button type="button" onClick={handleBack}>
+            <button
+              type="button"
+              onClick={handleBack}
+              className="px-4 py-2 rounded-md bg-gray-200 text-gray-900 dark:bg-gray-200 dark:text-gray-900 font-medium"
+            >
               {language === "en" ? "Back" : "返回"}
             </button>
           )}
 
-            {/* Next / Submit */}
-            {currentIndex < Questions.length - 1 ? (
-            <button type="button" onClick={handleNext}>
-                {language === "en" ? "Next" : "下一步"}
-            </button>
-            ) : (
+          {/* Next / Submit */}
+          {currentIndex < Questions.length - 1 ? (
             <button
-                type="submit"
-                disabled={isDisabled || (isEditing && isUnchanged)}
-                className={isDisabled ? "opacity-50 cursor-not-allowed" : ""}
+              type="button"
+              onClick={handleNext}
+              className="px-4 py-2 rounded-md bg-green-600 text-white dark:bg-green-600 dark:text-white font-semibold"
             >
-                {isEditing
+              {language === "en" ? "Next" : "下一步"}
+            </button>
+          ) : (
+            <button
+              type="submit"
+              disabled={isDisabled || (isEditing && isUnchanged)}
+              className="px-4 py-2 rounded-md bg-green-600 text-white dark:bg-green-600 dark:text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isEditing
                 ? language === "en"
-                    ? "Update"
-                    : "更新"
+                  ? "Update"
+                  : "更新"
                 : language === "en"
                 ? "Submit"
                 : "提交"}
             </button>
-            )}
+          )}
 
-        {/* EDIT BUTTON */}
-        {isDisabled && !isEditing && (
-          <button
-            type="button"
-            className="text-green-600 font-medium"
-            onClick={() => {
-              setIsEditing(true);
-              setIsDisabled(false);
-            }}
-          >
-            {language === "en" ? "Redo" : "更改选项"}
-          </button>
-        )}
+          {/* EDIT BUTTON */}
+          {isDisabled && !isEditing && (
+            <button
+              type="button"
+              className="px-4 py-2 rounded-md bg-green-600 text-white dark:bg-green-600 dark:text-white font-semibold"
+              onClick={() => {
+                setIsEditing(true);
+                setIsDisabled(false);
+              }}
+            >
+              {language === "en" ? "Redo" : "更改选项"}
+            </button>
+          )}
 
-        {/* CANCEL BUTTON */}
-        {isEditing && (
-          <button
-            type="button"
-            className="text-red-500 font-medium"
-            onClick={() => {
-              setAnswers(originalAnswers);
-              setIsEditing(false);
-              setIsDisabled(true);
-            }}
-          >
-            {language === "en" ? "Cancel" : "取消"}
-          </button>
-        )}
+          {/* CANCEL BUTTON */}
+          {isEditing && (
+            <button
+              type="button"
+              className="px-4 py-2 rounded-md bg-red-600 text-white dark:bg-red-600 dark:text-white font-semibold"
+              onClick={() => {
+                setAnswers(originalAnswers);
+                setIsEditing(false);
+                setIsDisabled(true);
+              }}
+            >
+              {language === "en" ? "Cancel" : "取消"}
+            </button>
+          )}
         </div>
       </div>
     </form>
