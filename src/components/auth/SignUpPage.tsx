@@ -24,24 +24,6 @@ const SignUpForm: React.FC = () => {
     confirmPassword: "",
   });
 
-  // Fetch available surgeon IDs if user is a surgeon
-  // Not needed anymore, surgeons will create their own accounts
-  /*useEffect(() => {
-    if (auth.isSurgeon) {
-      const fetchAvailableSurgeons = async () => {
-        try {
-          const res = await api.get("/surgeons/available-ids");
-          setAvailableSurgeons(res.data); // expected: array of { surgeonid, surgeontitle }
-        } catch (err) {
-          console.error("Error fetching surgeon IDs:", err);
-          showAlert("Failed to load available surgeon IDs", "error");
-        }
-      };
-      fetchAvailableSurgeons();
-    }
-  }, [auth.isSurgeon]);
-  */
-
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({
@@ -96,17 +78,28 @@ const SignUpForm: React.FC = () => {
 
   return (
     <div
-      className={`w-screen h-screen flex flex-col items-center justify-center overflow-hidden ${
-        auth.isSurgeon ? "bg-neutral" : "bg-secondary"
+      className={`w-screen min-h-screen flex flex-col items-center justify-center overflow-hidden max-lg:text-gray-900 max-lg:dark:text-gray-900 ${
+        auth.isSurgeon
+          ? "bg-neutral max-lg:dark:bg-neutral"
+          : "bg-secondary max-lg:dark:bg-secondary"
       }`}
     >
       {alert.message && <Alert />}
-      <article className="prose prose-xl text-center py-10 w-full max-w-2xl">
-        <h1 className="my-2">PRECEDE-TKA</h1>
-        <h1>{auth.isSurgeon ? "Surgeon" : "Researcher"} Sign Up</h1>
+
+      <article className="prose prose-xl text-center py-10 w-full max-w-2xl max-lg:text-gray-900 max-lg:dark:text-gray-900 max-lg:prose-h1:text-gray-900 max-lg:dark:prose-h1:text-gray-900">
+        <h1 className="my-2 max-lg:text-gray-900 max-lg:dark:text-gray-900">
+          PRECEDE-TKA
+        </h1>
+
+        <h1 className="max-lg:text-gray-900 max-lg:dark:text-gray-900">
+          {auth.isSurgeon ? "Surgeon" : "Researcher"} Sign Up
+        </h1>
       </article>
 
-      <form onSubmit={handleSubmitEvent} className="w-full px-2 max-w-sm">
+      <form
+        onSubmit={handleSubmitEvent}
+        className="w-full px-2 max-w-sm max-lg:text-gray-900 max-lg:dark:text-gray-900"
+      >
         <TextInput label="Username" name="username" onChange={handleInput} />
 
         <TextInput
@@ -115,6 +108,7 @@ const SignUpForm: React.FC = () => {
           onChange={handleInput}
           password
         />
+
         <TextInput
           label="Confirm Password"
           name="confirmPassword"
@@ -124,7 +118,7 @@ const SignUpForm: React.FC = () => {
 
         <button
           type="submit"
-          className={`w-full my-5 py-2 btn text-lg text-white ${
+          className={`w-full my-5 py-2 btn text-lg !text-white max-lg:dark:!text-white ${
             auth.isSurgeon ? "btn-primary" : "btn-accent"
           }`}
         >
@@ -132,11 +126,15 @@ const SignUpForm: React.FC = () => {
         </button>
       </form>
 
-      <Link className="font-bold underline" to="/login">
+      <Link
+        className="font-bold underline max-lg:text-gray-900 max-lg:dark:text-gray-900"
+        to="/login"
+      >
         Already have an account? Log in
       </Link>
+
       <button
-        className={`text-white text-[16px] p-4 mt-5 ${
+        className={`text-[16px] p-4 mt-5 btn !text-white max-lg:dark:!text-white ${
           auth.isSurgeon ? "btn-accent" : "btn-primary"
         }`}
         onClick={() => auth.toggleIsSurgeon()}
