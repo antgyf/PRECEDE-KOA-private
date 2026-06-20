@@ -20,7 +20,7 @@ const FormPage: React.FC = () => {
   // Read ?lang= from URL
   const urlLang = query.get("lang");
 
-  // Initialize language from URL (fallback to "en")
+  // Initialize language from URL fallback to "en"
   const [currentLang, setCurrentLang] = useState<string>(urlLang ?? "en");
 
   // Term dropdown
@@ -30,7 +30,7 @@ const FormPage: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
-  // Close mobile dropdown when clicking outside
+  // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -93,86 +93,74 @@ const FormPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile top bar - dropdown */}
+        {/* Mobile top bar */}
         <div className="flex md:hidden justify-between items-center h-full">
-          <h1 className="text-lg font-semibold text-gray-800">
-            {currentLang === "zh" ? "表格页面" : "Form Page"}
-          </h1>
+          {/* Back button stays visible */}
+          <div className="flex items-center">
+            <BackButton
+              target={
+                currentLang === "en"
+                  ? "Patient Page"
+                  : currentLang === "zh"
+                  ? "患者主页"
+                  : ""
+              }
+              to={`/home?lang=${currentLang}`}
+            />
+          </div>
 
-          <div className="relative" ref={menuRef}>
-            <button
-              type="button"
-              onClick={() => setIsMenuOpen((prev) => !prev)}
-              className="px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 text-gray-800 font-medium"
-            >
-              {currentLang === "zh" ? "菜单" : "Menu"}{" "}
-              <span>{isMenuOpen ? "▲" : "▼"}</span>
-            </button>
+          {/* Forward button + Language/Logout menu */}
+          <div className="flex flex-row gap-3 items-center">
+            {patient?.hasform && (
+              <ForwardButton
+                target={
+                  currentLang === "en"
+                    ? "Priorities Page"
+                    : currentLang === "zh"
+                    ? "优先事项页"
+                    : ""
+                }
+                to={`/priorities?term=${selectedTerm}&lang=${currentLang}`}
+              />
+            )}
 
-            {isMenuOpen && (
-              <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 p-4 z-50">
-                <div className="flex flex-col gap-4">
-                  {/* Back navigation */}
-                  <div>
-                    <p className="text-xs text-gray-500 mb-1">
-                      {currentLang === "zh" ? "返回" : "Back Navigation"}
-                    </p>
-                    <BackButton
-                      target={
-                        currentLang === "en"
-                          ? "Patient Page"
-                          : currentLang === "zh"
-                          ? "患者主页"
-                          : ""
-                      }
-                      to={`/home?lang=${currentLang}`}
-                    />
-                  </div>
+            <div className="relative" ref={menuRef}>
+              <button
+                type="button"
+                onClick={() => setIsMenuOpen((prev) => !prev)}
+                className="px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 text-gray-800 font-medium"
+              >
+                ☰
+              </button>
 
-                  {/* Forward navigation */}
-                  {patient?.hasform && (
+              {isMenuOpen && (
+                <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 p-4 z-50">
+                  <div className="flex flex-col gap-4">
+                    {/* Language change */}
                     <div>
                       <p className="text-xs text-gray-500 mb-1">
-                        {currentLang === "zh" ? "前往" : "Forward Navigation"}
+                        {currentLang === "zh" ? "语言" : "Language"}
                       </p>
-                      <ForwardButton
-                        target={
-                          currentLang === "en"
-                            ? "Priorities Page"
-                            : currentLang === "zh"
-                            ? "优先事项页"
-                            : ""
-                        }
-                        to={`/priorities?term=${selectedTerm}&lang=${currentLang}`}
+                      <LanguageToggle
+                        currentLang={currentLang}
+                        onChange={setCurrentLang}
                       />
                     </div>
-                  )}
 
-                  {/* Language change */}
-                  <div>
-                    <p className="text-xs text-gray-500 mb-1">
-                      {currentLang === "zh" ? "语言" : "Language"}
-                    </p>
-                    <LanguageToggle
-                      currentLang={currentLang}
-                      onChange={setCurrentLang}
-                    />
-                  </div>
-
-                  {/* Logout */}
-                  <div className="pt-2 border-t border-gray-200">
-                    <LogoutButton language={currentLang} />
+                    {/* Logout */}
+                    <div className="pt-2 border-t border-gray-200">
+                      <LogoutButton language={currentLang} />
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
 
       {/* Main content */}
       <div className="flex-1 w-full max-w-7xl px-4 mt-24 overflow-y-auto">
-        {/* Form Content */}
         <div className="flex-1 w-full max-w-7xl rounded-lg overflow-y-auto">
           <FormContent
             key={selectedTerm}
