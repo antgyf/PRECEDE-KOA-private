@@ -96,7 +96,7 @@ const LoginPage: React.FC = () => {
 
       <article className="prose prose-xl text-center py-10 max-lg:text-gray-900 max-lg:dark:text-gray-900 max-lg:prose-h1:text-gray-900 max-lg:dark:prose-h1:text-gray-900">
         <h1 className="my-2 max-lg:text-gray-900 max-lg:dark:text-gray-900">
-          PRECEDE-PtDA
+          PRECEDE-TKA
         </h1>
 
         <h1 className="max-lg:text-gray-900 max-lg:dark:text-gray-900">
