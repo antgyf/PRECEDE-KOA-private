@@ -42,7 +42,7 @@ const PrioritiesPage: React.FC = () => {
                 currentLang === "en"
                   ? "Form Page"
                   : currentLang === "zh"
-                  ? "è¡¨æ ¼é¡µ"
+                  ? "表格页"
                   : ""
               }
               to={`/form?lang=${currentLang}`}
@@ -63,7 +63,7 @@ const PrioritiesPage: React.FC = () => {
                   currentLang === "en"
                     ? "Analysis Page"
                     : currentLang === "zh"
-                    ? "åˆ†æžé¡µ"
+                    ? "分析页"
                     : ""
                 }
                 to={`/analysis?lang=${currentLang}`}
@@ -81,7 +81,7 @@ const PrioritiesPage: React.FC = () => {
                 currentLang === "en"
                   ? "Form Page"
                   : currentLang === "zh"
-                  ? "è¡¨æ ¼é¡µ"
+                  ? "表格页"
                   : ""
               }
               to={`/form?lang=${currentLang}`}
@@ -95,7 +95,7 @@ const PrioritiesPage: React.FC = () => {
                   currentLang === "en"
                     ? "Analysis Page"
                     : currentLang === "zh"
-                    ? "åˆ†æžé¡µ"
+                    ? "分析页"
                     : ""
                 }
                 to={`/analysis?lang=${currentLang}`}

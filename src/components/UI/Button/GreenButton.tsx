@@ -7,13 +7,11 @@ const GreenButton: React.FC<ButtonProps> = ({
 }) => {
   return (
     <button
-      className="btn bg-primary min-w-10 border-0 m-2 hover:bg-primary-hover"
+      className="btn bg-primary min-w-10 border-0 m-2 hover:bg-primary-hover leading-snug text-center max-md:w-full max-md:m-0 max-md:text-base max-md:whitespace-normal max-md:break-keep"
       onClick={onButtonClick}
     >
       {logo}
-      <article className="prose">
-        <h4 className="text-white">{buttonText}</h4>
-      </article>
+      <span className="text-white font-bold">{buttonText}</span>
     </button>
   );
 };

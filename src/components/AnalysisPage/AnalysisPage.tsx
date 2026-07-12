@@ -39,7 +39,7 @@ const AnalysisPage: React.FC = () => {
                 currentLang === "en"
                   ? "Priority Page"
                   : currentLang === "zh"
-                  ? "ä¼˜å…ˆäº‹é¡¹é¡µ"
+                  ? "优先事项页"
                   : ""
               }
               to={`/priorities?lang=${currentLang}`}
@@ -68,7 +68,7 @@ const AnalysisPage: React.FC = () => {
                 currentLang === "en"
                   ? "Priority Page"
                   : currentLang === "zh"
-                  ? "ä¼˜å…ˆäº‹é¡¹é¡µ"
+                  ? "优先事项页"
                   : ""
               }
               to={`/priorities?lang=${currentLang}`}
@@ -100,7 +100,7 @@ const AnalysisPage: React.FC = () => {
             {currentLang === "en"
               ? "Summary Report"
               : currentLang === "zh"
-              ? "æ€»ç»“æŠ¥å‘Š"
+              ? "总结报告"
               : ""}
           </button>
 
@@ -115,7 +115,7 @@ const AnalysisPage: React.FC = () => {
             {currentLang === "en"
               ? "Before Surgery"
               : currentLang === "zh"
-              ? "æ‰‹æœ¯å‰"
+              ? "手术前"
               : ""}
           </button>
 
@@ -130,7 +130,7 @@ const AnalysisPage: React.FC = () => {
             {currentLang === "en"
               ? "More Analysis"
               : currentLang === "zh"
-              ? "æ›´å¤šåˆ†æž"
+              ? "更多分析"
               : ""}
           </button>
         </div>

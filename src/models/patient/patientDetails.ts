@@ -397,7 +397,7 @@ export type QuestionType = {
 export const Questions: QuestionType[] = [
   { id: 1, code: "KFS", question: "How well can you use stairs?", list: FunctionStairs, description: "Ability to use stairs" , chQuestion: "您能上下楼梯吗？", chineseDescription: "上下楼梯的能力", chList: FunctionStairsCh},
   { id: 2, code: "KFW", question: "How far can you walk?", list: FunctionWalking, description: "Ability to walk" , chQuestion: "您能持续走路多久？", chineseDescription: "持续走路的能力", chList: FunctionWalkingCh},
-  { id: 3, code: "KPAIN", question: "How is your overall knee pain?", list: Pain, description: "Overall knee pain", chQuestion: "您的膝盖疼痛程度如何？", chineseDescription: "膝关节疼痛程度", chList: PainCh },
+  { id: 3, code: "KPAIN", question: "How is your overall knee pain?", list: Pain, description: "Overall knee pain", chQuestion: "您的膝盖疼痛程度如何？", chineseDescription: "膝盖疼痛程度", chList: PainCh },
   /*
   { id: 4, code: "EQ5D-MOB", question: "Did you have problems in walking about today?", list: Mobility, description: "Problems in walking" },
   { id: 5, code: "EQ5D-SC", question: "Did you have problems in washing or dressing yourself today?", list: SelfCare, description: "Problems washing or dressing yourself" },

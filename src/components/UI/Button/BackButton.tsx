@@ -16,7 +16,7 @@ const BackButton: React.FC<BackButtonProps> = ({ target, to }) => {
   return (
     <button
       onClick={handleBack}
-      className="btn btn-primary flex items-center gap-2 text-lg m-2 text-white"
+      className="btn btn-primary flex items-center justify-center gap-2 text-lg m-2 text-white leading-snug text-center max-md:w-full max-md:m-0 max-md:text-base max-md:whitespace-normal max-md:break-keep"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -24,7 +24,7 @@ const BackButton: React.FC<BackButtonProps> = ({ target, to }) => {
         viewBox="0 0 24 24"
         strokeWidth="1.5"
         stroke="currentColor"
-        className="w-5 h-5"
+        className="w-5 h-5 shrink-0"
       >
         <path
           strokeLinecap="round"

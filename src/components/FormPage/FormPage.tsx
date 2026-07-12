@@ -41,7 +41,7 @@ const FormPage: React.FC = () => {
                 currentLang === "en"
                   ? "Patient Page"
                   : currentLang === "zh"
-                  ? "æ‚£è€…ä¸»é¡µ"
+                  ? "患者主页"
                   : ""
               }
               to={`/home?lang=${currentLang}`}
@@ -64,7 +64,7 @@ const FormPage: React.FC = () => {
                   currentLang === "en"
                     ? "Priorities Page"
                     : currentLang === "zh"
-                    ? "ä¼˜å…ˆäº‹é¡¹é¡µ"
+                    ? "优先事项页"
                     : ""
                 }
                 to={`/priorities?term=${selectedTerm}&lang=${currentLang}`}
@@ -82,7 +82,7 @@ const FormPage: React.FC = () => {
                 currentLang === "en"
                   ? "Patient Page"
                   : currentLang === "zh"
-                  ? "æ‚£è€…ä¸»é¡µ"
+                  ? "患者主页"
                   : ""
               }
               to={`/home?lang=${currentLang}`}
@@ -96,7 +96,7 @@ const FormPage: React.FC = () => {
                   currentLang === "en"
                     ? "Priorities Page"
                     : currentLang === "zh"
-                    ? "ä¼˜å…ˆäº‹é¡¹é¡µ"
+                    ? "优先事项页"
                     : ""
                 }
                 to={`/priorities?term=${selectedTerm}&lang=${currentLang}`}
