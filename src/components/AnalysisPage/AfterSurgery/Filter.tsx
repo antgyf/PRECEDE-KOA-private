@@ -99,10 +99,22 @@ const FilterButtonsComponent: React.FC<FilterButtonsComponentProps> = ({
   };
 
   const handleRangeChange = (type: "age" | "bmi", value: string) => {
-    const numericValue = value ? parseInt(value, 10) : 0;
-    setSelectedFilters({
-      ...selectedFilters,
-      [type]: { range: numericValue },
+    const numericValue = value === "" ? undefined : parseInt(value, 10);
+
+    setSelectedFilters((currentFilters) => ({
+      ...currentFilters,
+      [type]: numericValue === undefined ? undefined : { range: numericValue },
+    }));
+  };
+
+  const handleRangeBlur = (type: "age" | "bmi", defaultValue: number) => {
+    setSelectedFilters((currentFilters) => {
+      if (currentFilters[type]?.range !== undefined) return currentFilters;
+
+      return {
+        ...currentFilters,
+        [type]: { range: defaultValue },
+      };
     });
   };
 
@@ -161,8 +173,9 @@ const FilterButtonsComponent: React.FC<FilterButtonsComponentProps> = ({
                   className="input input-bordered w-16 h-8 text-sm"
                   min={1}
                   max={50}
-                  value={selectedFilters.age?.range || 5}
+                  value={selectedFilters.age?.range ?? ""}
                   onChange={(e) => handleRangeChange("age", e.target.value)}
+                  onBlur={() => handleRangeBlur("age", 5)}
                 />
                 {currentLang === "zh" ? "岁" : "years"}
               </div>
@@ -185,8 +198,9 @@ const FilterButtonsComponent: React.FC<FilterButtonsComponentProps> = ({
                   className="input input-bordered w-16 h-8 text-sm"
                   min={1}
                   max={60}
-                  value={selectedFilters.bmi?.range || 2}
+                  value={selectedFilters.bmi?.range ?? ""}
                   onChange={(e) => handleRangeChange("bmi", e.target.value)}
+                  onBlur={() => handleRangeBlur("bmi", 2)}
                 />
                 kg/m²
               </div>
