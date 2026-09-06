@@ -11,6 +11,7 @@ import { useAlert } from "../../hooks/AlertContext";
 import api from "../../api/api";
 import { Patient, FormData, PrioritiesData } from "./SurveyInputPage";
 import Alert from "../UI/Alert";
+import { createDefaultFilters } from "../../models/patient/defaultFilters";
 
 interface SurveyReportPageProps {
   currentLang: string;
@@ -26,27 +27,10 @@ const SurveyReportPage: React.FC<SurveyReportPageProps> = ({
   form,
   priorities,
 }) => {
-  const [filters] = useState<FilterType>({
-    categories: ["Age Range", "BMI Range"],
-    age: { range: 5 },
-    bmi: { range: 2 },
-  });
+  const [filters] = useState<FilterType>(createDefaultFilters);
   const { alert, showAlert } = useAlert();
   const [questionData, setQuestionData] = useState<Record<number, QuestionData>>({});
   const [barChartData, setBarChartData] = useState<BarChartData[]>([]);
-
-  /*
-  const formattedPatient = {
-    ...patient,
-    age: Number(patient.age),
-    bmi: Number(patient.bmi),
-    height : Number(patient.height),
-    weight : Number(patient.weight),
-    sex : Number(patient.sex === "male" ? 0 : 1),
-    ethnicity: Number(patient.ethnicity),
-    fullname : patient.fullName,
-};
-*/
 
   if (!form) {
     return (
@@ -152,10 +136,10 @@ const SurveyReportPage: React.FC<SurveyReportPageProps> = ({
       const title =
         currentLang === "en"
           ? `Responses of ${data.totalRows} patient(s) similar to ${
-              patient?.sex ? `Ms. ${patient?.fullName}` : `Mr. ${patient?.fullName}`
+              patient.sex === "female" ? `Ms. ${patient.fullName}` : `Mr. ${patient.fullName}`
             }`
           : currentLang === "zh"
-          ? `与 ${patient?.fullName}${patient?.sex ? "女士" : "先生"} 相似的 ${data.totalRows} 名患者的回答`
+          ? `与 ${patient.fullName}${patient.sex === "female" ? "女士" : "先生"} 相似的 ${data.totalRows} 名患者的回答`
           : "";
 
       const labelsAndPercentages = data.data.map((v) => {
@@ -218,7 +202,11 @@ const SurveyReportPage: React.FC<SurveyReportPageProps> = ({
             questionid: q.id,
             options,
             filters,
-            patient,
+            patient: {
+              ...patient,
+              sex: patient.sex === "male" ? 0 : 1,
+              ethnicity: Number(patient.ethnicity),
+            },
             initial: Number(form[q.code] ?? -1),
             median: true,
           },
@@ -272,7 +260,7 @@ const SurveyReportPage: React.FC<SurveyReportPageProps> = ({
             <h3>
               The {priorities.length} areas{" "}
               <strong style={{ color: "#1976D2" }}>
-                {patient?.sex ? "Ms." : "Mr."} {patient?.fullName}
+                {patient.sex === "female" ? "Ms." : "Mr."} {patient.fullName}
               </strong>{" "}
               hopes to see improvement in are:
             </h3>
@@ -281,7 +269,7 @@ const SurveyReportPage: React.FC<SurveyReportPageProps> = ({
             <h3>
               {priorities.length} 个{" "}
               <strong style={{ color: "#1976D2" }}>
-                {patient?.fullName} {patient?.sex ? "女士" : "先生"}
+                {patient.fullName} {patient.sex === "female" ? "女士" : "先生"}
               </strong>{" "}
               希望看到改善的主要方面是：
             </h3>

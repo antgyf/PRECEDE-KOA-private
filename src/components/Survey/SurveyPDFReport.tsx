@@ -11,7 +11,11 @@ import {
 import Table from "../ReportPage/PDFReport/Table/Table";
 import {
   BarChartData,
+  Ethnicity,
+  EthnicityCh,
   FilterType,
+  Sex,
+  SexCh,
 } from "../../models/patient/patientDetails";
 import BarChart from "../ReportPage/PDFReport/QuestionWithDynamicOptions/BarChart";
 import { Font } from "@react-pdf/renderer";
@@ -154,8 +158,8 @@ const SurveyPDFReport: React.FC<SurveyPDFReportProps> = ({
     return (
       <Text style={styles.bold}>
         {currentLang === "en"
-          ? `${patient.sex ? "Ms." : "Mr."} ${patient.fullName}`
-          : `${patient.fullName}${patient.sex ? "女士" : "先生"}`}
+          ? `${formattedPatient.sex ? "Ms." : "Mr."} ${patient.fullName}`
+          : `${patient.fullName}${formattedPatient.sex ? "女士" : "先生"}`}
       </Text>
     );
   };
@@ -197,6 +201,24 @@ const SurveyPDFReport: React.FC<SurveyPDFReportProps> = ({
           </>
         );
       }
+    }
+
+    if (filters.categories.includes("Gender")) {
+      descriptionParts.push(
+        <>
+          <Text style={styles.boldText}>{currentLang === "zh" ? "性别" : "Gender"}</Text>{" "}
+          ({currentLang === "zh" ? SexCh[formattedPatient.sex] : Sex[formattedPatient.sex]})
+        </>
+      );
+    }
+
+    if (filters.categories.includes("Ethnicity")) {
+      descriptionParts.push(
+        <>
+          <Text style={styles.boldText}>{currentLang === "zh" ? "种族" : "Ethnicity"}</Text>{" "}
+          ({currentLang === "zh" ? EthnicityCh[formattedPatient.ethnicity] : Ethnicity[formattedPatient.ethnicity]})
+        </>
+      );
     }
 
     // Assemble text
@@ -261,16 +283,16 @@ const SurveyPDFReport: React.FC<SurveyPDFReportProps> = ({
                   {
                   currentLang === "en" ? (
                     <>
-                      {patient?.sex ? "Ms." : "Mr."} {patient?.fullName}
+                      {formattedPatient.sex ? "Ms." : "Mr."} {patient?.fullName}
                     </>
                   ) : currentLang === "zh" ? (
                     <>
                       {patient?.fullName}
-                      {patient?.sex ? "女士" : "先生"}
+                      {formattedPatient.sex ? "女士" : "先生"}
                     </>
                   ) : (
                     <>
-                      {patient?.sex ? "Ms." : "Mr."} {patient?.fullName}
+                      {formattedPatient.sex ? "Ms." : "Mr."} {patient?.fullName}
                     </>
                   )
                 } {"\n"} 

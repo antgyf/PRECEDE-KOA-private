@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FilterType } from "../../../models/patient/patientDetails";
 import api from "../../../api/api";
+import { createDefaultFilters } from "../../../models/patient/defaultFilters";
 
 interface FilterButtonProps {
   value: string;            // internal param ("Age Range")
@@ -17,6 +18,7 @@ const FilterButton: React.FC<FilterButtonProps> = ({
 }) => (
   <button
     onClick={() => toggleFilterCategory(value)}
+    aria-pressed={isSelected}
     className={`py-2 px-4 rounded-full border-2 ${
       isSelected
         ? "bg-accent text-white border-accent"
@@ -38,13 +40,7 @@ const FilterButtonsComponent: React.FC<FilterButtonsComponentProps> = ({
   activeTab,
   currentLang,
 }) => {
-  const [selectedFilters, setSelectedFilters] = useState<FilterType>({
-    categories: ["Age Range", "BMI Range"],
-    age: { range: 5 },
-    bmi: { range: 2 },
-    surgeontitle: "",
-    surgeonid: "",
-  });
+  const [selectedFilters, setSelectedFilters] = useState<FilterType>(createDefaultFilters);
 
   const [surgeonIds, setSurgeonIds] = useState<string[]>([]);
   const [loadingSurgeons, setLoadingSurgeons] = useState<boolean>(false);
@@ -134,15 +130,8 @@ const FilterButtonsComponent: React.FC<FilterButtonsComponentProps> = ({
     setSelectedFilters(updatedFilters);
   };
 
-  const clearAllFilters = () => {
-    // Reset to only Age Range and BMI Range with default values
-    setSelectedFilters({
-      categories: ["Age Range", "BMI Range"],
-      age: { range: 5 },
-      bmi: { range: 2 },
-      surgeontitle: "",
-      surgeonid: "",
-    });
+  const resetFilters = () => {
+    setSelectedFilters(createDefaultFilters());
   };
 
   const handleApplyFilters = () => {
@@ -284,13 +273,13 @@ const FilterButtonsComponent: React.FC<FilterButtonsComponentProps> = ({
 
         {/* APPLY BUTTON */}
         <div className="flex justify-end gap-2">
-          {/* CLEAR BUTTON */}
+          {/* RESET BUTTON */}
           <button
-            onClick={clearAllFilters}
+            onClick={resetFilters}
             className="py-2 px-6 bg-accent text-white rounded-md transition-all hover:bg-accent-dark"
-            title="Clear all filters"
+            title={currentLang === "zh" ? "恢复默认筛选条件" : "Reset to default filters"}
           >
-            {currentLang === "zh" ? "清除" : "Clear"}
+            {currentLang === "zh" ? "重置" : "Reset"}
           </button>
           <button
             className="py-2 px-6 bg-accent text-white rounded-md transition-all hover:bg-accent-dark"

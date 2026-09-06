@@ -20,6 +20,7 @@ import {
 } from "../../../utils/helper";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { createDefaultFilters } from "../../../models/patient/defaultFilters";
 
 interface AfterData {
   totalRows: number;
@@ -51,11 +52,7 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) =
   const [_, setGraphData] = useState<GraphData>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedTerm, setSelectedTerm] = useState<number>(1);
-  const [filters, setFilters] = useState<FilterType>({
-    categories: ["Age Range", "BMI Range"],
-    age: { range: 5 },
-    bmi: { range: 2 },
-  });
+  const [filters, setFilters] = useState<FilterType>(createDefaultFilters);
 
   const termToMonths = (term: number) => {
     switch (term) {
@@ -345,7 +342,6 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) =
         {/* Filter Buttons */}
         <div className="max-lg:text-gray-900 max-lg:dark:text-gray-900">
           <FilterButtonsComponent
-            key={question ? question.id : "no-question"}
             onFilterApply={handleFilterChange}
             activeTab={activeTab}
             currentLang={currentLang}

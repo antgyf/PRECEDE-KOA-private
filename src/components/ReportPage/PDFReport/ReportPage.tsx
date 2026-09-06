@@ -15,6 +15,7 @@ import { useForm } from "../../../hooks/FormContext";
 import { RadarDataPoint } from "../../../models/patient/patientReport";
 import RadarChartCustom from "../RadarChart";
 import Alert from "../../UI/Alert";
+import { createDefaultFilters } from "../../../models/patient/defaultFilters";
 
 interface ReportPageProps {
   activeTab: "summary" | "before" | "after";
@@ -23,11 +24,7 @@ interface ReportPageProps {
 
 const ReportPage: React.FC<ReportPageProps> = ({ activeTab, currentLang }) => {
   const { form, patient } = useForm();
-  const [filters, setFilters] = useState<FilterType>({
-    categories: ["Age Range", "BMI Range"],
-    age: { range: 5 },
-    bmi: { range: 2 },
-  });
+  const [filters, setFilters] = useState<FilterType>(createDefaultFilters);
   const { alert, showAlert } = useAlert();
   const [questionData, setQuestionData] = useState<Record<number, QuestionData>>({});
   const [barChartData, setBarChartData] = useState<BarChartData[]>([]);

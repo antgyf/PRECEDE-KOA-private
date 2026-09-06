@@ -20,6 +20,7 @@ import {
 } from "../../../utils/helper";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
+import { createDefaultFilters } from "../../../models/patient/defaultFilters";
 
 interface BeforeData {
   totalRows: number;
@@ -49,13 +50,7 @@ const BeforeSurgery: React.FC<BeforeSurgeryProps> = ({ activeTab, currentLang })
   const [beforeData, setBeforeData] = useState<BeforeData | null>(null);
   const [, setDescriptionList] = useState<Description[]>([]);
   const [, setGraphData] = useState<GraphData>([]);
-  const [filters, setFilters] = useState<FilterType>({
-    categories: ["Age Range", "BMI Range"],
-    age: { range: 5 },
-    bmi: { range: 2 },
-    surgeonid: "",
-    surgeontitle: "",
-  });
+  const [filters, setFilters] = useState<FilterType>(createDefaultFilters);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleFilterChange = (selectedFilters: FilterType) => {
@@ -292,7 +287,6 @@ const renderHumanIcons = () => {
 
       <div className="max-lg:text-gray-900 max-lg:dark:text-gray-900">
         <FilterButtonsComponent
-          key={question?.id}
           onFilterApply={handleFilterChange}
           activeTab={activeTab}
           currentLang={currentLang}
