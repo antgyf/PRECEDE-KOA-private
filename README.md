@@ -68,7 +68,7 @@ The project is developed using TypeScript for both the frontend and backend comp
 
 ### Staff analysis password
 
-Before deploying the analysis gate, apply `functions/models/migrations/001_analysis_password_attempt.sql` to the target PostgreSQL database. The table tracks attempts across Netlify function instances.
+The analysis password check runs without a database migration. The server verifies the password against a bcrypt hash and signs a short-lived unlock cookie.
 
 Set `ANALYSIS_PASSWORD_HASH` in the Netlify Functions environment and in the backend environment used for local development. Supply a bcrypt hash of a shared staff password (1 to 72 UTF-8 bytes). From the repo root, you can generate the hash using a password supplied in the temporary shell environment variable `ANALYSIS_PASSWORD`:
 

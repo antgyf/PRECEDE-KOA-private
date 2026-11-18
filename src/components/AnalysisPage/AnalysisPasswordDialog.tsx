@@ -12,7 +12,6 @@ const copy = {
     cancel: "Cancel",
     invalid: "Enter a valid analysis password.",
     incorrect: "Incorrect password. Try again.",
-    limited: "Too many attempts. Try again later.",
     signedOut: "Your staff session has ended. Sign in and try again.",
     unavailable: "Analysis could not be unlocked. Try again or contact the study team.",
   },
@@ -24,7 +23,6 @@ const copy = {
     cancel: "取消",
     invalid: "请输入有效的分析密码。",
     incorrect: "密码不正确，请重试。",
-    limited: "尝试次数过多，请稍后重试。",
     signedOut: "您的工作人员登录已过期，请重新登录后重试。",
     unavailable: "无法解锁分析。请重试或联系研究团队。",
   },
@@ -76,7 +74,6 @@ export default function AnalysisPasswordDialog({ assessment, language, onUnlock,
         case 400: setError("invalid"); break;
         case 401: setError("signedOut"); break;
         case 403: setError("incorrect"); break;
-        case 429: setError("limited"); break;
         default: setError("unavailable");
       }
       setPassword("");

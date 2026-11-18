@@ -2,7 +2,6 @@ import { createHash } from "node:crypto";
 import bcrypt from "bcrypt";
 import { Router, type Request, type RequestHandler, type Response } from "express";
 import jwt from "jsonwebtoken";
-import pool from "./database.mts";
 
 const router = Router();
 const cookieName = "analysisAccess";
@@ -27,7 +26,6 @@ function getSession(req: Request) {
     return {
       secret,
       expiresAt: claims.exp,
-      accountKey: JSON.stringify([claims.id, claims.username]),
       binding: createHash("sha256").update(token).digest("hex"),
     };
   } catch {
@@ -100,34 +98,10 @@ router.post("/access", async (req, res) => {
   }
 
   try {
-    // Reserve an attempt atomically across all function instances.
-    const result = await pool.query(
-      `INSERT INTO analysis_password_attempt (account_key, window_start, attempts)
-       VALUES ($1, CURRENT_TIMESTAMP, 1)
-       ON CONFLICT (account_key) DO UPDATE
-       SET attempts = CASE
-             WHEN analysis_password_attempt.window_start <= CURRENT_TIMESTAMP - INTERVAL '15 minutes' THEN 1
-             ELSE analysis_password_attempt.attempts + 1
-           END,
-           window_start = CASE
-             WHEN analysis_password_attempt.window_start <= CURRENT_TIMESTAMP - INTERVAL '15 minutes' THEN CURRENT_TIMESTAMP
-             ELSE analysis_password_attempt.window_start
-           END
-       WHERE analysis_password_attempt.attempts < 5
-          OR analysis_password_attempt.window_start <= CURRENT_TIMESTAMP - INTERVAL '15 minutes'
-       RETURNING attempts`,
-      [session.accountKey]
-    );
-    if (result.rowCount === 0) {
-      res.status(429).set("Retry-After", String(accessSeconds))
-        .json({ message: "Too many password attempts. Try again later." });
-      return;
-    }
     if (!(await bcrypt.compare(password, hash))) {
       res.status(403).json({ message: "Incorrect analysis password." });
       return;
     }
-    await pool.query("DELETE FROM analysis_password_attempt WHERE account_key = $1", [session.accountKey]);
 
     const issuedAt = Math.floor(Date.now() / 1000);
     const expires = Math.min(issuedAt + accessSeconds, session.expiresAt);
