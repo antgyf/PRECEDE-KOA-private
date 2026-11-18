@@ -2,8 +2,6 @@ import React from "react";
 import {
   Document,
   Page,
-  PDFDownloadLink,
-  PDFViewer,
   StyleSheet,
   Text,
   View,
@@ -18,10 +16,10 @@ import {
   SexCh,
 } from "../../models/patient/patientDetails";
 import BarChart from "../ReportPage/PDFReport/QuestionWithDynamicOptions/BarChart";
+import ReportPdf from "../ReportPage/PDFReport/ReportPdf";
 import { Font } from "@react-pdf/renderer";
 import { Patient } from "./SurveyInputPage";
 import { useAlert } from "../../hooks/AlertContext";
-import { pdf } from "@react-pdf/renderer";
 import api from "../../api/api";
 
 
@@ -126,15 +124,13 @@ interface SurveyPDFReportProps {
   currentLang: string;
 }
 
-const SurveyPDFReport: React.FC<SurveyPDFReportProps> = ({
+const SurveyReportDocument: React.FC<SurveyPDFReportProps & { fileName: string }> = ({
   filters,
   patient,
   barChartData,
   currentLang,
+  fileName,
 }) => {
-
-  const { showAlert } = useAlert();
-
   const styles = createStyles(currentLang);
   const numPriorities = barChartData.length;
 
@@ -235,10 +231,8 @@ const SurveyPDFReport: React.FC<SurveyPDFReportProps> = ({
     );
   };
 
-  const pdfFileName = `${patient?.fullName} Summary Report.pdf`;
-
-  const renderPDFDocument = (): React.ReactElement => (
-    <Document title={pdfFileName}>
+  return (
+    <Document title={fileName}>
       {/* Page 1: Bar Charts */}
       <Page size="A4" style={styles.page}>
         {currentLang === "en" && patient && (
@@ -318,22 +312,24 @@ const SurveyPDFReport: React.FC<SurveyPDFReportProps> = ({
         </View>
       ))}
       </Page>
-      </Document>
-        )
+    </Document>
+  );
+};
 
-      
-  const handleSendReport = async () => {
+const SurveyPDFReport: React.FC<SurveyPDFReportProps> = ({ filters, patient, barChartData, currentLang }) => {
+  const { showAlert } = useAlert();
+  const fileName = `${patient?.fullName} Summary Report.pdf`;
+  const document = React.useMemo(() => (
+    <SurveyReportDocument filters={filters} patient={patient} barChartData={barChartData} currentLang={currentLang} fileName={fileName} />
+  ), [filters, patient, barChartData, currentLang, fileName]);
+
+  const handleSendReport = async (blob: Blob) => {
     try {
-      // 1. Generate PDF Blob
-      const blob = await pdf(renderPDFDocument()).toBlob();
-
-      // 2. Prepare form data
       const formData = new FormData();
       formData.append("email", patient.email);
       formData.append("mabelEmail", "e0959863@u.nus.edu")
-      formData.append("file", blob, pdfFileName);
+      formData.append("file", blob, fileName);
 
-      // 3. Send to backend
       const response = await api.post("/patients/send-report", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -359,37 +355,8 @@ const SurveyPDFReport: React.FC<SurveyPDFReportProps> = ({
       );
     }
   };
-  
-  return (
-    <div className="w-full flex flex-col justify-center items-center">
-  {/* Action buttons row */}
-    <div className="flex flex-row gap-4 mb-4">
-      <PDFDownloadLink
-        document={renderPDFDocument()}
-        fileName={pdfFileName}
-        className="btn btn-primary text-xl"
-      >
-        Download PDF
-      </PDFDownloadLink>
 
-      <button
-        onClick={handleSendReport}
-        className="px-6 py-3 rounded-xl bg-green-600 text-white text-lg font-semibold hover:bg-green-700 transition"
-      >
-        {currentLang === "zh" ? "通过电子邮件发送报告" : "Email My Report"}
-      </button>
-    </div>
-
-    <PDFViewer
-      width="100%"
-      height="850px"
-      style={{ border: "2px solid black", backgroundColor: "white" }}
-    >
-      {renderPDFDocument()}
-    </PDFViewer>
-  </div>
-
-  );
+  return <ReportPdf document={document} fileName={fileName} language={currentLang} onEmail={handleSendReport} />;
 };
 
 export default SurveyPDFReport;

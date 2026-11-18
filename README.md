@@ -65,3 +65,15 @@ The project is developed using TypeScript for both the frontend and backend comp
 ## Architecture Diagram
 
 ## Features
+
+### Staff analysis password
+
+The analysis password check runs without a database migration. The server verifies the password against a bcrypt hash and signs a short-lived unlock cookie.
+
+Set `ANALYSIS_PASSWORD_HASH` in the Netlify Functions environment and in the backend environment used for local development. Supply a bcrypt hash of a shared staff password (1 to 72 UTF-8 bytes). From the repo root, you can generate the hash using a password supplied in the temporary shell environment variable `ANALYSIS_PASSWORD`:
+
+```sh
+node -e 'require("bcrypt").hash(process.env.ANALYSIS_PASSWORD, 12).then(console.log)'
+```
+
+Clear `ANALYSIS_PASSWORD` from the shell afterward. Share the password with authorized staff through the study team's secure channel. The app verifies it server-side and keeps the current assessment unlocked for up to 15 minutes within the staff session.

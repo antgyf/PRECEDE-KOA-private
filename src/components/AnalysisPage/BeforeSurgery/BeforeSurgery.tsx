@@ -85,6 +85,7 @@ const BeforeSurgery: React.FC<BeforeSurgeryProps> = ({ activeTab, currentLang })
             filters: filters,
             options: options.map(([key]) => +key), // Convert keys from answer options to numbers
             patient: patient,
+            assessmentTerm: form?.term,
           }
         );
 

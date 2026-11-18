@@ -183,6 +183,7 @@ const ReportPage: React.FC<ReportPageProps> = ({ activeTab, currentLang }) => {
             options: options,
             filters: filters,
             patient: patient,
+            assessmentTerm: form.term,
             initial: form?.responses.find((r) => r.questionid === item.id)?.answervalue,
             median: true,
           },

@@ -8,9 +8,11 @@ import AfterSurgery from "./AfterSurgery/AfterSurgery";
 import BeforeSurgery from "./BeforeSurgery/BeforeSurgery";
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
+import { useForm } from "../../hooks/FormContext";
 
 const AnalysisPage: React.FC = () => {
   const { alert } = useAlert();
+  const { form } = useForm();
 
   // Read ?lang= from URL
   const { search } = useLocation();
@@ -19,6 +21,7 @@ const AnalysisPage: React.FC = () => {
 
   // Initialize language from URL default: "en"
   const [currentLang, setCurrentLang] = useState<string>(urlLang ?? "en");
+  const prioritiesUrl = `/priorities?${new URLSearchParams({ term: String(form?.term ?? 0), lang: currentLang })}`;
 
   const [activeTab, setActiveTab] = useState<"summary" | "before" | "after">(
     "summary"
@@ -42,7 +45,7 @@ const AnalysisPage: React.FC = () => {
                   ? "优先事项页"
                   : ""
               }
-              to={`/priorities?lang=${currentLang}`}
+              to={prioritiesUrl}
             />
           </div>
 
@@ -71,7 +74,7 @@ const AnalysisPage: React.FC = () => {
                   ? "优先事项页"
                   : ""
               }
-              to={`/priorities?lang=${currentLang}`}
+              to={prioritiesUrl}
             />
           </div>
 

@@ -24,7 +24,8 @@ const FormPage: React.FC = () => {
   const [currentLang, setCurrentLang] = useState<string>(urlLang ?? "en");
 
   // Term dropdown
-  const [selectedTerm] = useState<number>(term ?? 0);
+  const requestedTerm = Number(query.get("term") ?? term ?? 0);
+  const selectedTerm = Number.isSafeInteger(requestedTerm) && requestedTerm >= 0 ? requestedTerm : 0;
 
   return (
     <div className="w-screen h-screen flex flex-col items-center bg-neutral">

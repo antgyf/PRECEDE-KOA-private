@@ -3,8 +3,6 @@ import {
   Document,
   Image,
   Page,
-  PDFDownloadLink,
-  PDFViewer,
   StyleSheet,
   Text,
   View,
@@ -20,7 +18,9 @@ import {
   wrapChineseText,
 } from "../../../models/patient/patientDetails";
 import { useForm } from "../../../hooks/FormContext";
+import type { Patient } from "../../../models/patient/patientReport";
 import BarChart from "./QuestionWithDynamicOptions/BarChart";
+import ReportPdf from "./ReportPdf";
 import { getChSurgeonTitle } from "../../../utils/helper";
 import { Font } from "@react-pdf/renderer";
 
@@ -132,15 +132,15 @@ interface PDFReportProps {
   currentLang: string;
 }
 
-const PDFReport: React.FC<PDFReportProps> = ({
+const StaffReportDocument: React.FC<PDFReportProps & { patient?: Patient; fileName: string }> = ({
   filters,
   barChartData,
   radarImage,
   renderRadar,
   currentLang,
+  patient,
+  fileName,
 }) => {
-  const { patient } = useForm();
-
   const styles = createStyles(currentLang);
   const numPriorities = barChartData.length;
 
@@ -289,10 +289,8 @@ const PDFReport: React.FC<PDFReportProps> = ({
     );
   };
 
-  const pdfFileName = `${patient?.patientid}. ${patient?.fullname} Summary Report.pdf`;
-
-  const renderPDFDocument = (radarImage: string) => (
-    <Document title={pdfFileName}>
+  return (
+    <Document title={fileName}>
       {/* Page 1: Bar Charts */}
       <Page size="A4" style={styles.page}>
         {currentLang === "en" && patient && (
@@ -463,27 +461,26 @@ const PDFReport: React.FC<PDFReportProps> = ({
             />
           </Page>
         )}
-          </Document>
-        )
-  
-  return (
-    <div className="w-full flex flex-col justify-center items-center">
-      <PDFDownloadLink
-        document={renderPDFDocument(radarImage)}
-        fileName={pdfFileName}
-        className="btn btn-primary text-xl max-w-7xl mb-2"
-      >
-        Download PDF
-      </PDFDownloadLink>
-      <PDFViewer
-        width="100%"
-        height="850px"
-        style={{ border: "2px solid black", backgroundColor: "white" }}
-      >
-        {renderPDFDocument(radarImage)}
-      </PDFViewer>
-    </div>
+    </Document>
   );
+};
+
+const PDFReport: React.FC<PDFReportProps> = ({ filters, barChartData, radarImage, renderRadar, currentLang }) => {
+  const { patient } = useForm();
+  const fileName = `${patient?.patientid}. ${patient?.fullname} Summary Report.pdf`;
+  const document = React.useMemo(() => (
+    <StaffReportDocument
+      filters={filters}
+      barChartData={barChartData}
+      radarImage={radarImage}
+      renderRadar={renderRadar}
+      currentLang={currentLang}
+      patient={patient}
+      fileName={fileName}
+    />
+  ), [filters, barChartData, radarImage, renderRadar, currentLang, patient, fileName]);
+
+  return <ReportPdf document={document} fileName={fileName} language={currentLang} />;
 };
 
 export default PDFReport;

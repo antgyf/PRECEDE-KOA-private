@@ -93,7 +93,6 @@ const FormContent: React.FC<FormContentProps> = ({ term, language }) => {
               code: questionIdToCode[item.questionid],
               answervalue: item.answervalue,
             })),
-            priorities: [],
           },
           termToUse
         );

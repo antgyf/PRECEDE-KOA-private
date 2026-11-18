@@ -16,7 +16,7 @@ jest.mock("../../hooks/AlertContext", () => ({
 jest.mock("../../hooks/FormContext", () => ({
   useForm: () => ({
     patient: { fullname: "Test Patient", age: 65, bmi: 25, sex: 0, ethnicity: 0 },
-    form: { priorities: [1], responses: [{ questionid: 1, answervalue: 0 }] },
+    form: { term: 0, priorities: [1], responses: [{ questionid: 1, answervalue: 0 }] },
   }),
 }));
 jest.mock("../FormPage/PatientDetail", () => () => null);
@@ -79,7 +79,7 @@ it("uses all four filters for the initial main report request", async () => {
   render(<ReportPage activeTab="summary" currentLang="en" />);
   await waitFor(() => expect(api.post).toHaveBeenCalledWith(
     "/patients/after",
-    expect.objectContaining({ filters: expectedFilters, patient: expect.objectContaining({ sex: 0, ethnicity: 0 }) }),
+    expect.objectContaining({ assessmentTerm: 0, filters: expectedFilters, patient: expect.objectContaining({ sex: 0, ethnicity: 0 }) }),
     expect.any(Object),
   ));
 });
@@ -99,7 +99,7 @@ it.each([
   />);
 
   await waitFor(() => expect(api.post).toHaveBeenCalledWith(
-    "/patients/after",
+    "/patients/survey/after",
     expect.objectContaining({
       filters: expectedFilters,
       patient: expect.objectContaining({ sex: code, ethnicity: Number(ethnicity) }),

@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import { router as patientRoutes } from "./patientRoutes.mts";
 import { router as surgeonRoutes } from "./surgeonRoutes.mts";
 import { router as researcherRoutes } from "./researcherRoutes.mts";
+import { analysisAccessRoutes } from "./analysisAccess.mts";
 
 const app: Application = express();
 
@@ -37,6 +38,7 @@ app.use(cookieParser());
 app.use("/.netlify/functions/api/patients", patientRoutes);
 app.use("/.netlify/functions/api/surgeons", surgeonRoutes);
 app.use("/.netlify/functions/api/researchers", researcherRoutes);
+app.use("/.netlify/functions/api/analysis", analysisAccessRoutes);
 
 app.use("/", (req: Request, res: Response): void => {
   res.status(200).send(JSON.stringify({ message: "Allo! Catch-all route." }));

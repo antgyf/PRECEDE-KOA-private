@@ -1,5 +1,7 @@
-import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
+import React, { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { getAnalysisExpiry } from "../../api/analysisAccess";
+import AnalysisPasswordDialog from "../AnalysisPage/AnalysisPasswordDialog";
 import BackButton from "../UI/Button/BackButton";
 import ForwardButton from "../UI/Button/ForwardButton";
 import LogoutButton from "../UI/Button/LogoutButton";
@@ -11,20 +13,55 @@ import LanguageToggle from "../UI/Button/LanguageToggle";
 
 const PrioritiesPage: React.FC = () => {
   const { alert } = useAlert();
-  const { form } = useForm();
+  const { form, patient } = useForm();
+  const navigate = useNavigate();
 
   // Read search params
   const { search } = useLocation();
   const query = new URLSearchParams(search);
 
   // Extract values
-  const term = Number(query.get("term"));
+  const termParam = query.get("term");
+  const term = termParam === null ? form?.term ?? 0 : Number(termParam);
   const urlLang = query.get("lang");
 
   // Initialize language based on URL fallback to "en"
   const [currentLang, setCurrentLang] = useState<string>(urlLang ?? "en");
+  const [checkingAccess, setCheckingAccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const check = useRef<AbortController | null>(null);
+  const patientid = patient?.patientid;
+  const canContinue = patientid === form?.patientid && form?.term === term && form.priorities !== undefined;
+  const assessmentQuery = new URLSearchParams({ term: String(term), lang: currentLang });
 
-  if (isNaN(term)) {
+  useEffect(() => {
+    const controller = new AbortController();
+    check.current = controller;
+    setCheckingAccess(false);
+    setShowPassword(false);
+    return () => controller.abort();
+  }, [patientid, term]);
+
+  const openAnalysis = () => navigate(`/analysis?${assessmentQuery}`);
+
+  const continueToAnalysis = async () => {
+    const signal = check.current?.signal;
+    if (!patientid || !signal || signal.aborted || checkingAccess || showPassword) return;
+
+    setCheckingAccess(true);
+    try {
+      const expiry = await getAnalysisExpiry({ patientid, term }, signal);
+      if (signal.aborted) return;
+      if (expiry !== null) openAnalysis();
+      else setShowPassword(true);
+    } catch {
+      if (!signal.aborted) setShowPassword(true);
+    } finally {
+      if (!signal.aborted) setCheckingAccess(false);
+    }
+  };
+
+  if (!Number.isSafeInteger(term) || term < 0) {
     return <div>Error: No term specified</div>;
   }
 
@@ -45,7 +82,7 @@ const PrioritiesPage: React.FC = () => {
                   ? "表格页"
                   : ""
               }
-              to={`/form?lang=${currentLang}`}
+              to={`/form?${assessmentQuery}`}
             />
           </div>
 
@@ -57,7 +94,7 @@ const PrioritiesPage: React.FC = () => {
           </div>
 
           <div className="flex flex-row gap-4 items-center">
-            {form?.priorities && form?.priorities.length > 0 && (
+            {canContinue && (
               <ForwardButton
                 target={
                   currentLang === "en"
@@ -66,7 +103,8 @@ const PrioritiesPage: React.FC = () => {
                     ? "分析页"
                     : ""
                 }
-                to={`/analysis?lang=${currentLang}`}
+                onClick={continueToAnalysis}
+                isDisabled={checkingAccess}
               />
             )}
             <LogoutButton language={currentLang} />
@@ -84,11 +122,11 @@ const PrioritiesPage: React.FC = () => {
                   ? "表格页"
                   : ""
               }
-              to={`/form?lang=${currentLang}`}
+              to={`/form?${assessmentQuery}`}
             />
           </div>
 
-          {form?.priorities && form?.priorities.length > 0 && (
+          {canContinue && (
             <div className="w-full">
               <ForwardButton
                 target={
@@ -98,7 +136,8 @@ const PrioritiesPage: React.FC = () => {
                     ? "分析页"
                     : ""
                 }
-                to={`/analysis?lang=${currentLang}`}
+                onClick={continueToAnalysis}
+                isDisabled={checkingAccess}
               />
             </div>
           )}
@@ -118,8 +157,22 @@ const PrioritiesPage: React.FC = () => {
 
       {/* Main content */}
       <div className="flex-1 w-full max-w-7xl px-4 py-4 overflow-y-auto">
-        <PrioritiesContent key={term} term={term} language={currentLang} />
+        <PrioritiesContent
+          key={`${patientid}:${term}`}
+          term={term}
+          language={currentLang}
+          onContinue={continueToAnalysis}
+        />
       </div>
+      {showPassword && patientid && (
+        <AnalysisPasswordDialog
+          key={`${patientid}:${term}`}
+          assessment={{ patientid, term }}
+          language={currentLang}
+          onCancel={() => setShowPassword(false)}
+          onUnlock={openAnalysis}
+        />
+      )}
     </div>
   );
 };
