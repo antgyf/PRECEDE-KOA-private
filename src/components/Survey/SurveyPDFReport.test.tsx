@@ -1,7 +1,8 @@
-import type { PropsWithChildren } from "react";
-import { render, screen } from "@testing-library/react";
+import type { PropsWithChildren, ReactElement } from "react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import SurveyPDFReport from "./SurveyPDFReport";
 import { createDefaultFilters } from "../../models/patient/defaultFilters";
+import api from "../../api/api";
 
 // Inspect report content without starting a browser PDF renderer or loading fonts.
 jest.mock("@react-pdf/renderer", () => ({
@@ -9,12 +10,18 @@ jest.mock("@react-pdf/renderer", () => ({
   Page: ({ children }: PropsWithChildren) => <>{children}</>,
   Text: ({ children }: PropsWithChildren) => <span>{children}</span>,
   View: ({ children }: PropsWithChildren) => <div>{children}</div>,
-  PDFViewer: ({ children }: PropsWithChildren) => <section data-testid="pdf-preview">{children}</section>,
-  PDFDownloadLink: () => null,
   StyleSheet: { create: (styles: unknown) => styles },
   Font: { register: jest.fn() },
-  pdf: jest.fn(),
 }));
+const mockPdfBlob = new Blob(["Generated PDF"], { type: "application/pdf" });
+jest.mock("../ReportPage/PDFReport/ReportPdf", () => (
+  ({ document, onEmail }: { document: ReactElement; onEmail: (blob: Blob) => void }) => (
+    <section data-testid="pdf-preview">
+      {document}
+      <button onClick={() => onEmail(mockPdfBlob)}>Email My Report</button>
+    </section>
+  )
+));
 jest.mock("../../api/api", () => ({ __esModule: true, default: { post: jest.fn() } }));
 jest.mock("../../hooks/AlertContext", () => ({ useAlert: () => ({ showAlert: jest.fn() }) }));
 jest.mock("../ReportPage/PDFReport/Table/Table", () => () => null);
@@ -53,4 +60,25 @@ it("omits demographic descriptions when those filters are disabled", () => {
   expect(content).toContain("BMI");
   expect(content).not.toContain("Gender");
   expect(content).not.toContain("Ethnicity");
+});
+
+it("emails the generated PDF supplied by the preview", () => {
+  jest.mocked(api.post).mockResolvedValue({ status: 200 });
+  render(<SurveyPDFReport
+    currentLang="en"
+    patient={{ ...patient, email: "patient@example.test" }}
+    filters={createDefaultFilters()}
+    barChartData={[]}
+  />);
+
+  fireEvent.click(screen.getByRole("button", { name: "Email My Report" }));
+
+  const [route, body] = jest.mocked(api.post).mock.calls[0] as [string, FormData];
+  expect(route).toBe("/patients/send-report");
+  expect(body.get("email")).toBe("patient@example.test");
+  expect(body.get("file")).toMatchObject({
+    name: "Test Patient Summary Report.pdf",
+    size: mockPdfBlob.size,
+    type: mockPdfBlob.type,
+  });
 });
