@@ -17,7 +17,7 @@ import SignUpForm from "./components/auth/SignUpPage";
 import HomePage from "./components/HomePage/HomePage";
 import FormPage from "./components/FormPage/FormPage";
 import PrioritiesPage from "./components/FormPage/PrioritiesPage";
-import AnalysisPage from "./components/AnalysisPage/AnalysisPage";
+import ProtectedAnalysisPage from "./components/AnalysisPage/ProtectedAnalysisPage";
 import PreTkaSurveyPage from "./components/Survey/SurveyInputPage";
 import SurveyQuestionsPage from "./components/Survey/SurveyQuestions";
 import SurveyPrioritiesPage from "./components/Survey/SurveyPrioritiesPage";
@@ -37,7 +37,7 @@ function App() {
               <Route path="/home" element={<HomePage />} />
               <Route path="/form" element={<FormPage />} />
               <Route path="/priorities" element={<PrioritiesPage />} />
-              <Route path="/analysis" element={<AnalysisPage />} />
+              <Route path="/analysis" element={<ProtectedAnalysisPage />} />
               <Route path="/surveyintro" element={<SurveyIntroPage />} />
               <Route path="/survey" element={<PreTkaSurveyPage />} />
               <Route path="/surveyquestions" element={<SurveyQuestionsPage />} />

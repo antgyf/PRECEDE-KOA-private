@@ -93,6 +93,7 @@ const AfterSurgery: React.FC<AfterSurgeryProps> = ({ activeTab, currentLang }) =
             options: options,
             filters: filters,
             patient: patient,
+            assessmentTerm: form?.term,
             term: selectedTerm,
             initial: form?.responses.find(
               (r) => r.questionid === question.id

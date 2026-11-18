@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import pool from "./database.mts";
 import multer from "multer";
 import nodemailer from "nodemailer";
+import { requireAnalysisAccess } from "./analysisAccess.mts";
 
 const router = Router();
 
@@ -622,7 +623,7 @@ const formatConditions = (
 };
 
 
-router.post("/before", async (req: Request, res: Response) => {
+router.post("/before", requireAnalysisAccess, async (req: Request, res: Response) => {
   const { questionid, options, patient, filters } = req.body;
 
   //console.log ("Received /before request with:", { questionid, options, patient, filters });
@@ -711,7 +712,11 @@ router.post("/before", async (req: Request, res: Response) => {
   }
 });
 
-router.post("/after", async (req: Request, res: Response) => {
+// The survey supplies demographics and receives aggregate reference-cohort data.
+router.post("/after", requireAnalysisAccess, getAfterSurgery);
+router.post("/survey/after", getAfterSurgery);
+
+async function getAfterSurgery(req: Request, res: Response) {
   const {
     questionid,   // this maps to question.code
     options,        // possible answer values
@@ -851,7 +856,7 @@ router.post("/after", async (req: Request, res: Response) => {
     });
     return;
   }
-});
+}
 
 
 router.get("/priorities/:patientid/:term", async (req: Request, res: Response) => {

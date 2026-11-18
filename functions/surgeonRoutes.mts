@@ -3,6 +3,8 @@ import bcrypt from "bcrypt";
 import pool from "./database.mts";
 import cors from "cors";
 import jwt from "jsonwebtoken";
+import { randomUUID } from "node:crypto";
+import { clearAnalysisAccess } from "./analysisAccess.mts";
 
 const router = Router();
 
@@ -122,7 +124,7 @@ router.post("/login", async (req: Request, res: Response): Promise<void> => {
     const token = jwt.sign(
       { id: surgeon.surgeonid, username: surgeon.username },
       JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "1h", jwtid: randomUUID() }
     );
 
     // Set HTTP-only cookie
@@ -164,6 +166,7 @@ router.get("/me", async (req: Request, res: Response): Promise<void> => {
 });
 
 router.post("/logout", (req, res) => {
+  clearAnalysisAccess(res);
   res.clearCookie("token", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",

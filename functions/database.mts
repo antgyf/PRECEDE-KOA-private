@@ -22,7 +22,7 @@ const pool = new Pool({
   host: process.env.PGHOST,
   database: process.env.PGDATABASE,
   password: process.env.PGPASSWORD,
-  port: 5432,
+  port: Number(process.env.PGPORT || 5432),
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 pool.on("connect", () => console.log("Successfully connected to database!"));

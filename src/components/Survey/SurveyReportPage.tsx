@@ -197,7 +197,7 @@ const SurveyReportPage: React.FC<SurveyReportPageProps> = ({
         );
 
         const response = await api.post(
-          "/patients/after",
+          "/patients/survey/after",
           {
             questionid: q.id,
             options,

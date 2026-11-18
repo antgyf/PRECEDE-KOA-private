@@ -1,12 +1,10 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-interface ForwardButtonProps {
+type ForwardButtonProps = {
   target: string;
-  to: string;
-  onClick?: () => void;
   isDisabled?: boolean;
-}
+} & ({ to: string; onClick?: never } | { to?: never; onClick: () => void });
 
 const ForwardButton: React.FC<ForwardButtonProps> = ({
   target,
@@ -23,7 +21,7 @@ const ForwardButton: React.FC<ForwardButtonProps> = ({
     }
 
     if (onClick) onClick();
-    navigate(to);
+    else navigate(to);
   };
 
   return (

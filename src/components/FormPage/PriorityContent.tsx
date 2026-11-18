@@ -1,20 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAlert } from "../../hooks/AlertContext";
 import { Questions, QuestionType } from "../../models/patient/patientDetails";
 import api from "../../api/api";
-import { useForm,  } from "../../hooks/FormContext";
+import { useForm } from "../../hooks/FormContext";
 import GreenButton from "../UI/Button/GreenButton";
 
 interface PriorityContentProps {
   term: number;
   language: string;
-  onSubmit?: () => void;
+  onContinue: () => void;
 }
 
-const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, language, onSubmit }) => {
+const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, language, onContinue }) => {
   const { showAlert } = useAlert();
-  const navigate = useNavigate();
   const { patient, form, setPriorities } = useForm();
   const [availableQuestions, setAvailableQuestions] = useState<{ question : QuestionType, answervalue: number }[]>([]);
   const [selectedPriorities, setSelectedPriorities] = useState<number[]>([]);
@@ -40,19 +38,18 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, language, onS
           params: { patientid: patient.patientid, term },
         });
 
-        const filteredResponses = response.data
-          .filter((r: { code: string; answervalue: number }) => r.answervalue !== 0)
-
-        const questionsWithAnswers = filteredResponses.map((r : { code: string; answervalue: number }) => {
-                const question = Questions.find((q) => q.code === r.code);
-                return question ? { question, answervalue: r.answervalue } : null;
+        const responses: { code: string; answervalue: number }[] = response.data;
+        const questionsWithAnswers = responses.flatMap(({ code, answervalue }) => {
+          if (answervalue === 0) return [];
+          const question = Questions.find((q) => q.code === code);
+          return question ? [{ question, answervalue }] : [];
         });
         
         setAvailableQuestions(questionsWithAnswers);
         const calculatedMinPriorities = Math.min(5, questionsWithAnswers.length);
         setMaxPriorities(calculatedMinPriorities);
 
-        if (filteredResponses.length < 5) {
+        if (questionsWithAnswers.length < 5) {
           showAlert(language === "en" ? `Only ${calculatedMinPriorities} problem areas available for prioritization.` : 
             language === "zh" ? `只有${calculatedMinPriorities}个问题方面可供优先排序。` : "", "info");
         }
@@ -71,18 +68,11 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, language, onS
         }
 
         // fallback to context
-        if (form?.priorities && form.term === term) {
+        if (form?.priorities && form.patientid === patient.patientid && form.term === term) {
           setSelectedPriorities(form.priorities);
           setOriginalPriorities(form.priorities);
-          setPriorities(form.priorities);
-
-          if (form.priorities.length > 0) {
-            setIsDisabled(true);
-            setIsEditing(false);
-          } else {
-            setIsDisabled(false); // ✅ allow selection
-          }
-
+          setIsDisabled(true);
+          setIsEditing(false);
           return;
         }
 
@@ -158,9 +148,8 @@ const PrioritiesContent: React.FC<PriorityContentProps> = ({ term, language, onS
       setOriginalPriorities(selectedPriorities); // ⭐ update snapshot
       setIsDisabled(true);
       setIsEditing(false);
-      onSubmit?.();
       if (!wasEditing) {
-        navigate(`/analysis?term=${term}&lang=${language}`); // navigate on first submit only
+        onContinue();
       }
     } catch (err) {
       console.error("Error submitting priorities:", err);
